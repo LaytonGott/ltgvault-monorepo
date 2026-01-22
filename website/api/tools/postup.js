@@ -239,7 +239,7 @@ function buildSystemPrompt(tone, inputType, niche) {
   return prompt;
 }
 
-// Build the user prompt for generation - EXACT COPY FROM WORKING VERSION
+// Build the user prompt for generation
 function buildGenerationPrompt(userInput) {
   return `Transform the following into a LinkedIn post. Return a JSON object with this exact structure:
 {
@@ -257,47 +257,71 @@ function buildGenerationPrompt(userInput) {
   "confidenceScore": 75
 }
 
-CRITICAL RULES (FOLLOW STRICTLY):
+=== ABSOLUTE REQUIREMENTS ===
 
-NEVER USE THESE PHRASES - THEY WILL CAUSE REJECTION:
-- "I used to think..." / "I used to believe..."
-- "I realized..." / "I learned..."
-- "game changer" / "game-changer"
-- "A few years ago..." / "When I started..."
+BANNED OPENERS - IF YOUR POST STARTS WITH ANY OF THESE, DELETE IT AND START OVER:
+- "I used to think..." / "I used to believe..." / "I used to..."
+- "I realized..." / "I learned..." / "I discovered..."
+- "A few years ago..." / "When I started..." / "When I first..."
 
-HOOK REQUIREMENTS:
-- First line must ATTACK: "X is hurting you" not "X is bad"
-- NEVER start with "I used to..." or "I realized..."
-- Must make reader feel called out
+HOOK MUST BE AN ATTACK:
+- First line attacks the reader or a common belief
+- Frame as "X is hurting you" not "X is bad"
+- Make them feel called out, not informed
 
 OTHER RULES:
 - Under 150 words total
-- ONE quotable line per post
-- State opinions as facts
-- No hedge words (I think, might, maybe)
-
-HOOK ALTERNATIVES MUST BE ATTACKS:
-- "question": Accusatory question that calls the reader out
-- "statistic": Specific number that makes them feel behind or wrong
-- "story": Start mid-conflict, stakes are clear immediately
-- "bold_statement": Claim that would start an argument at a dinner party
-
-IMPROVEMENT TIPS SHOULD:
-- Point out any remaining generic language
-- Suggest specific details that could be added
-- Identify any repetition to cut
+- NO em dashes (—). Use periods or commas.
+- State opinions as facts. No hedging.
+- End with a punch, not reflection.
 
 INPUT TO TRANSFORM:
 ${userInput}
 
-=== FINAL SELF-CHECK (DO THIS BEFORE RETURNING) ===
-Before returning your response, check each variation:
-1. Does the hook start with "I used to" or "I realized"? → DELETE IT and rewrite with an attack hook
-2. Are there any em dashes (—)? → Replace with periods or commas
-3. Is it over 150 words? → Cut it down
-4. Does it end soft ("still learning", "work in progress", "figuring it out")? → Rewrite ending with a punch
+=== MANDATORY PRE-OUTPUT CHECK ===
+Before returning, verify EACH variation passes ALL checks:
 
-If ANY check fails, rewrite that variation before returning.
+CHECK 1 - OPENER: Does it start with "I used to" / "I realized" / "I learned" / "When I" / "A few years ago"?
+→ If YES: DELETE and rewrite with an attack hook
+
+CHECK 2 - ENDING: Does it end with "worth it" / "still learning" / "work in progress" / "I think" / "figuring it out"?
+→ If YES: DELETE last line and end with a punchy quotable statement
+
+CHECK 3 - EM DASHES: Are there any em dashes (—)?
+→ If YES: Replace with periods or commas
+
+If ANY check fails, FIX IT before returning.
+
+=== EXAMPLES OF BAD VS GOOD OUTPUT ===
+
+BAD OUTPUT (REJECT - starts with banned opener, ends soft):
+"I used to believe that working longer hours meant I was being productive.
+
+Then I tracked my actual output for a month.
+
+Turns out I was just busy, not effective. The meetings, the emails, the 'quick calls' - none of it moved the needle.
+
+Now I focus on one thing per day. Just one.
+
+I think it's worth the effort to slow down and be intentional."
+
+GOOD OUTPUT (DO THIS - attack hook, punchy ending):
+"Being busy is the easiest way to avoid doing real work.
+
+You answer emails. You sit in meetings. You check things off.
+
+And at the end of the day, nothing important moved.
+
+I tracked my output for a month. 80% of my 'work' was theater.
+
+Now I do one thing per day. Just one.
+
+Busy is the new lazy."
+
+Notice the difference:
+- BAD starts with "I used to believe" → GOOD starts with an attack
+- BAD ends with "I think it's worth the effort" → GOOD ends with quotable punch
+- BAD is reflective → GOOD is declarative
 
 Return ONLY the JSON object, no other text.`;
 }
@@ -414,6 +438,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-3-5-haiku-20241022',
         max_tokens: 2500,
+        temperature: 0.3,
         system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }

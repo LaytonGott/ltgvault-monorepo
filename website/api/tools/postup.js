@@ -542,14 +542,28 @@ module.exports = async function handler(req, res) {
     // Process the result
     if (action) {
       // Quick action - just clean the text
+      console.log('=== QUICK ACTION BEFORE ===');
+      console.log(result);
       result = cleanContent(result);
+      console.log('=== QUICK ACTION AFTER ===');
+      console.log(result);
     } else if (result && result.variations) {
       // Full generation - clean each variation and flag banned openers
       let hasBannedContent = false;
 
-      result.variations = result.variations.map(v => {
+      result.variations = result.variations.map((v, index) => {
+        console.log(`=== VARIATION ${index} BEFORE ===`);
+        console.log('Content:', v.content);
+        console.log('Has em dash (—):', v.content.includes('—'));
+        console.log('Has en dash (–):', v.content.includes('–'));
+
         const cleanedContent = cleanContent(v.content);
         const cleanedHook = cleanContent(v.hookLine);
+
+        console.log(`=== VARIATION ${index} AFTER ===`);
+        console.log('Content:', cleanedContent);
+        console.log('Has em dash (—):', cleanedContent.includes('—'));
+        console.log('Has en dash (–):', cleanedContent.includes('–'));
 
         if (hasBannedOpener(cleanedContent)) {
           hasBannedContent = true;

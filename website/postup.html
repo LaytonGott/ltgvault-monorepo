@@ -1958,6 +1958,13 @@
                 var inputType = document.getElementById('inputTypeSelect').value;
                 var niche = document.getElementById('nicheSelect').value;
 
+                console.log('=== POSTUP DEBUG ===');
+                console.log('MODE: LTG Vault API (Claude)');
+                console.log('Using API Key:', ltgvKey ? ltgvKey.substring(0, 10) + '...' : 'none');
+                console.log('Tone:', tone);
+                console.log('Input Type:', inputType);
+                console.log('Niche:', niche);
+
                 // Use LTG Vault API
                 fetch('/api/tools/postup', {
                     method: 'POST',
@@ -1984,12 +1991,31 @@
                     });
                 })
                 .then(function(data) {
+                    // LOG DEBUG INFO FROM API
+                    console.log('=== API RESPONSE DEBUG ===');
+                    console.log('Success:', data.success);
+                    if (data._debug) {
+                        console.log('API Version:', data._debug.version);
+                        console.log('Model:', data._debug.model);
+                        console.log('Provider:', data._debug.apiProvider);
+                        console.log('System Prompt Length:', data._debug.systemPromptLength);
+                        console.log('System Prompt Start:', data._debug.systemPromptStart);
+                    } else {
+                        console.log('WARNING: No _debug info in response');
+                    }
+                    console.log('=== END API DEBUG ===');
+
                     // Handle new JSON response with variations
                     var result = data.result;
 
                     // FRONTEND FILTER: Remove em dashes as backup
                     function stripEmDashes(text) {
                         if (!text) return text;
+                        var emCount = (text.match(/—/g) || []).length;
+                        var enCount = (text.match(/–/g) || []).length;
+                        if (emCount > 0 || enCount > 0) {
+                            console.log('FRONTEND EM DASH FILTER: Found', emCount, 'em dashes and', enCount, 'en dashes');
+                        }
                         return text
                             .replace(/—/g, ', ')
                             .replace(/–/g, ', ')
@@ -1999,6 +2025,7 @@
 
                     // Clean all variations
                     if (result && result.variations) {
+                        console.log('FILTERING VARIATIONS:', result.variations.length);
                         result.variations = result.variations.map(function(v) {
                             return {
                                 hookLine: stripEmDashes(v.hookLine),
@@ -2046,6 +2073,10 @@
                 });
             } else {
                 // Use OpenAI BYOK mode
+                console.log('=== POSTUP DEBUG ===');
+                console.log('MODE: OpenAI BYOK (DIFFERENT PROMPT!)');
+                console.log('WARNING: This mode uses a simpler prompt without HARD RULES');
+                console.log('Using OpenAI Key:', openaiKey ? openaiKey.substring(0, 10) + '...' : 'none');
                 fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {

@@ -508,27 +508,38 @@ module.exports = async function handler(req, res) {
     const bannedStarts = ['I used to', 'I realized', 'I learned', 'I thought', 'I discovered', 'A few years ago', 'When I started', 'When I first'];
 
     function cleanContent(text) {
+      console.log('!!! EM DASH FILTER RUNNING !!!');
+      console.log('!!! INPUT TEXT:', text ? text.substring(0, 100) : 'null');
+
       if (!text) return text;
       let cleaned = text;
 
-      // Remove ALL types of dashes (em dash, en dash, horizontal bar, etc)
-      // Pattern: space-dash-space OR dash surrounded by content
-      cleaned = cleaned.replace(/ — /g, ', ');  // em dash with spaces
-      cleaned = cleaned.replace(/ – /g, ', ');  // en dash with spaces
-      cleaned = cleaned.replace(/—/g, ', ');    // em dash no spaces
-      cleaned = cleaned.replace(/–/g, ', ');    // en dash no spaces
-      cleaned = cleaned.replace(/\u2014/g, ', '); // Unicode em dash
-      cleaned = cleaned.replace(/\u2013/g, ', '); // Unicode en dash
-      cleaned = cleaned.replace(/\u2012/g, ', '); // figure dash
-      cleaned = cleaned.replace(/\u2015/g, ', '); // horizontal bar
+      // Count before
+      const emDashBefore = (cleaned.match(/—/g) || []).length;
+      const enDashBefore = (cleaned.match(/–/g) || []).length;
+      console.log('!!! BEFORE - Em dashes:', emDashBefore, 'En dashes:', enDashBefore);
 
-      // Clean up spacing issues
-      cleaned = cleaned.replace(/  +/g, ' ');   // multiple spaces to single
-      cleaned = cleaned.replace(/ ,/g, ',');    // space before comma
-      cleaned = cleaned.replace(/,,+/g, ',');   // multiple commas
-      cleaned = cleaned.replace(/, ,/g, ',');   // comma space comma
+      // Remove ALL types of dashes
+      cleaned = cleaned.replace(/ — /g, ', ');
+      cleaned = cleaned.replace(/ – /g, ', ');
+      cleaned = cleaned.replace(/—/g, ', ');
+      cleaned = cleaned.replace(/–/g, ', ');
+      cleaned = cleaned.replace(/\u2014/g, ', ');
+      cleaned = cleaned.replace(/\u2013/g, ', ');
+      cleaned = cleaned.replace(/\u2012/g, ', ');
+      cleaned = cleaned.replace(/\u2015/g, ', ');
 
-      console.log('cleanContent ran, em dashes remaining:', (cleaned.match(/[—–\u2014\u2013]/g) || []).length);
+      // Clean up spacing
+      cleaned = cleaned.replace(/  +/g, ' ');
+      cleaned = cleaned.replace(/ ,/g, ',');
+      cleaned = cleaned.replace(/,,+/g, ',');
+      cleaned = cleaned.replace(/, ,/g, ',');
+
+      // Count after
+      const emDashAfter = (cleaned.match(/—/g) || []).length;
+      const enDashAfter = (cleaned.match(/–/g) || []).length;
+      console.log('!!! AFTER - Em dashes:', emDashAfter, 'En dashes:', enDashAfter);
+      console.log('!!! OUTPUT TEXT:', cleaned ? cleaned.substring(0, 100) : 'null');
 
       return cleaned;
     }

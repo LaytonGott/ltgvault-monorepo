@@ -449,6 +449,30 @@ module.exports = async function handler(req, res) {
     console.log('User Prompt First 500 chars:', userPrompt.substring(0, 500));
     console.log('=== END DEBUG ===');
 
+    // Build the request payload
+    const requestPayload = {
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 2500,
+      temperature: 0.3,
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: userPrompt }
+      ]
+    };
+
+    // LOG EVERYTHING BEING SENT
+    console.log('========================================');
+    console.log('!!! API REQUEST PAYLOAD !!!');
+    console.log('========================================');
+    console.log('MODEL:', requestPayload.model);
+    console.log('TEMPERATURE:', requestPayload.temperature);
+    console.log('MAX_TOKENS:', requestPayload.max_tokens);
+    console.log('SYSTEM PROMPT LENGTH:', requestPayload.system.length);
+    console.log('SYSTEM PROMPT FIRST 1000 CHARS:', requestPayload.system.substring(0, 1000));
+    console.log('USER PROMPT LENGTH:', requestPayload.messages[0].content.length);
+    console.log('USER PROMPT FIRST 500 CHARS:', requestPayload.messages[0].content.substring(0, 500));
+    console.log('========================================');
+
     // Anthropic Claude API
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -457,15 +481,7 @@ module.exports = async function handler(req, res) {
         'x-api-key': anthropicKey,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
-        max_tokens: 2500,
-        temperature: 0.3,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ]
-      })
+      body: JSON.stringify(requestPayload)
     });
 
     if (!response.ok) {

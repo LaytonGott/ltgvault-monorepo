@@ -498,6 +498,66 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to process response. Please try again.' });
     }
 
+    // ========================================
+    // POST-PROCESSING: Enforce rules in code
+    // ========================================
+
+    const bannedStarts = ['I used to', 'I realized', 'I learned', 'I thought', 'I discovered', 'A few years ago', 'When I started', 'When I first'];
+
+    function cleanContent(text) {
+      if (!text) return text;
+      // Remove em dashes, replace with comma or hyphen
+      let cleaned = text.replace(/—/g, ', ');
+      cleaned = cleaned.replace(/–/g, ', '); // en-dash too
+      cleaned = cleaned.replace(/ , /g, ', '); // fix double spaces
+      cleaned = cleaned.replace(/,,/g, ','); // fix double commas
+      return cleaned;
+    }
+
+    function hasBannedOpener(text) {
+      if (!text) return false;
+      const lower = text.toLowerCase().trim();
+      return bannedStarts.some(phrase => lower.startsWith(phrase.toLowerCase()));
+    }
+
+    // Process the result
+    if (action) {
+      // Quick action - just clean the text
+      result = cleanContent(result);
+    } else if (result && result.variations) {
+      // Full generation - clean each variation and flag banned openers
+      let hasBannedContent = false;
+
+      result.variations = result.variations.map(v => {
+        const cleanedContent = cleanContent(v.content);
+        const cleanedHook = cleanContent(v.hookLine);
+
+        if (hasBannedOpener(cleanedContent)) {
+          hasBannedContent = true;
+          console.log('WARNING: Banned opener detected:', cleanedContent.substring(0, 50));
+        }
+
+        return {
+          ...v,
+          content: cleanedContent,
+          hookLine: cleanedHook
+        };
+      });
+
+      // Clean hook alternatives too
+      if (result.hookAlternatives) {
+        result.hookAlternatives = result.hookAlternatives.map(h => ({
+          ...h,
+          text: cleanContent(h.text)
+        }));
+      }
+
+      // Add warning if banned content detected
+      if (hasBannedContent) {
+        result._warning = 'Output contained banned opener phrases. Consider regenerating.';
+      }
+    }
+
     // Increment usage after successful generation
     await incrementUsage(user.id, 'postup');
 

@@ -1,0 +1,16 @@
+{
+  "name": "ltgvault-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LTG Vault - AI-powered tools for content creation",
+  "workspaces": [
+    "website",
+    "postup",
+    "chaptergen",
+    "threadgen"
+  ],
+  "scripts": {
+    "dev": "cd website && vercel dev",
+    "build": "cd website && vercel build"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "@ltgvault/threadgen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ThreadGen - Twitter thread generator"
+}

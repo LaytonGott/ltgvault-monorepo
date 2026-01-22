@@ -501,16 +501,35 @@ module.exports = async function handler(req, res) {
     // ========================================
     // POST-PROCESSING: Enforce rules in code
     // ========================================
+    console.log('=== POST-PROCESSING START ===');
+    console.log('Result type:', typeof result);
+    console.log('Has variations:', result && result.variations ? result.variations.length : 'no');
 
     const bannedStarts = ['I used to', 'I realized', 'I learned', 'I thought', 'I discovered', 'A few years ago', 'When I started', 'When I first'];
 
     function cleanContent(text) {
       if (!text) return text;
-      // Remove em dashes, replace with comma or hyphen
-      let cleaned = text.replace(/—/g, ', ');
-      cleaned = cleaned.replace(/–/g, ', '); // en-dash too
-      cleaned = cleaned.replace(/ , /g, ', '); // fix double spaces
-      cleaned = cleaned.replace(/,,/g, ','); // fix double commas
+      let cleaned = text;
+
+      // Remove ALL types of dashes (em dash, en dash, horizontal bar, etc)
+      // Pattern: space-dash-space OR dash surrounded by content
+      cleaned = cleaned.replace(/ — /g, ', ');  // em dash with spaces
+      cleaned = cleaned.replace(/ – /g, ', ');  // en dash with spaces
+      cleaned = cleaned.replace(/—/g, ', ');    // em dash no spaces
+      cleaned = cleaned.replace(/–/g, ', ');    // en dash no spaces
+      cleaned = cleaned.replace(/\u2014/g, ', '); // Unicode em dash
+      cleaned = cleaned.replace(/\u2013/g, ', '); // Unicode en dash
+      cleaned = cleaned.replace(/\u2012/g, ', '); // figure dash
+      cleaned = cleaned.replace(/\u2015/g, ', '); // horizontal bar
+
+      // Clean up spacing issues
+      cleaned = cleaned.replace(/  +/g, ' ');   // multiple spaces to single
+      cleaned = cleaned.replace(/ ,/g, ',');    // space before comma
+      cleaned = cleaned.replace(/,,+/g, ',');   // multiple commas
+      cleaned = cleaned.replace(/, ,/g, ',');   // comma space comma
+
+      console.log('cleanContent ran, em dashes remaining:', (cleaned.match(/[—–\u2014\u2013]/g) || []).length);
+
       return cleaned;
     }
 

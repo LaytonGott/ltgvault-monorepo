@@ -1986,6 +1986,27 @@
                 .then(function(data) {
                     // Handle new JSON response with variations
                     var result = data.result;
+
+                    // FRONTEND FILTER: Remove em dashes as backup
+                    function stripEmDashes(text) {
+                        if (!text) return text;
+                        return text
+                            .replace(/—/g, ', ')
+                            .replace(/–/g, ', ')
+                            .replace(/  +/g, ' ')
+                            .replace(/ ,/g, ',');
+                    }
+
+                    // Clean all variations
+                    if (result && result.variations) {
+                        result.variations = result.variations.map(function(v) {
+                            return {
+                                hookLine: stripEmDashes(v.hookLine),
+                                content: stripEmDashes(v.content)
+                            };
+                        });
+                    }
+
                     if (result && result.variations && result.variations.length > 0) {
                         // Store full result for later use
                         window.lastPostUpResult = result;

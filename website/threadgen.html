@@ -2207,7 +2207,13 @@ The AI will find the most interesting hook and transform your content into an en
                 localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
                 return FREE_TRIAL_LIMIT;
             }
-            return parseInt(uses, 10);
+            var parsedUses = parseInt(uses, 10);
+            // Cap at limit (in case limit was reduced)
+            if (parsedUses > FREE_TRIAL_LIMIT) {
+                localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
+                return FREE_TRIAL_LIMIT;
+            }
+            return parsedUses;
         }
 
         function decrementFreeTrial() {
@@ -2701,7 +2707,7 @@ The AI will find the most interesting hook and transform your content into an en
 
             if (!response.ok) {
                 if (data.error === 'LIMIT_EXCEEDED') {
-                    throw new Error(data.message + ' Upgrade at /pricing.html');
+                    throw new Error(data.message + ' <a href="/pricing.html">pricing</a>');
                 }
                 throw new Error(data.error || 'API request failed.');
             }

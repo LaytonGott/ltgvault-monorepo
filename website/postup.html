@@ -1956,7 +1956,13 @@
                 localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
                 return FREE_TRIAL_LIMIT;
             }
-            return parseInt(uses, 10);
+            var parsedUses = parseInt(uses, 10);
+            // Cap at limit (in case limit was reduced)
+            if (parsedUses > FREE_TRIAL_LIMIT) {
+                localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
+                return FREE_TRIAL_LIMIT;
+            }
+            return parsedUses;
         }
 
         // Decrement free trial uses
@@ -2196,7 +2202,7 @@
                     return response.json().then(function(data) {
                         if (!response.ok) {
                             if (data.error === 'LIMIT_EXCEEDED') {
-                                throw new Error(data.message + ' <a href="' + data.upgradeUrl + '">Upgrade your plan</a>');
+                                throw new Error(data.message + ' <a href="/pricing.html">pricing</a>');
                             }
                             throw new Error(data.error || 'API request failed.');
                         }

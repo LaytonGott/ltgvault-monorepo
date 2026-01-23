@@ -1505,7 +1505,7 @@ Example format:
 
     <script>
         // ============ FREE TRIAL SYSTEM ============
-        var FREE_TRIAL_LIMIT = 3;
+        var FREE_TRIAL_LIMIT = 1;
         var FREE_TRIAL_KEY = 'chaptergen_free_uses';
 
         function getFreeTrialUses() {
@@ -1514,7 +1514,13 @@ Example format:
                 localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
                 return FREE_TRIAL_LIMIT;
             }
-            return parseInt(uses, 10);
+            var parsedUses = parseInt(uses, 10);
+            // Cap at limit (in case limit was reduced)
+            if (parsedUses > FREE_TRIAL_LIMIT) {
+                localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
+                return FREE_TRIAL_LIMIT;
+            }
+            return parsedUses;
         }
 
         function decrementFreeTrial() {
@@ -1769,7 +1775,7 @@ Example format:
 
                 if (!response.ok) {
                     if (data.error === 'LIMIT_EXCEEDED') {
-                        throw new Error(data.message + ' Upgrade at /pricing.html');
+                        throw new Error(data.message + ' <a href="/pricing.html">pricing</a>');
                     }
                     throw new Error(data.error || 'API request failed.');
                 }

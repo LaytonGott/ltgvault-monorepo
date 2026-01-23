@@ -166,6 +166,15 @@
             color: var(--gold);
         }
 
+        .status a {
+            color: var(--gold);
+            text-decoration: underline;
+        }
+
+        .status a:hover {
+            color: var(--gold-light);
+        }
+
         /* Input Groups */
         .input-group {
             margin-bottom: 16px;
@@ -1525,8 +1534,14 @@ Example format:
 
         function decrementFreeTrial() {
             var uses = getFreeTrialUses();
+            console.log('=== DECREMENT FREE TRIAL ===');
+            console.log('Before decrement:', uses);
             if (uses > 0) {
                 localStorage.setItem(FREE_TRIAL_KEY, uses - 1);
+                console.log('After decrement:', uses - 1);
+                console.log('localStorage now:', localStorage.getItem(FREE_TRIAL_KEY));
+            } else {
+                console.log('No uses left to decrement');
             }
             return uses - 1;
         }
@@ -1730,6 +1745,11 @@ Example format:
             var freeUses = getFreeTrialUses();
             var usingFreeTrial = !ltgvKey && freeUses > 0;
 
+            console.log('=== GENERATE CHAPTERS START ===');
+            console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
+            console.log('freeUses:', freeUses);
+            console.log('usingFreeTrial:', usingFreeTrial);
+
             if (!ltgvKey && freeUses <= 0) {
                 showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
@@ -1781,11 +1801,16 @@ Example format:
                 }
 
                 chapters = data.result;
+                console.log('=== GENERATION SUCCESS ===');
+                console.log('usingFreeTrial:', usingFreeTrial);
 
                 // Handle free trial decrement
                 if (usingFreeTrial) {
+                    console.log('Calling decrementFreeTrial...');
                     decrementFreeTrial();
                     updateFreeTrialUI();
+                } else {
+                    console.log('Not using free trial, skipping decrement');
                 }
 
                 // Show usage info for authenticated users

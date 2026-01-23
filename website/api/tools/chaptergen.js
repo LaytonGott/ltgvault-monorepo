@@ -174,6 +174,7 @@ module.exports = async function handler(req, res) {
 
     // Call OpenAI API
     const openaiKey = process.env.OPENAI_API_KEY;
+    console.log('OPENAI_API_KEY check:', openaiKey ? `Set (${openaiKey.substring(0, 10)}...)` : 'NOT SET');
     if (!openaiKey) {
       return res.status(500).json({ error: 'OpenAI not configured' });
     }

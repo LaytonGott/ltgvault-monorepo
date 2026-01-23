@@ -1354,7 +1354,7 @@ Example format:
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                 </svg>
-                <span id="usageText"><span class="count">3</span> <span class="label">free uses left</span></span>
+                <span id="usageText"><span class="count">1</span> <span class="label">free use left</span></span>
             </div>
 
             <!-- Generate Button -->
@@ -1690,6 +1690,10 @@ Example format:
             var usageCounter = document.getElementById('usageCounter');
             var usageText = document.getElementById('usageText');
 
+            console.log('=== UPDATE FREE TRIAL UI ===');
+            console.log('isSubscribed:', isSubscribed);
+            console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
+
             // If user is subscribed, show unlimited
             if (isSubscribed) {
                 if (usageCounter) {
@@ -1703,27 +1707,34 @@ Example format:
                 return;
             }
 
-            // If user has API key but not subscribed, check their usage
+            // If user has API key but not subscribed, hide counter (they use API limits)
             if (ltgvKey) {
+                if (usageCounter) {
+                    usageCounter.style.display = 'none';
+                }
                 if (elements.freeUsesText) {
                     elements.freeUsesText.style.display = 'none';
                 }
-                // Counter will be updated by subscription check
+                elements.generateBtn.disabled = false;
                 return;
             }
 
-            // Free trial user - show remaining uses
+            // Free trial user - show remaining uses from localStorage
             var uses = getFreeTrialUses();
+            console.log('Free trial uses from localStorage:', uses);
 
             if (usageCounter && usageText) {
+                usageCounter.style.display = 'flex';
                 if (uses > 0) {
                     usageCounter.className = 'usage-counter';
                     usageText.innerHTML = '<span class="count">' + uses + '</span> <span class="label">free ' + (uses === 1 ? 'use' : 'uses') + ' left</span>';
                     elements.generateBtn.disabled = false;
+                    console.log('Updated counter to show:', uses, 'uses');
                 } else {
                     usageCounter.className = 'usage-counter exhausted';
                     usageText.innerHTML = '<span class="count">0</span> <span class="label">uses left</span> · <a href="/pricing.html">Get unlimited</a>';
                     elements.generateBtn.disabled = true;
+                    console.log('Updated counter to show: 0 uses (exhausted)');
                 }
             }
 

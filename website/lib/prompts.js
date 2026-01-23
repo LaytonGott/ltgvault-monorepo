@@ -1,10 +1,9 @@
-import { InputType, ToneOption, NicheOption, QuickActionType } from '../types'
-
 // ============================================================================
-// POSTUP PROMPTS - TypeScript version
+// POSTUP PROMPTS - SINGLE SOURCE OF TRUTH
 // ============================================================================
-// This should mirror website/lib/prompts.js (the JS version for Vercel)
-// If you update prompts, update BOTH files.
+// This file is the authoritative source for all PostUp prompts.
+// If you need to update prompts, update THIS file.
+// The TypeScript version at /postup/lib/prompts.ts should mirror this.
 // ============================================================================
 
 // Base viral LinkedIn patterns with HARD RULES at top
@@ -181,10 +180,10 @@ CHECK 3: Look at final sentence. Is it soft/reflective ("worth it", "still learn
 → YES = DELETE AND REWRITE final line as a punchy quotable
 
 DO NOT RETURN OUTPUT UNTIL ALL 3 CHECKS PASS.
-`
+`;
 
 // Tone-specific prompts
-const TONE_PROMPTS: Record<ToneOption, string> = {
+const TONE_PROMPTS = {
   professional: `
 TONE: Professional with Edge
 - Authority without arrogance, but don't hedge
@@ -223,52 +222,48 @@ TONE: Unapologetically Contrarian
 - Back up hot takes with undeniable logic or hard numbers
 - Be provocative - make people stop scrolling to argue
 - End with your most quotable, screenshot-worthy line
-`,
-}
+`
+};
 
 // Input type handling
-const INPUT_TYPE_PROMPTS: Record<InputType, string> = {
+const INPUT_TYPE_PROMPTS = {
   rough_idea: 'The user has a rough idea. Develop it into a tight, compelling narrative. Find the sharpest angle and cut everything else.',
   bullet_points: 'The user provided bullet points. Find the ONE most interesting point and build around it. Don\'t try to include everything.',
   full_draft: 'The user has a full draft. Cut 20-30%. Remove repetition. Sharpen the hook. Make the ending hit harder.',
-  article: 'The user shared long content. Extract the single most contrarian or surprising insight. One idea only.',
-}
+  article: 'The user shared long content. Extract the single most contrarian or surprising insight. One idea only.'
+};
 
 // Niche modifiers
-const NICHE_PROMPTS: Record<NonNullable<NicheOption>, string> = {
+const NICHE_PROMPTS = {
   tech_startup: 'Frame through building/scaling products. Use specific metrics (ARR, runway, team size). No startup jargon without substance.',
   saas: 'Focus on specific metrics: MRR, churn %, CAC, LTV. Real numbers beat generic "growth" language.',
   developer: 'Emphasize specific technical decisions and their outcomes. Code examples or architecture choices, not vague "best practices."',
   product: 'Center on specific user research findings, A/B test results, or prioritization tradeoffs with real stakes.',
-  founder: 'Specific founder moments: exact revenue numbers, funding amounts, team conflicts, near-death experiences.',
-}
+  founder: 'Specific founder moments: exact revenue numbers, funding amounts, team conflicts, near-death experiences.'
+};
 
 // Quick action prompts
-export const QUICK_ACTION_PROMPTS: Record<QuickActionType, string> = {
+const QUICK_ACTION_PROMPTS = {
   shorter: 'Cut 30% of this post. Remove hedge words (I think, in my experience, might). Remove any sentence that doesn\'t add new information. Keep the hook attacking and the ending quotable.',
   punchier: 'Make this post hurt more. Remove all hedge language. Turn observations into attacks ("X is bad" → "X is actively hurting you"). Add one screenshot-worthy quotable line. State opinions as facts.',
-  story_angle: 'Rewrite with a specific story that makes the reader uncomfortable. Include: exact time/place, specific numbers, conflict or failure. End with a quotable line that reframes everything. No soft lessons - hard truths only.',
-}
+  story_angle: 'Rewrite with a specific story that makes the reader uncomfortable. Include: exact time/place, specific numbers, conflict or failure. End with a quotable line that reframes everything. No soft lessons - hard truths only.'
+};
 
 // Build the complete system prompt
-export function buildSystemPrompt(
-  tone: ToneOption,
-  inputType: InputType,
-  niche: NicheOption
-): string {
-  let prompt = VIRAL_PATTERNS_BASE
-  prompt += TONE_PROMPTS[tone]
-  prompt += `\nINPUT CONTEXT:\n${INPUT_TYPE_PROMPTS[inputType]}`
+function buildSystemPrompt(tone, inputType, niche) {
+  let prompt = VIRAL_PATTERNS_BASE;
+  prompt += TONE_PROMPTS[tone] || TONE_PROMPTS.casual;
+  prompt += `\nINPUT CONTEXT:\n${INPUT_TYPE_PROMPTS[inputType] || INPUT_TYPE_PROMPTS.rough_idea}`;
 
-  if (niche) {
-    prompt += `\n\nAUDIENCE CONTEXT:\n${NICHE_PROMPTS[niche]}`
+  if (niche && NICHE_PROMPTS[niche]) {
+    prompt += `\n\nAUDIENCE CONTEXT:\n${NICHE_PROMPTS[niche]}`;
   }
 
-  return prompt
+  return prompt;
 }
 
 // Build the user prompt for generation
-export function buildGenerationPrompt(userInput: string): string {
+function buildGenerationPrompt(userInput) {
   return `Transform the following into a LinkedIn post. Return a JSON object with this exact structure:
 {
   "variations": [
@@ -320,15 +315,61 @@ CHECK 3 - EM DASHES: Are there any em dashes (—)?
 
 If ANY check fails, FIX IT before returning.
 
-Return ONLY the JSON object, no other text.`
+=== EXAMPLES OF BAD VS GOOD OUTPUT ===
+
+BAD OUTPUT (REJECT - starts with banned opener, ends soft):
+"I used to believe that working longer hours meant I was being productive.
+
+Then I tracked my actual output for a month.
+
+Turns out I was just busy, not effective. The meetings, the emails, the 'quick calls' - none of it moved the needle.
+
+Now I focus on one thing per day. Just one.
+
+I think it's worth the effort to slow down and be intentional."
+
+GOOD OUTPUT (DO THIS - attack hook, punchy ending):
+"Being busy is the easiest way to avoid doing real work.
+
+You answer emails. You sit in meetings. You check things off.
+
+And at the end of the day, nothing important moved.
+
+I tracked my output for a month. 80% of my 'work' was theater.
+
+Now I do one thing per day. Just one.
+
+Busy is the new lazy."
+
+Notice the difference:
+- BAD starts with "I used to believe" → GOOD starts with an attack
+- BAD ends with "I think it's worth the effort" → GOOD ends with quotable punch
+- BAD is reflective → GOOD is declarative
+
+Return ONLY the JSON object, no other text.`;
 }
 
 // Build refinement prompt for quick actions
-export function buildRefinementPrompt(currentPost: string, action: QuickActionType): string {
+function buildRefinementPrompt(currentPost, action) {
+  if (!action || !QUICK_ACTION_PROMPTS[action]) {
+    return null;
+  }
   return `${QUICK_ACTION_PROMPTS[action]}
 
 Current post:
 ${currentPost}
 
-Return ONLY the refined post text, nothing else.`
+Return ONLY the refined post text, nothing else.`;
 }
+
+// Export everything
+module.exports = {
+  VIRAL_PATTERNS_BASE,
+  TONE_PROMPTS,
+  INPUT_TYPE_PROMPTS,
+  NICHE_PROMPTS,
+  QUICK_ACTION_PROMPTS,
+  buildSystemPrompt,
+  buildGenerationPrompt,
+  buildRefinementPrompt
+};

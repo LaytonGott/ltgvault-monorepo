@@ -2336,6 +2336,7 @@ The AI will find the most interesting hook and transform your content into an en
             useCustomCta: false,
             finalThread: [],
             apiKeyValid: false,  // Track if stored API key is valid
+            isSubscribed: false, // Track if subscribed to THIS tool specifically
             settings: {
                 tweetNumbering: true,
                 emojiUsage: false,
@@ -2489,6 +2490,7 @@ The AI will find the most interesting hook and transform your content into an en
                 if (data.success && data.subscriptions && data.subscriptions.threadgen) {
                     console.log('User is subscribed to ThreadGen - updating buttons');
                     state.apiKeyValid = true;
+                    state.isSubscribed = true;
                     // Update usage counter to show unlimited
                     updateFreeTrialUI(true);
                     // Update all subscribe buttons to show subscribed state
@@ -2507,13 +2509,15 @@ The AI will find the most interesting hook and transform your content into an en
                         ctaText.textContent = 'You have unlimited access to ThreadGen.';
                     }
                 } else if (data.success) {
-                    // Key is valid but not subscribed
+                    // Key is valid but NOT subscribed to ThreadGen
                     console.log('User not subscribed to ThreadGen, but key is valid');
                     state.apiKeyValid = true;
+                    state.isSubscribed = false;
                     updateFreeTrialUI(false);
                 } else {
                     console.log('API key validation failed');
                     state.apiKeyValid = false;
+                    state.isSubscribed = false;
                     updateFreeTrialUI(false);
                 }
             })
@@ -2697,18 +2701,19 @@ The AI will find the most interesting hook and transform your content into an en
 
             var ltgvKey = localStorage.getItem('ltgv_api_key');
             var freeUses = getFreeTrialUses();
-            // Use free trial if: no key exists OR key is invalid, AND free uses remain
-            var usingFreeTrial = (!ltgvKey || !state.apiKeyValid) && freeUses > 0;
+            // Use free trial if: no key OR invalid key OR not subscribed to THIS tool
+            var usingFreeTrial = (!ltgvKey || !state.apiKeyValid || !state.isSubscribed) && freeUses > 0;
 
             console.log('=== PROCEED WITH GENERATION ===');
             console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
             console.log('state.apiKeyValid:', state.apiKeyValid);
+            console.log('state.isSubscribed:', state.isSubscribed);
             console.log('freeUses:', freeUses);
             console.log('usingFreeTrial:', usingFreeTrial);
             console.log('localStorage threadgen_free_uses:', localStorage.getItem('threadgen_free_uses'));
 
-            // Block if no valid key AND no free uses
-            if ((!ltgvKey || !state.apiKeyValid) && freeUses <= 0) {
+            // Block if not subscribed AND no free uses left
+            if ((!ltgvKey || !state.apiKeyValid || !state.isSubscribed) && freeUses <= 0) {
                 showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
             }
@@ -2828,17 +2833,18 @@ The AI will find the most interesting hook and transform your content into an en
 
             var ltgvKey = localStorage.getItem('ltgv_api_key');
             var freeUses = getFreeTrialUses();
-            // Use free trial if: no key exists OR key is invalid, AND free uses remain
-            var usingFreeTrial = (!ltgvKey || !state.apiKeyValid) && freeUses > 0;
+            // Use free trial if: no key OR invalid key OR not subscribed to THIS tool
+            var usingFreeTrial = (!ltgvKey || !state.apiKeyValid || !state.isSubscribed) && freeUses > 0;
 
             console.log('=== CONTINUE WITH HOOK ===');
             console.log('ltgvKey:', ltgvKey ? 'exists (' + ltgvKey.substring(0,10) + '...)' : 'null');
             console.log('state.apiKeyValid:', state.apiKeyValid);
+            console.log('state.isSubscribed:', state.isSubscribed);
             console.log('freeUses:', freeUses);
             console.log('usingFreeTrial:', usingFreeTrial);
 
-            // Block if no valid key AND no free uses
-            if ((!ltgvKey || !state.apiKeyValid) && freeUses <= 0) {
+            // Block if not subscribed AND no free uses left
+            if ((!ltgvKey || !state.apiKeyValid || !state.isSubscribed) && freeUses <= 0) {
                 showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
             }

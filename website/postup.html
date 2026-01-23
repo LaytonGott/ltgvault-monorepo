@@ -1957,6 +1957,7 @@
         var FREE_TRIAL_LIMIT = 3;
         var FREE_TRIAL_KEY = 'postup_free_uses';
         var apiKeyValid = false;  // Track if stored API key is valid
+        var isSubscribed = false; // Track if subscribed to THIS tool specifically
 
         // Get remaining free trial uses
         function getFreeTrialUses() {
@@ -2084,6 +2085,7 @@
                 if (data.success && data.subscriptions && data.subscriptions.postup) {
                     console.log('User is subscribed to PostUp - updating buttons');
                     apiKeyValid = true;
+                    isSubscribed = true;
                     // Update usage counter to show unlimited
                     updateFreeTrialUI(true);
                     // Update all subscribe buttons to show subscribed state
@@ -2102,13 +2104,15 @@
                         ctaText.textContent = 'You have unlimited access to PostUp.';
                     }
                 } else if (data.success) {
-                    // Key is valid but not subscribed
+                    // Key is valid but NOT subscribed to PostUp
                     console.log('User not subscribed to PostUp, but key is valid');
                     apiKeyValid = true;
+                    isSubscribed = false;
                     updateFreeTrialUI(false);
                 } else {
                     console.log('API key validation failed');
                     apiKeyValid = false;
+                    isSubscribed = false;
                     updateFreeTrialUI(false);
                 }
                 console.log('=== END SUBSCRIPTION CHECK ===');
@@ -2183,9 +2187,9 @@
                 return;
             }
 
-            // Check if user has access (valid API key or free trial)
-            // Block if no valid key AND no free uses
-            if ((!ltgvKey || !apiKeyValid) && freeTrialUses <= 0) {
+            // Check if user has access (subscribed or free trial)
+            // Block if not subscribed AND no free uses left
+            if ((!ltgvKey || !apiKeyValid || !isSubscribed) && freeTrialUses <= 0) {
                 showError('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>');
                 return;
             }
@@ -2199,8 +2203,8 @@
             var inputType = document.getElementById('inputTypeSelect').value;
             var niche = document.getElementById('nicheSelect').value;
 
-            // Determine mode - use free trial if no key or key is invalid
-            var isFreeTrial = !ltgvKey || !apiKeyValid;
+            // Determine mode - use free trial if no key OR invalid key OR not subscribed to THIS tool
+            var isFreeTrial = !ltgvKey || !apiKeyValid || !isSubscribed;
             var headers = {
                 'Content-Type': 'application/json'
             };

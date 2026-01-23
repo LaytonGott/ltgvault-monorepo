@@ -1568,6 +1568,7 @@ Example format:
         // State
         var generatedChapters = '';
         var apiKeyValid = false;  // Track if stored API key is valid
+        var isSubscribed = false; // Track if subscribed to THIS tool specifically
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -1638,6 +1639,7 @@ Example format:
                 if (data.success && data.subscriptions && data.subscriptions.chaptergen) {
                     console.log('User is subscribed to ChapterGen - updating buttons');
                     apiKeyValid = true;
+                    isSubscribed = true;
                     // Update usage counter to show unlimited
                     updateFreeTrialUI(true);
                     // Update all subscribe buttons to show subscribed state
@@ -1656,13 +1658,15 @@ Example format:
                         ctaText.textContent = 'You have unlimited access to ChapterGen.';
                     }
                 } else if (data.success) {
-                    // Key is valid but not subscribed
+                    // Key is valid but NOT subscribed to ChapterGen
                     console.log('User not subscribed to ChapterGen, but key is valid');
                     apiKeyValid = true;
+                    isSubscribed = false;
                     updateFreeTrialUI(false);
                 } else {
                     console.log('API key validation failed');
                     apiKeyValid = false;
+                    isSubscribed = false;
                     updateFreeTrialUI(false);
                 }
             })
@@ -1776,17 +1780,18 @@ Example format:
             // Check for API key or free trial
             var ltgvKey = localStorage.getItem('ltgv_api_key');
             var freeUses = getFreeTrialUses();
-            // Use free trial if: no key exists OR key is invalid, AND free uses remain
-            var usingFreeTrial = (!ltgvKey || !apiKeyValid) && freeUses > 0;
+            // Use free trial if: no key OR invalid key OR not subscribed to THIS tool
+            var usingFreeTrial = (!ltgvKey || !apiKeyValid || !isSubscribed) && freeUses > 0;
 
             console.log('=== GENERATE CHAPTERS START ===');
             console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
             console.log('apiKeyValid:', apiKeyValid);
+            console.log('isSubscribed:', isSubscribed);
             console.log('freeUses:', freeUses);
             console.log('usingFreeTrial:', usingFreeTrial);
 
-            // Block if no valid key AND no free uses
-            if ((!ltgvKey || !apiKeyValid) && freeUses <= 0) {
+            // Block if not subscribed AND no free uses left
+            if ((!ltgvKey || !apiKeyValid || !isSubscribed) && freeUses <= 0) {
                 showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
             }

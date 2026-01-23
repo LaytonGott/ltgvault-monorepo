@@ -16,11 +16,16 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    console.log('=== LOOKUP DEBUG ===');
+    console.log('Supabase configured:', !!supabase);
+
     if (!supabase) {
+      console.log('ERROR: Supabase client is null');
       return res.status(500).json({ error: 'Database not configured' });
     }
 
     const { email } = req.body;
+    console.log('Email from request:', email);
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
@@ -32,17 +37,37 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
+    const searchEmail = email.toLowerCase().trim();
+    console.log('Searching for email:', searchEmail);
+
     // Look up user by email
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email.toLowerCase())
+      .eq('email', searchEmail)
       .single();
 
+    console.log('Query result - user:', user ? 'FOUND' : 'NOT FOUND');
+    console.log('Query result - error:', userError ? JSON.stringify(userError) : 'none');
+
     if (userError || !user) {
+      // Try a broader search to debug
+      const { data: allUsers, error: listError } = await supabase
+        .from('users')
+        .select('email')
+        .limit(10);
+
+      console.log('DEBUG - First 10 emails in DB:', allUsers?.map(u => u.email));
+      console.log('DEBUG - List error:', listError ? JSON.stringify(listError) : 'none');
+
       return res.status(404).json({
         error: 'NOT_FOUND',
-        message: 'No account found with this email address.'
+        message: 'No account found with this email address.',
+        debug: {
+          searchedFor: searchEmail,
+          queryError: userError?.message || null,
+          dbHasUsers: allUsers?.length > 0
+        }
       });
     }
 

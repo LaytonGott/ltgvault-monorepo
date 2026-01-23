@@ -15,11 +15,11 @@ if (!stripeSecretKey) {
 
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
 
-// Price IDs for each tool ($7/month each)
+// Price IDs for each tool ($7/month each) - trim to remove any trailing newlines
 const PRICE_IDS = {
-  postup: process.env.STRIPE_POSTUP_PRICE_ID,
-  chaptergen: process.env.STRIPE_CHAPTERGEN_PRICE_ID,
-  threadgen: process.env.STRIPE_THREADGEN_PRICE_ID
+  postup: process.env.STRIPE_POSTUP_PRICE_ID?.trim(),
+  chaptergen: process.env.STRIPE_CHAPTERGEN_PRICE_ID?.trim(),
+  threadgen: process.env.STRIPE_THREADGEN_PRICE_ID?.trim()
 };
 
 // Free tier limits (lifetime, not monthly)

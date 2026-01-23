@@ -1872,7 +1872,7 @@
                 <div class="input-group">
                     <label>API Key</label>
                     <div class="input-wrapper">
-                        <input type="password" id="apiKey" placeholder="ltgv_... or sk-..." autocomplete="off">
+                        <input type="password" id="apiKey" placeholder="ltgv_..." autocomplete="off">
                         <button id="toggleKey" class="icon-btn" title="Toggle visibility">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -1883,7 +1883,7 @@
                 </div>
                 <button id="saveKey" class="btn primary">Save API Key</button>
                 <p class="hint">
-                    <a href="pricing.html">Get an LTG Vault API key</a> or use your own <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI key</a><br>
+                    <a href="/dashboard.html">Get your API key from the dashboard</a><br>
                     Your key is stored locally and never shared.
                 </p>
                 <div id="usageInfo" style="margin-top: 12px; font-size: 0.85rem; color: #888; display: none;"></div>
@@ -2121,6 +2121,56 @@ The AI will find the most interesting hook and transform your content into an en
     </script>
 
     <script>
+        // ============ FREE TRIAL SYSTEM ============
+        var FREE_TRIAL_LIMIT = 3;
+        var FREE_TRIAL_KEY = 'threadgen_free_uses';
+
+        function getFreeTrialUses() {
+            var uses = localStorage.getItem(FREE_TRIAL_KEY);
+            if (uses === null) {
+                localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
+                return FREE_TRIAL_LIMIT;
+            }
+            return parseInt(uses, 10);
+        }
+
+        function decrementFreeTrial() {
+            var uses = getFreeTrialUses();
+            if (uses > 0) {
+                localStorage.setItem(FREE_TRIAL_KEY, uses - 1);
+            }
+            return uses - 1;
+        }
+
+        function updateFreeTrialUI() {
+            var ltgvKey = localStorage.getItem('ltgv_api_key');
+            var freeUsesText = document.getElementById('freeUsesText');
+
+            // If user has valid API key, subscription check will handle UI
+            if (ltgvKey) {
+                if (freeUsesText) freeUsesText.style.display = 'none';
+                return;
+            }
+
+            // Show free trial status
+            var uses = getFreeTrialUses();
+            if (freeUsesText) {
+                if (uses > 0) {
+                    freeUsesText.textContent = uses + ' free ' + (uses === 1 ? 'use' : 'uses') + ' remaining';
+                    freeUsesText.style.display = 'inline-block';
+                } else {
+                    freeUsesText.textContent = 'Free trial ended';
+                    freeUsesText.style.display = 'inline-block';
+                }
+            }
+
+            // Disable generate button if no free uses left
+            var generateBtn = document.getElementById('generateBtn');
+            if (uses <= 0 && generateBtn) {
+                generateBtn.disabled = true;
+            }
+        }
+
         // DOM Elements
         var elements = {
             settingsBtn: document.getElementById('settingsBtn'),
@@ -2177,6 +2227,7 @@ The AI will find the most interesting hook and transform your content into an en
             loadApiKey();
             loadFormattingSettings();
             setupEventListeners();
+            updateFreeTrialUI();
         });
 
         function setupEventListeners() {
@@ -2275,24 +2326,15 @@ The AI will find the most interesting hook and transform your content into an en
             return key && key.indexOf('ltgv_') === 0;
         }
 
-        function isOpenAIKey(key) {
-            return key && key.indexOf('sk-') === 0;
-        }
-
         function loadApiKey() {
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
 
             if (ltgvKey) {
                 elements.apiKeyInput.value = ltgvKey;
                 // Check subscription status
                 checkSubscriptionStatus(ltgvKey);
-            } else if (openaiKey) {
-                elements.apiKeyInput.value = openaiKey;
-            } else {
-                elements.settingsPanel.classList.add('visible');
-                showStatus('Please add an API key to get started', 'info');
             }
+            // Free trial users don't need to add an API key
         }
 
         // Check subscription status and hide Subscribe CTA if subscribed
@@ -2346,16 +2388,12 @@ The AI will find the most interesting hook and transform your content into an en
 
             if (isLtgvKey(apiKey)) {
                 localStorage.setItem('ltgv_api_key', apiKey);
-                localStorage.removeItem('openai_api_key');
-                showStatus('LTG Vault API key saved', 'success');
+                showStatus('API key saved', 'success');
                 // Check subscription status for newly saved key
                 checkSubscriptionStatus(apiKey);
-            } else if (isOpenAIKey(apiKey)) {
-                localStorage.setItem('openai_api_key', apiKey);
-                localStorage.removeItem('ltgv_api_key');
-                showStatus('OpenAI API key saved', 'success');
+                updateFreeTrialUI();
             } else {
-                showStatus('Invalid API key format. Use ltgv_... (LTG Vault) or sk-... (OpenAI)', 'error');
+                showStatus('Invalid API key format. Use ltgv_...', 'error');
                 return;
             }
 
@@ -2367,7 +2405,7 @@ The AI will find the most interesting hook and transform your content into an en
 
         function showStatus(message, type) {
             type = type || 'info';
-            elements.status.textContent = message;
+            elements.status.innerHTML = message;
             elements.status.className = 'status visible ' + type;
         }
 
@@ -2512,11 +2550,11 @@ The AI will find the most interesting hook and transform your content into an en
             elements.tooShortWarning.classList.add('hidden');
 
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
+            var freeUses = getFreeTrialUses();
+            var usingFreeTrial = !ltgvKey && freeUses > 0;
 
-            if (!ltgvKey && !openaiKey) {
-                showStatus('Please add an API key first', 'error');
-                elements.settingsPanel.classList.add('visible');
+            if (!ltgvKey && freeUses <= 0) {
+                showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
             }
 
@@ -2525,11 +2563,7 @@ The AI will find the most interesting hook and transform your content into an en
             hideStatus();
 
             try {
-                if (ltgvKey) {
-                    state.hookOptions = await generateHookOptionsLTGV(ltgvKey, state.processedContent);
-                } else {
-                    state.hookOptions = await generateHookOptionsOpenAI(openaiKey, state.processedContent);
-                }
+                state.hookOptions = await generateHookOptionsLTGV(ltgvKey, state.processedContent, usingFreeTrial);
                 displayHookOptions(state.hookOptions);
                 setStep(2);
             } catch (error) {
@@ -2540,60 +2574,23 @@ The AI will find the most interesting hook and transform your content into an en
             }
         }
 
-        // Generate Hook Options (OpenAI)
-        async function generateHookOptionsOpenAI(apiKey, content) {
-            var emojiInstruction = state.settings.emojiUsage
-                ? '- You may use one emoji at the start if appropriate'
-                : '- NO emojis at all';
-
-            var toneInstructions = {
-                'educational': 'TONE: Educational — clear, informative, helpful. Focus on teaching or sharing knowledge.',
-                'spicy': 'TONE: Spicy/Hot Take — bold, controversial, challenges conventional wisdom. Take a strong stance. Be provocative but not offensive.',
-                'story': 'TONE: Story-driven — narrative, personal, pulls reader into a journey. Start mid-action.',
-                'opinionated': 'TONE: Opinionated — strong personal views, not afraid to disagree. Voice your perspective confidently.'
-            };
-
-            var toneInstruction = toneInstructions[state.settings.tone] || toneInstructions['educational'];
-
-            var hookPrompt = 'You generate Twitter thread hooks using ONLY the user\'s words and information.\n\n' + toneInstruction + '\n\n=== GOLDEN RULE ===\nUser\'s voice > AI smoothness. Amplify what\'s good. Don\'t sand down edges.\n\n=== WHAT TO PRESERVE ===\n\n1. SPECIFIC/CONCRETE DETAILS FIRST\nIf the input has a specific number, result, or moment ("54 people signed up. 17 showed up."), LEAD WITH THAT. Concrete details beat abstract statements. Numbers and outcomes are more scroll-stopping than concepts like "Did you know distribution isn\'t something you add later..."\n\n2. CONTRARIAN/SCROLL-STOPPING OPENINGS\nIf the input starts with something edgy ("You might unfollow me but...", "I don\'t believe in X"), THAT IS THE HOOK. Use it directly. Don\'t replace with safe questions like "How do followers turn into leads?"\n\n3. STRONGEST LINES — WORD FOR WORD\nQuotable statements like "A good content strategy is a good CONVERSION strategy." stay EXACTLY as written. These are the thread\'s backbone.\n\n4. VIVID, SPECIFIC EXAMPLES\nConcrete details like "Emojis. Hashtags. I\'m humbled to announce posts." stay exactly. Specificity > vague descriptions.\n\n5. THE ENEMIES\nCallouts to hook formulas, pods, carousels, engagement bait = POV. Keep them. Don\'t sanitize into generic advice.\n\n6. THE CONTROVERSY\nSpicy or polarizing content is intentional. Preserve it. Strong takes outperform safe marketing blog energy.\n\n=== BANNED HOOKS ===\nNEVER use these generic openings:\n- "Have you ever..." (weak, generic)\n- "Did you know..." (lecture mode)\n- "What if I told you..." (clickbait)\n- "Here\'s something most people don\'t know..." (generic)\nIf the input has a specific moment or tension ("debugging a webhook at 2am"), lead with THAT. Specific struggle > generic question.\n\n=== HOOK STYLES ===\n1. CURIOSITY: Surprising detail that creates an open loop\n2. BOLD CLAIM: Strong statement (adjust boldness to tone)\n3. STORY-DRIVEN: Start mid-action\n\n=== FORMATTING ===\n- Under 280 characters\n- Grammatically correct\n- Capital "I" only at sentence start; lowercase "i" elsewhere\n- Keep "i" in sentences: "Day 5 i built X" (human) not "Day 5 built X" (robotic)\n- Sound like a person talking, not a headline\n- NO em dashes. Use commas, periods, or ellipses\n' + emojiInstruction + '\n\n=== FINAL QUALITY GATE ===\nBefore outputting each hook, verify:\n1. Is it SPECIFIC (concrete detail, number, moment) not generic?\n2. Does it avoid banned openings ("Have you ever...", "Did you know...", etc.)?\n3. Does it have a SHARP POV or tension, not vague curiosity?\nIf NO to any, rewrite that hook.\n\n=== OUTPUT FORMAT ===\nReturn JSON array with exactly 3 objects:\n[{"type": "curiosity", "content": "..."}, {"type": "bold_claim", "content": "..."}, {"type": "story", "content": "..."}]\n\n=== CONTENT ===\n' + content;
-
-            var response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [{ role: 'system', content: hookPrompt }],
-                    temperature: 0.8,
-                    max_tokens: 800
-                })
-            });
-
-            if (!response.ok) {
-                var errorData = {};
-                try { errorData = await response.json(); } catch(e) {}
-                if (response.status === 401) throw new Error('Invalid API key. Please check your settings.');
-                if (response.status === 429) throw new Error('Rate limit exceeded. Please wait and try again.');
-                throw new Error((errorData.error && errorData.error.message) || 'Failed to generate hooks.');
+        // Generate Hook Options (LTG Vault)
+        async function generateHookOptionsLTGV(apiKey, content, usingFreeTrial) {
+            var headers = { 'Content-Type': 'application/json' };
+            if (apiKey) {
+                headers['x-api-key'] = apiKey;
+            } else {
+                headers['x-free-trial'] = 'true';
             }
 
-            var data = await response.json();
-            return parseJsonResponse(data.choices[0]?.message?.content);
-        }
-
-        // Generate Hook Options (LTG Vault)
-        async function generateHookOptionsLTGV(apiKey, content) {
-            var response = await fetch('/api/tools/threadgen/hooks', {
+            var response = await fetch('/api/tools/threadgen', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey
-                },
+                headers: headers,
                 body: JSON.stringify({
+                    action: 'hooks',
                     content: content,
-                    emojiUsage: state.settings.emojiUsage
+                    emojiUsage: state.settings.emojiUsage,
+                    tone: state.settings.tone
                 })
             });
 
@@ -2606,7 +2603,7 @@ The AI will find the most interesting hook and transform your content into an en
                 throw new Error(data.error || 'API request failed.');
             }
 
-            // Update usage info
+            // Update usage info for authenticated users
             if (data.usage) {
                 var usageInfo = document.getElementById('usageInfo');
                 var limitText = data.usage.limit === 'unlimited' ? 'unlimited' : data.usage.limit;
@@ -2675,21 +2672,25 @@ The AI will find the most interesting hook and transform your content into an en
             }
 
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
+            var freeUses = getFreeTrialUses();
+            var usingFreeTrial = !ltgvKey && freeUses > 0;
+
+            if (!ltgvKey && freeUses <= 0) {
+                showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
+                return;
+            }
 
             setStep(3);
 
             try {
-                if (ltgvKey) {
-                    var bodyData = await generateThreadBodyLTGV(ltgvKey, state.processedContent, state.selectedHook);
-                    state.bodyTweets = bodyData.body;
-                    state.ctaOptions = bodyData.ctas;
-                } else {
-                    state.bodyTweets = await generateThreadBodyOpenAI(openaiKey, state.processedContent, state.selectedHook);
-                    state.bodyTweets = state.bodyTweets.map(validateTweetLength);
+                var bodyData = await generateThreadBodyLTGV(ltgvKey, state.processedContent, state.selectedHook, usingFreeTrial);
+                state.bodyTweets = bodyData.body;
+                state.ctaOptions = bodyData.ctas;
 
-                    var threadContext = [state.selectedHook].concat(state.bodyTweets.slice(0, 2)).join('\n');
-                    state.ctaOptions = await generateCtaOptionsOpenAI(openaiKey, state.processedContent.slice(0, 200), threadContext);
+                // Decrement free trial on successful body generation
+                if (usingFreeTrial) {
+                    decrementFreeTrial();
+                    updateFreeTrialUI();
                 }
 
                 displayCtaOptions(state.ctaOptions);
@@ -2700,93 +2701,30 @@ The AI will find the most interesting hook and transform your content into an en
             }
         }
 
-        // Generate Thread Body (OpenAI)
-        async function generateThreadBodyOpenAI(apiKey, content, selectedHook) {
-            var emojiInstruction = state.settings.emojiUsage ? '- Emojis allowed sparingly' : '- NO emojis at all';
-
-            var toneInstructions = {
-                'educational': 'TONE: Educational — clear, informative, helpful. Teach or share knowledge.',
-                'spicy': 'TONE: Spicy/Hot Take — bold, provocative, challenges norms. Don\'t play it safe.',
-                'story': 'TONE: Story-driven — narrative flow, personal journey, emotional beats.',
-                'opinionated': 'TONE: Opinionated — strong views, confident stance, not afraid to disagree.'
-            };
-
-            var toneInstruction = toneInstructions[state.settings.tone] || toneInstructions['educational'];
-
-            var bodyPrompt = 'You write Twitter thread bodies using ONLY the user\'s words and information.\n\nSELECTED HOOK (Tweet 1):\n' + selectedHook + '\n\n' + toneInstruction + '\n\n=== GOLDEN RULE ===\nUser\'s voice > AI smoothness. Amplify what\'s good. Don\'t polish into blandness.\n\n=== CONTENT RULES ===\n\n1. NO DUPLICATES (CHECK ALL TWEETS)\n- Tweet 2 must NOT repeat or paraphrase the hook\n- Check NON-ADJACENT tweets too: if tweet 1 and tweet 3 (or tweet 2 and tweet 5) express the same core idea, merge or cut\n- Repetition kills momentum even when tweets aren\'t back-to-back\n- Before output, compare every tweet against every other tweet. If they say the same thing, merge into one and add new value\n\n2. PRESERVE WORD-FOR-WORD\n- Quotable lines like "A good content strategy is a good CONVERSION strategy." stay exactly\n- Don\'t paraphrase gold into generic advice\n\n3. PRESERVE VIVID EXAMPLES\n- "Emojis. Hashtags. I\'m humbled to announce posts." stays exactly\n- Don\'t paraphrase into "typical LinkedIn behavior"\n\n4. KEEP THE ENEMIES\n- Callouts to pods, carousels, hook formulas, engagement bait = POV\n- Don\'t sanitize into generic advice\n\n5. KEEP THE CONTROVERSY\n- Spicy/polarizing content is intentional. Preserve it.\n- Don\'t sand down edges to sound "professional"\n\n6. KEEP PERSONALITY\n- Humor, relatability, casual asides stay\n- "i wish we could go back haha" stays\n\n7. USE THEIR ENDING (NON-NEGOTIABLE)\n- Scan for the strongest closing line in the input. USE THAT.\n- If they have a memorable moment ("TAKEOVER"), that\'s the ending\n- BANNED MOTIVATIONAL ENDINGS:\n  * "authenticity is your strongest asset"\n  * "consistency is key"\n  * "start being real" / "be yourself"\n  * "that\'s the real secret"\n  * "Embrace the chaos, it leads to clarity"\n  * "Trust the process"\n  * Any inspirational poster language\n- If the input is honest and raw, the ending MUST match that tone\n- DON\'T pivot to motivational fluff at the end\n- Their exact closing > any ending you generate\n\n8. EXTRACT/SURFACE A SHARP POV\n- Every thread needs a TAKE. Scan for an underlying opinion or insight.\n- If there isn\'t one explicit, derive it from the story\n- GOOD POV: "AI didn\'t make building easy. It just made debugging the real skill."\n- BAD (not a POV): "Embrace the chaos" / "Keep going" / "That\'s the journey"\n- The POV should be specific and arguable, not generic wisdom\n\n9. PRESERVE STRUCTURE\n- Sections become separate tweets\n- Bullets become \\n line breaks within tweets\n\n=== LENGTH ===\n4-5 tweets after hook. MAX. Every tweet adds something new.\n\n=== FORMATTING ===\n- Each tweet under 280 characters\n- Capital "I" only at sentence start; lowercase "i" elsewhere\n- Keep first-person "i": "Day 5 i built X" (human) not "Day 5 built X" (robotic)\n- NO em dashes. Use commas, periods, or ellipses\n' + emojiInstruction + '\n\n=== BANNED ===\nTweet 2 repeating tweet 1, paraphrasing quotable lines, paraphrasing vivid examples, sanitizing callouts, cutting personality, generic advice, motivational endings, dropping "i", em dashes, duplicate themes, "Embrace the chaos", "Trust the process", inspirational poster language\n\n=== FINAL QUALITY GATE ===\nBefore outputting, verify:\n1. Does the thread have a SHARP POV (specific, arguable take)? Not generic wisdom.\n2. Does the ending match the tone of the input? If input is raw/honest, ending can\'t be motivational fluff.\n3. Is there at least one concrete detail, number, or specific moment?\nIf ANY answer is NO, fix that part before outputting.\n\n=== OUTPUT FORMAT ===\nReturn JSON array of tweet strings (NOT including the hook):\n["tweet 2", "tweet 3 with\\nline breaks", ...]\n\n=== CONTENT ===\n' + content;
-
-            var response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [{ role: 'system', content: bodyPrompt }],
-                    temperature: 0.7,
-                    max_tokens: 2000
-                })
-            });
-
-            if (!response.ok) {
-                var errorData = {};
-                try { errorData = await response.json(); } catch(e) {}
-                throw new Error((errorData.error && errorData.error.message) || 'Failed to generate thread body.');
+        // Generate Thread Body (LTG Vault)
+        async function generateThreadBodyLTGV(apiKey, content, selectedHook, usingFreeTrial) {
+            var headers = { 'Content-Type': 'application/json' };
+            if (apiKey) {
+                headers['x-api-key'] = apiKey;
+            } else {
+                headers['x-free-trial'] = 'true';
             }
 
-            var data = await response.json();
-            return parseJsonResponse(data.choices[0]?.message?.content);
-        }
-
-        // Generate Thread Body (LTG Vault)
-        async function generateThreadBodyLTGV(apiKey, content, selectedHook) {
-            var response = await fetch('/api/tools/threadgen/body', {
+            var response = await fetch('/api/tools/threadgen', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey
-                },
+                headers: headers,
                 body: JSON.stringify({
+                    action: 'body',
                     content: content,
                     hook: selectedHook,
-                    emojiUsage: state.settings.emojiUsage
+                    emojiUsage: state.settings.emojiUsage,
+                    tone: state.settings.tone
                 })
             });
 
             var data = await response.json();
             if (!response.ok) throw new Error(data.error || 'API request failed.');
             return data.result;
-        }
-
-        // Generate CTA Options (OpenAI)
-        async function generateCtaOptionsOpenAI(apiKey, topic, threadContext) {
-            var emojiInstruction = state.settings.emojiUsage ? '- One emoji allowed if appropriate' : '- NO emojis';
-
-            var ctaPrompt = 'Generate 3 STRONG endings for a Twitter thread. No weak throwaway lines.\n\nTHREAD TOPIC/CONTEXT:\n' + topic + '\n\nTHREAD SO FAR:\n' + threadContext + '\n\n=== GOLDEN RULE ===\nA punchy final line beats a forced question. If the thread has a strong story or moment, reference it specifically or let the content speak for itself.\n\n=== QUALITY CHECK ===\nBANNED GENERIC QUESTIONS (weak):\n- "when did you realize..."\n- "what\'s your experience with..."\n- "have you ever felt..."\n- "what do you think about..."\n- Any vague engagement bait that could apply to any thread\n\nBANNED MOTIVATIONAL ENDINGS:\n- "Embrace the chaos, it leads to clarity"\n- "Trust the process"\n- "That\'s the real secret"\n- "Be yourself" / "Stay authentic"\n- Any inspirational poster language\n- If the input is honest/raw, the ending MUST match that tone\n\nIf you write a question, it MUST reference something SPECIFIC from this thread.\n\n=== ENDING STYLES ===\n\n1. PUNCHY TAKEAWAY (PREFERRED)\n- End with a bold, quotable line that lands\n- Reference the specific story/moment from the thread\n- "54 people signed up. 17 showed up. those 17 became my first customers."\n- The thread\'s climax often IS the ending. Use it.\n\n2. SPECIFIC CALLBACK\n- Reference a concrete detail from the thread\n- "that one email changed everything."\n- "turns out the answer was in the spreadsheet the whole time."\n- Must be specific to THIS thread, not generic\n\n3. DIRECT CTA (only if appropriate)\n- "if you\'re stuck on [specific thing from thread], DM me"\n- "building something similar? let\'s talk"\n- Skip this if the thread doesn\'t call for it\n\n=== RULES ===\n- Each ending under 280 characters\n- NO weak exits ("that\'s it", "anyway", "idk")\n- NO generic engagement questions\n- NO motivational fluff\n- End with PUNCH, not a whimper\n- Capital "I" only at start; lowercase "i" elsewhere\n- NO em dashes. Use commas, periods, or ellipses\n' + emojiInstruction + '\n\n=== FINAL QUALITY GATE ===\nBefore outputting each ending, verify:\n1. Does it reference something SPECIFIC from this thread (not generic)?\n2. Does it match the tone of the thread (if raw/honest, no motivational pivot)?\n3. Is it a sharp POV or concrete callback, not vague wisdom?\nIf NO to any, rewrite that ending.\n\n=== OUTPUT FORMAT ===\nReturn JSON array with exactly 3 objects:\n[{"type": "takeaway", "content": "..."}, {"type": "callback", "content": "..."}, {"type": "cta", "content": "..."}]';
-
-            var response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [{ role: 'system', content: ctaPrompt }],
-                    temperature: 0.8,
-                    max_tokens: 600
-                })
-            });
-
-            if (!response.ok) {
-                var errorData = {};
-                try { errorData = await response.json(); } catch(e) {}
-                throw new Error((errorData.error && errorData.error.message) || 'Failed to generate CTAs.');
-            }
-
-            var data = await response.json();
-            return parseJsonResponse(data.choices[0]?.message?.content);
         }
 
         // Validate tweet length

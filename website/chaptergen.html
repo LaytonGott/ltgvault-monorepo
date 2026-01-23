@@ -1213,7 +1213,7 @@
                 <div class="input-group">
                     <label>API Key</label>
                     <div class="input-wrapper">
-                        <input type="password" id="apiKey" placeholder="ltgv_... or sk-..." autocomplete="off">
+                        <input type="password" id="apiKey" placeholder="ltgv_..." autocomplete="off">
                         <button id="toggleKey" class="icon-btn" title="Toggle visibility">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -1224,7 +1224,7 @@
                 </div>
                 <button id="saveKey" class="btn primary">Save API Key</button>
                 <p class="hint">
-                    <a href="pricing.html">Get an LTG Vault API key</a> or use your own <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI key</a><br>
+                    <a href="/dashboard.html">Get your API key from the dashboard</a><br>
                     Your key is stored locally and never shared.
                 </p>
                 <div id="usageInfo" style="margin-top: 12px; font-size: 0.85rem; color: #888; display: none;"></div>
@@ -1428,6 +1428,27 @@ Example format:
     </script>
 
     <script>
+        // ============ FREE TRIAL SYSTEM ============
+        var FREE_TRIAL_LIMIT = 3;
+        var FREE_TRIAL_KEY = 'chaptergen_free_uses';
+
+        function getFreeTrialUses() {
+            var uses = localStorage.getItem(FREE_TRIAL_KEY);
+            if (uses === null) {
+                localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
+                return FREE_TRIAL_LIMIT;
+            }
+            return parseInt(uses, 10);
+        }
+
+        function decrementFreeTrial() {
+            var uses = getFreeTrialUses();
+            if (uses > 0) {
+                localStorage.setItem(FREE_TRIAL_KEY, uses - 1);
+            }
+            return uses - 1;
+        }
+
         // DOM Elements
         var elements = {
             settingsBtn: document.getElementById('settingsBtn'),
@@ -1443,7 +1464,8 @@ Example format:
             loadingText: document.getElementById('loadingText'),
             results: document.getElementById('results'),
             chaptersOutput: document.getElementById('chaptersOutput'),
-            copyBtn: document.getElementById('copyBtn')
+            copyBtn: document.getElementById('copyBtn'),
+            freeUsesText: document.getElementById('freeUsesText')
         };
 
         // State
@@ -1453,6 +1475,7 @@ Example format:
         document.addEventListener('DOMContentLoaded', function() {
             loadApiKey();
             setupEventListeners();
+            updateFreeTrialUI();
         });
 
         function setupEventListeners() {
@@ -1475,24 +1498,15 @@ Example format:
             return key && key.indexOf('ltgv_') === 0;
         }
 
-        function isOpenAIKey(key) {
-            return key && key.indexOf('sk-') === 0;
-        }
-
         function loadApiKey() {
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
 
             if (ltgvKey) {
                 elements.apiKeyInput.value = ltgvKey;
                 // Check subscription status
                 checkSubscriptionStatus(ltgvKey);
-            } else if (openaiKey) {
-                elements.apiKeyInput.value = openaiKey;
-            } else {
-                elements.settingsPanel.classList.add('visible');
-                showStatus('Please add an API key to get started', 'info');
             }
+            // Free trial users don't need to add an API key
         }
 
         // Check subscription status and hide Subscribe CTA if subscribed
@@ -1546,16 +1560,12 @@ Example format:
 
             if (isLtgvKey(apiKey)) {
                 localStorage.setItem('ltgv_api_key', apiKey);
-                localStorage.removeItem('openai_api_key');
-                showStatus('LTG Vault API key saved', 'success');
+                showStatus('API key saved', 'success');
                 // Check subscription status for newly saved key
                 checkSubscriptionStatus(apiKey);
-            } else if (isOpenAIKey(apiKey)) {
-                localStorage.setItem('openai_api_key', apiKey);
-                localStorage.removeItem('ltgv_api_key');
-                showStatus('OpenAI API key saved', 'success');
+                updateFreeTrialUI();
             } else {
-                showStatus('Invalid API key format. Use ltgv_... (LTG Vault) or sk-... (OpenAI)', 'error');
+                showStatus('Invalid API key format. Use ltgv_...', 'error');
                 return;
             }
 
@@ -1566,7 +1576,7 @@ Example format:
         }
 
         function showStatus(message, type = 'info') {
-            elements.status.textContent = message;
+            elements.status.innerHTML = message;
             elements.status.className = 'status visible ' + type;
         }
 
@@ -1574,14 +1584,44 @@ Example format:
             elements.status.classList.remove('visible');
         }
 
-        async function generateChapters() {
-            // Check for API key
+        function updateFreeTrialUI() {
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
 
-            if (!ltgvKey && !openaiKey) {
-                showStatus('Please add an API key first', 'error');
-                elements.settingsPanel.classList.add('visible');
+            // If user has valid API key, check subscription status will handle UI
+            if (ltgvKey) {
+                if (elements.freeUsesText) {
+                    elements.freeUsesText.style.display = 'none';
+                }
+                return;
+            }
+
+            // Show free trial status
+            var uses = getFreeTrialUses();
+            if (elements.freeUsesText) {
+                if (uses > 0) {
+                    elements.freeUsesText.textContent = uses + ' free ' + (uses === 1 ? 'use' : 'uses') + ' remaining';
+                    elements.freeUsesText.style.display = 'inline-block';
+                } else {
+                    elements.freeUsesText.textContent = 'Free trial ended';
+                    elements.freeUsesText.style.display = 'inline-block';
+                }
+            }
+
+            // Disable generate button if no free uses left
+            if (uses <= 0) {
+                elements.generateBtn.disabled = true;
+                showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
+            }
+        }
+
+        async function generateChapters() {
+            // Check for API key or free trial
+            var ltgvKey = localStorage.getItem('ltgv_api_key');
+            var freeUses = getFreeTrialUses();
+            var usingFreeTrial = !ltgvKey && freeUses > 0;
+
+            if (!ltgvKey && freeUses <= 0) {
+                showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
             }
 
@@ -1606,44 +1646,44 @@ Example format:
 
             try {
                 var chapters;
+                var headers = { 'Content-Type': 'application/json' };
 
                 if (ltgvKey) {
-                    // Use LTG Vault API
-                    var response = await fetch('/api/tools/chaptergen', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': ltgvKey
-                        },
-                        body: JSON.stringify({ transcript: transcript })
-                    });
-
-                    var data = await response.json();
-
-                    if (!response.ok) {
-                        if (data.error === 'LIMIT_EXCEEDED') {
-                            throw new Error(data.message + ' Upgrade at /pricing.html');
-                        }
-                        throw new Error(data.error || 'API request failed.');
-                    }
-
-                    chapters = data.result;
-
-                    // Show usage info
-                    if (data.usage) {
-                        var usageInfo = document.getElementById('usageInfo');
-                        var limitText = data.usage.limit === 'unlimited' ? 'unlimited' : data.usage.limit;
-                        usageInfo.textContent = 'Usage this month: ' + data.usage.used + ' / ' + limitText;
-                        usageInfo.style.display = 'block';
-                    }
+                    headers['x-api-key'] = ltgvKey;
                 } else {
-                    // Use OpenAI BYOK
-                    var timestampMatches = transcript.match(/\[?(\d+):(\d+)\]?/g);
-                    var videoDuration = '10:00';
-                    if (timestampMatches && timestampMatches.length > 0) {
-                        videoDuration = timestampMatches[timestampMatches.length - 1].replace(/[\[\]]/g, '');
+                    headers['x-free-trial'] = 'true';
+                }
+
+                // Use LTG Vault API
+                var response = await fetch('/api/tools/chaptergen', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ transcript: transcript })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok) {
+                    if (data.error === 'LIMIT_EXCEEDED') {
+                        throw new Error(data.message + ' Upgrade at /pricing.html');
                     }
-                    chapters = await callOpenAI(transcript, openaiKey, videoDuration);
+                    throw new Error(data.error || 'API request failed.');
+                }
+
+                chapters = data.result;
+
+                // Handle free trial decrement
+                if (usingFreeTrial) {
+                    decrementFreeTrial();
+                    updateFreeTrialUI();
+                }
+
+                // Show usage info for authenticated users
+                if (data.usage) {
+                    var usageInfo = document.getElementById('usageInfo');
+                    var limitText = data.usage.limit === 'unlimited' ? 'unlimited' : data.usage.limit;
+                    usageInfo.textContent = 'Usage this month: ' + data.usage.used + ' / ' + limitText;
+                    usageInfo.style.display = 'block';
                 }
 
                 // Display results
@@ -1665,84 +1705,6 @@ Example format:
             } finally {
                 elements.loading.classList.remove('visible');
                 elements.generateBtn.disabled = false;
-            }
-        }
-
-        async function callOpenAI(transcript, apiKey, videoDuration) {
-            var systemPrompt = 'You are a YouTube chapter expert. Create chapters at the START of each segment, not where it\'s described.\n\nCRITICAL - CHAPTER TIMING:\nChapters mark where a viewer should SKIP TO to watch a segment FROM THE BEGINNING.\n\nThe problem: Captions often describe what just happened. If a play happens from 0:02-0:19, the player\'s name appears in captions at 0:19 (after the play). But the chapter should be at 0:02 (where the play STARTS).\n\nHow to find the correct timestamp:\n1. When you see a name/topic mentioned, look BACKWARDS to find where that segment STARTED\n2. For highlights: Each clip starts right after the previous clip ends. New clip = new chapter at its START\n3. For list videos: Chapter starts at "next up", "number X is", "moving on to" - NOT in the middle of discussion\n4. Look for gaps/transitions between segments - that\'s where the new chapter begins\n\nThink: "If someone clicks this chapter, where do they land to see the WHOLE segment?"\n\nOTHER RULES:\n- SHORT TITLES (3-5 words): "[Player Name]\'s [Play Type]" or "[Item] - [Detail]"\n- Copy names EXACTLY as spelled in transcript\n- Capture EVERY distinct play/item - don\'t skip any\n- First chapter at 0:00: "Intro" or brief topic (2-3 words)';
-
-            var userPrompt = 'Create YouTube chapters for this video. Duration: ' + videoDuration + '\n\nCRITICAL - READ CAREFULLY:\nThe transcript shows timestamps where words are SPOKEN, but chapters should be where segments START.\n\nExample problem:\n- [0:02] (play begins - no caption yet)\n- [0:19] "What a goal by Caufield!" (caption appears AFTER the play)\n- WRONG: 0:19 Caufield\'s Goal (this is the END)\n- RIGHT: 0:02 Caufield\'s Goal (this is the START)\n\nFor each chapter: Look at the context BEFORE the description to find where that segment actually began. Place the chapter at the START of the action, not where it\'s narrated.\n\nTranscript with context:\n' + transcript + '\n\nReturn ONLY chapters in format (timestamps at segment STARTS):\n0:00 Intro\n0:02 Player\'s Goal';
-
-            var response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4o',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userPrompt }
-                    ],
-                    max_tokens: 2000,
-                    temperature: 0.3
-                })
-            });
-
-            if (!response.ok) {
-                var errorData = {};
-                try { errorData = await response.json(); } catch(e) {}
-                if (response.status === 401) {
-                    throw new Error('Invalid API key. Please check your settings.');
-                }
-                if (response.status === 429) {
-                    throw new Error('Rate limit exceeded. Please try again later.');
-                }
-                throw new Error((errorData.error && errorData.error.message) || 'API error (HTTP ' + response.status + ')');
-            }
-
-            var data = await response.json();
-            var content = data.choices?.[0]?.message?.content?.trim();
-
-            if (!content) {
-                throw new Error('Empty response from OpenAI. Please try again.');
-            }
-
-            // Second pass: Fix name spellings
-            elements.loadingText.textContent = 'Fixing name spellings...';
-            return await fixNameSpellings(content, apiKey);
-        }
-
-        async function fixNameSpellings(chapters, apiKey) {
-            var systemPrompt = 'You are a spelling correction expert for sports players, celebrities, YouTubers, and brand names.\n\nYour job: Fix obvious misspellings in YouTube chapter titles caused by auto-caption errors.\n\nCommon patterns to fix:\n- Phonetic spellings: "Cfield" -> "Caufield", "Jack Eel" -> "Jack Eichel"\n- Split names: "Mc David" -> "McDavid", "Le Bron" -> "LeBron"\n- Sound-alikes: "Croz B" -> "Crosby", "Dry Seidel" -> "Draisaitl"\n\nRules:\n- ONLY fix obvious misspellings of real names\n- Do NOT change timestamps\n- Do NOT change chapter structure\n- If unsure, leave as-is';
-
-            var userPrompt = 'Fix any obvious name misspellings in these YouTube chapters:\n\n' + chapters + '\n\nReturn the corrected chapters in the exact same format.';
-
-            try {
-                var response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + apiKey
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o',
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: userPrompt }
-                        ],
-                        max_tokens: 2000,
-                        temperature: 0.1
-                    })
-                });
-
-                if (!response.ok) return chapters;
-
-                var data = await response.json();
-                return data.choices?.[0]?.message?.content?.trim() || chapters;
-            } catch (e) {
-                return chapters;
             }
         }
 

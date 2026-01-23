@@ -107,7 +107,7 @@ module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-free-trial');
   res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'OPTIONS') {
@@ -119,27 +119,43 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Authenticate request
-    const { user, error: authError } = await authenticateRequest(req);
+    // Check if this is a free trial request
+    const isFreeTrial = req.headers['x-free-trial'] === 'true';
+    const hasApiKey = !!req.headers['x-api-key'];
 
-    if (authError) {
-      return res.status(401).json({ error: authError });
-    }
+    let user = null;
+    let isSubscribed = false;
 
-    // Check if user is subscribed to ChapterGen
-    const isSubscribed = user.subscribed_chaptergen || false;
+    if (hasApiKey) {
+      // Authenticate with API key
+      const { user: authUser, error: authError } = await authenticateRequest(req);
 
-    // Check usage limits
-    const { allowed, used, limit, subscribed } = await canUseTool(user.id, 'chaptergen', isSubscribed);
+      if (authError) {
+        return res.status(401).json({ error: authError });
+      }
 
-    if (!allowed) {
-      return res.status(429).json({
-        error: 'LIMIT_EXCEEDED',
-        message: `You've used all ${limit} free ChapterGen generations. Subscribe for unlimited access.`,
-        usage: { used, limit },
-        upgradeUrl: '/pricing.html'
+      user = authUser;
+      isSubscribed = user.subscribed_chaptergen || false;
+
+      // Check usage limits for authenticated users
+      const { allowed, used, limit, subscribed } = await canUseTool(user.id, 'chaptergen', isSubscribed);
+
+      if (!allowed) {
+        return res.status(429).json({
+          error: 'LIMIT_EXCEEDED',
+          message: `You've used all ${limit} free ChapterGen generations. Subscribe for unlimited access.`,
+          usage: { used, limit },
+          upgradeUrl: '/pricing.html'
+        });
+      }
+    } else if (!isFreeTrial) {
+      // No API key and not marked as free trial
+      return res.status(401).json({
+        error: 'API key required. Use free trial or subscribe for access.',
+        freeTrialAvailable: true
       });
     }
+    // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
 
     // Get transcript from request
     const transcript = req.body.transcript;
@@ -211,15 +227,19 @@ module.exports = async function handler(req, res) {
     chapters = await fixNameSpellings(chapters, openaiKey);
 
     // Increment usage after successful generation
-    await incrementUsage(user.id, 'chaptergen');
+    // Increment usage only for authenticated users
+    if (user) {
+      await incrementUsage(user.id, 'chaptergen');
+    }
 
     return res.status(200).json({
       success: true,
       result: chapters,
-      usage: {
-        used: used + 1,
-        limit: subscribed ? 'unlimited' : limit
-      }
+      isFreeTrial: !user,
+      usage: user ? {
+        used: (await canUseTool(user.id, 'chaptergen', isSubscribed)).used,
+        limit: isSubscribed ? 'unlimited' : 1
+      } : null
     });
 
   } catch (error) {

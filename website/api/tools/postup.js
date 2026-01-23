@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-free-trial');
   res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'OPTIONS') {
@@ -30,27 +30,43 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Authenticate request
-    const { user, error: authError } = await authenticateRequest(req);
+    // Check if this is a free trial request (no API key, tracked in localStorage)
+    const isFreeTrial = req.headers['x-free-trial'] === 'true';
+    const hasApiKey = !!req.headers['x-api-key'];
 
-    if (authError) {
-      return res.status(401).json({ error: authError });
-    }
+    let user = null;
+    let isSubscribed = false;
 
-    // Check if user is subscribed to PostUp
-    const isSubscribed = user.subscribed_postup || false;
+    if (hasApiKey) {
+      // Authenticate with API key
+      const { user: authUser, error: authError } = await authenticateRequest(req);
 
-    // Check usage limits
-    const { allowed, used, limit, subscribed } = await canUseTool(user.id, 'postup', isSubscribed);
+      if (authError) {
+        return res.status(401).json({ error: authError });
+      }
 
-    if (!allowed) {
-      return res.status(429).json({
-        error: 'LIMIT_EXCEEDED',
-        message: `You've used all ${limit} free PostUp generations. Subscribe for unlimited access.`,
-        usage: { used, limit },
-        upgradeUrl: '/pricing.html'
+      user = authUser;
+      isSubscribed = user.subscribed_postup || false;
+
+      // Check usage limits for authenticated users
+      const { allowed, used, limit, subscribed } = await canUseTool(user.id, 'postup', isSubscribed);
+
+      if (!allowed) {
+        return res.status(429).json({
+          error: 'LIMIT_EXCEEDED',
+          message: `You've used all ${limit} free PostUp generations. Subscribe for unlimited access.`,
+          usage: { used, limit },
+          upgradeUrl: '/pricing.html'
+        });
+      }
+    } else if (!isFreeTrial) {
+      // No API key and not marked as free trial
+      return res.status(401).json({
+        error: 'API key required. Use free trial or subscribe for access.',
+        freeTrialAvailable: true
       });
     }
+    // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
 
     // Get content from request
     const content = req.body.content;
@@ -213,16 +229,19 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Increment usage after successful generation
-    await incrementUsage(user.id, 'postup');
+    // Increment usage after successful generation (only for authenticated users)
+    if (user) {
+      await incrementUsage(user.id, 'postup');
+    }
 
     return res.status(200).json({
       success: true,
       result: result,
-      usage: {
-        used: used + 1,
-        limit: subscribed ? 'unlimited' : limit
-      },
+      isFreeTrial: !user,
+      usage: user ? {
+        used: (await canUseTool(user.id, 'postup', isSubscribed)).used,
+        limit: isSubscribed ? 'unlimited' : 3
+      } : null,
       _debug: {
         version: 'v7-shared-prompts',
         model: 'claude-3-5-haiku-20241022',

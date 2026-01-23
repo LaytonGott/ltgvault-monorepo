@@ -133,6 +133,16 @@
             color: #ff5f57;
         }
 
+        .api-status.free-trial {
+            background: rgba(201, 162, 39, 0.15);
+            color: #c9a227;
+        }
+
+        .api-status.expired {
+            background: rgba(255, 95, 87, 0.15);
+            color: #ff5f57;
+        }
+
         .api-help {
             font-size: 0.85rem;
             color: #888;
@@ -1859,6 +1869,45 @@
             return key && key.indexOf('sk-') === 0;
         }
 
+        // Free trial constants
+        var FREE_TRIAL_LIMIT = 3;
+        var FREE_TRIAL_KEY = 'postup_free_uses';
+
+        // Get remaining free trial uses
+        function getFreeTrialUses() {
+            var uses = localStorage.getItem(FREE_TRIAL_KEY);
+            if (uses === null) {
+                // First visit - set initial free trial
+                localStorage.setItem(FREE_TRIAL_KEY, FREE_TRIAL_LIMIT);
+                return FREE_TRIAL_LIMIT;
+            }
+            return parseInt(uses, 10);
+        }
+
+        // Decrement free trial uses
+        function decrementFreeTrial() {
+            var uses = getFreeTrialUses();
+            if (uses > 0) {
+                localStorage.setItem(FREE_TRIAL_KEY, uses - 1);
+            }
+            return uses - 1;
+        }
+
+        // Update free trial UI
+        function updateFreeTrialUI() {
+            var uses = getFreeTrialUses();
+            var statusText = uses + ' free ' + (uses === 1 ? 'use' : 'uses') + ' remaining';
+            apiStatus.textContent = statusText;
+            apiStatus.className = 'api-status ' + (uses > 0 ? 'free-trial' : 'expired');
+
+            if (uses <= 0) {
+                generateBtn.disabled = true;
+                showError('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>');
+            } else {
+                generateBtn.disabled = false;
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadApiKey();
@@ -1868,7 +1917,6 @@
         // Load API Key from localStorage (check both storage keys)
         function loadApiKey() {
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
 
             if (ltgvKey) {
                 apiKeyInput.value = ltgvKey;
@@ -1876,12 +1924,9 @@
                 generateBtn.disabled = false;
                 // Check subscription status
                 checkSubscriptionStatus(ltgvKey);
-            } else if (openaiKey) {
-                apiKeyInput.value = openaiKey;
-                updateApiStatus('openai');
-                generateBtn.disabled = false;
             } else {
-                updateApiStatus(false);
+                // No API key - use free trial mode
+                updateFreeTrialUI();
             }
         }
 
@@ -1937,26 +1982,19 @@
             var key = apiKeyInput.value.trim();
 
             if (!key) {
-                showError('Please enter an API key.');
+                showError('Please enter your LTG Vault API key.');
                 return;
             }
 
             if (isLtgvKey(key)) {
                 localStorage.setItem('ltgv_api_key', key);
-                localStorage.removeItem('openai_api_key');
                 updateApiStatus('ltgv');
                 generateBtn.disabled = false;
                 hideError();
                 // Check subscription status for newly saved key
                 checkSubscriptionStatus(key);
-            } else if (isOpenAIKey(key)) {
-                localStorage.setItem('openai_api_key', key);
-                localStorage.removeItem('ltgv_api_key');
-                updateApiStatus('openai');
-                generateBtn.disabled = false;
-                hideError();
             } else {
-                showError('Invalid API key format. Use ltgv_... (LTG Vault) or sk-... (OpenAI)');
+                showError('Invalid API key format. Get your ltgv_... key from the dashboard.');
                 return;
             }
         });
@@ -1964,17 +2002,12 @@
         // Update API Status
         function updateApiStatus(type) {
             if (type === 'ltgv') {
-                apiStatus.textContent = 'LTG Vault';
-                apiStatus.className = 'api-status saved';
-                usageInfo.style.display = 'none';
-            } else if (type === 'openai') {
-                apiStatus.textContent = 'OpenAI (BYOK)';
+                apiStatus.textContent = 'Subscribed ✓';
                 apiStatus.className = 'api-status saved';
                 usageInfo.style.display = 'none';
             } else {
-                apiStatus.textContent = 'Not saved';
-                apiStatus.className = 'api-status missing';
-                usageInfo.style.display = 'none';
+                // Free trial mode - will be updated by updateFreeTrialUI
+                updateFreeTrialUI();
             }
         }
 
@@ -2000,15 +2033,16 @@
         generateBtn.addEventListener('click', function() {
             var text = inputText.value.trim();
             var ltgvKey = localStorage.getItem('ltgv_api_key');
-            var openaiKey = localStorage.getItem('openai_api_key');
+            var freeTrialUses = getFreeTrialUses();
 
             if (!text) {
                 showError('Please enter some text to transform.');
                 return;
             }
 
-            if (!ltgvKey && !openaiKey) {
-                showError('Please save an API key first.');
+            // Check if user has access (API key or free trial)
+            if (!ltgvKey && freeTrialUses <= 0) {
+                showError('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>');
                 return;
             }
 
@@ -2016,26 +2050,36 @@
             hideError();
             hideExtras();
 
+            // Get settings
+            var tone = document.getElementById('toneSelect').value;
+            var inputType = document.getElementById('inputTypeSelect').value;
+            var niche = document.getElementById('nicheSelect').value;
+
+            // Determine mode
+            var isFreeTrial = !ltgvKey;
+            var headers = {
+                'Content-Type': 'application/json'
+            };
+
             if (ltgvKey) {
-                // Get settings
-                var tone = document.getElementById('toneSelect').value;
-                var inputType = document.getElementById('inputTypeSelect').value;
-                var niche = document.getElementById('nicheSelect').value;
-
+                headers['x-api-key'] = ltgvKey;
                 console.log('=== POSTUP DEBUG ===');
-                console.log('MODE: LTG Vault API (Claude)');
-                console.log('Using API Key:', ltgvKey ? ltgvKey.substring(0, 10) + '...' : 'none');
-                console.log('Tone:', tone);
-                console.log('Input Type:', inputType);
-                console.log('Niche:', niche);
+                console.log('MODE: LTG Vault API (Subscribed)');
+                console.log('Using API Key:', ltgvKey.substring(0, 10) + '...');
+            } else {
+                headers['x-free-trial'] = 'true';
+                console.log('=== POSTUP DEBUG ===');
+                console.log('MODE: Free Trial');
+                console.log('Uses remaining:', freeTrialUses);
+            }
+            console.log('Tone:', tone);
+            console.log('Input Type:', inputType);
+            console.log('Niche:', niche);
 
-                // Use LTG Vault API
-                fetch('/api/tools/postup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': ltgvKey
-                    },
+            // Use LTG Vault API
+            fetch('/api/tools/postup', {
+                method: 'POST',
+                headers: headers,
                     body: JSON.stringify({
                         content: text,
                         tone: tone,
@@ -2124,7 +2168,13 @@
                     // Show quick actions and LinkedIn preview
                     showQuickActions();
                     updateLinkedInPreview(outputText.value);
-                    if (data.usage) {
+
+                    // Decrement free trial if applicable
+                    if (isFreeTrial) {
+                        var remaining = decrementFreeTrial();
+                        updateFreeTrialUI();
+                        console.log('Free trial uses remaining:', remaining);
+                    } else if (data.usage) {
                         updateUsageDisplay(data.usage);
                     }
                 })
@@ -2135,56 +2185,6 @@
                 .finally(function() {
                     setLoading(false);
                 });
-            } else {
-                // Use OpenAI BYOK mode
-                console.log('=== POSTUP DEBUG ===');
-                console.log('MODE: OpenAI BYOK (DIFFERENT PROMPT!)');
-                console.log('WARNING: This mode uses a simpler prompt without HARD RULES');
-                console.log('Using OpenAI Key:', openaiKey ? openaiKey.substring(0, 10) + '...' : 'none');
-                fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + openaiKey
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o-mini',
-                        messages: [
-                            { role: 'system', content: LINKEDIN_PROMPT },
-                            { role: 'user', content: text }
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 1000
-                    })
-                })
-                .then(function(response) {
-                    if (!response.ok) {
-                        return response.json().catch(function() { return {}; }).then(function(errorData) {
-                            if (response.status === 401) {
-                                throw new Error('Invalid API key. Please check your settings.');
-                            } else if (response.status === 429) {
-                                throw new Error('Rate limit exceeded. Please wait a moment.');
-                            } else if (response.status === 402 || (errorData.error && errorData.error.code === 'insufficient_quota')) {
-                                throw new Error('OpenAI quota exceeded. Please check your billing.');
-                            } else {
-                                throw new Error((errorData.error && errorData.error.message) || 'API request failed.');
-                            }
-                        });
-                    }
-                    return response.json();
-                })
-                .then(function(data) {
-                    outputText.value = data.choices[0].message.content.trim();
-                    copyBtn.disabled = false;
-                    updateCharCounts();
-                })
-                .catch(function(error) {
-                    showError(error.message || 'Failed to generate post. Please try again.');
-                })
-                .finally(function() {
-                    setLoading(false);
-                });
-            }
         });
 
         // Copy to Clipboard
@@ -2214,7 +2214,7 @@
 
         // Error Handling
         function showError(message) {
-            errorMessage.textContent = message;
+            errorMessage.innerHTML = message;
             errorMessage.style.display = 'block';
         }
 

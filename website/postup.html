@@ -374,6 +374,74 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Free Trial Counter */
+        .usage-counter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .usage-counter svg {
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .usage-counter .count {
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .usage-counter .label {
+            color: var(--gray-light);
+        }
+
+        .usage-counter a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .usage-counter a:hover {
+            text-decoration: underline;
+        }
+
+        .usage-counter.exhausted {
+            border-color: rgba(255, 95, 87, 0.3);
+            background: rgba(255, 95, 87, 0.05);
+        }
+
+        .usage-counter.exhausted .count {
+            color: var(--error);
+        }
+
+        .usage-counter.exhausted svg {
+            color: var(--error);
+        }
+
+        .usage-counter.unlimited {
+            border-color: rgba(40, 202, 65, 0.3);
+            background: rgba(40, 202, 65, 0.05);
+        }
+
+        .usage-counter.unlimited .count {
+            color: var(--success);
+        }
+
+        .usage-counter.unlimited svg {
+            color: var(--success);
+        }
+
+        .usage-counter.hidden {
+            display: none;
+        }
+
         .copy-btn {
             display: flex;
             align-items: center;
@@ -1614,6 +1682,13 @@
                     <span class="char-count" id="inputCount">0 chars</span>
                 </div>
                 <textarea class="text-area" id="inputText" placeholder="Paste your rough thoughts, notes, or ideas here..."></textarea>
+                <!-- Usage Counter -->
+                <div id="usageCounter" class="usage-counter">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                    </svg>
+                    <span id="usageText"><span class="count">3</span> <span class="label">free uses left</span></span>
+                </div>
                 <div class="button-row">
                     <button class="generate-btn" id="generateBtn" disabled>
                         <span class="btn-text">Generate Post</span>
@@ -1894,17 +1969,44 @@
         }
 
         // Update free trial UI
-        function updateFreeTrialUI() {
+        function updateFreeTrialUI(isSubscribed) {
+            var usageCounter = document.getElementById('usageCounter');
+            var usageText = document.getElementById('usageText');
+
+            // If user is subscribed, show unlimited
+            if (isSubscribed) {
+                if (usageCounter) {
+                    usageCounter.className = 'usage-counter unlimited';
+                    usageText.innerHTML = '<span class="count">Unlimited</span> <span class="label">uses</span>';
+                }
+                apiStatus.textContent = 'Subscribed';
+                apiStatus.className = 'api-status active';
+                generateBtn.disabled = false;
+                return;
+            }
+
             var uses = getFreeTrialUses();
+
+            // Update visual counter
+            if (usageCounter && usageText) {
+                if (uses > 0) {
+                    usageCounter.className = 'usage-counter';
+                    usageText.innerHTML = '<span class="count">' + uses + '</span> <span class="label">free ' + (uses === 1 ? 'use' : 'uses') + ' left</span>';
+                    generateBtn.disabled = false;
+                } else {
+                    usageCounter.className = 'usage-counter exhausted';
+                    usageText.innerHTML = '<span class="count">0</span> <span class="label">uses left</span> · <a href="/pricing.html">Get unlimited</a>';
+                    generateBtn.disabled = true;
+                }
+            }
+
+            // Update old status text
             var statusText = uses + ' free ' + (uses === 1 ? 'use' : 'uses') + ' remaining';
             apiStatus.textContent = statusText;
             apiStatus.className = 'api-status ' + (uses > 0 ? 'free-trial' : 'expired');
 
             if (uses <= 0) {
-                generateBtn.disabled = true;
                 showError('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>');
-            } else {
-                generateBtn.disabled = false;
             }
         }
 
@@ -1952,6 +2054,8 @@
 
                 if (data.success && data.subscriptions && data.subscriptions.postup) {
                     console.log('User is subscribed to PostUp - updating buttons');
+                    // Update usage counter to show unlimited
+                    updateFreeTrialUI(true);
                     // Update all subscribe buttons to show subscribed state
                     var subscribeButtons = document.querySelectorAll('.btn-subscribe');
                     subscribeButtons.forEach(function(btn) {
@@ -1969,6 +2073,7 @@
                     }
                 } else {
                     console.log('User not subscribed to PostUp');
+                    updateFreeTrialUI(false);
                 }
                 console.log('=== END SUBSCRIPTION CHECK ===');
             })

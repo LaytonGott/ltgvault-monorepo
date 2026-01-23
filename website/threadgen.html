@@ -2226,9 +2226,15 @@ The AI will find the most interesting hook and transform your content into an en
         }
 
         function decrementFreeTrial() {
+            console.log('=== DECREMENT FREE TRIAL ===');
+            console.log('BEFORE decrement:', localStorage.getItem(FREE_TRIAL_KEY));
             var uses = getFreeTrialUses();
+            console.log('getFreeTrialUses returned:', uses);
             if (uses > 0) {
                 localStorage.setItem(FREE_TRIAL_KEY, uses - 1);
+                console.log('AFTER decrement:', localStorage.getItem(FREE_TRIAL_KEY));
+            } else {
+                console.log('No uses left to decrement');
             }
             return uses - 1;
         }
@@ -2671,6 +2677,12 @@ The AI will find the most interesting hook and transform your content into an en
             var freeUses = getFreeTrialUses();
             var usingFreeTrial = !ltgvKey && freeUses > 0;
 
+            console.log('=== PROCEED WITH GENERATION ===');
+            console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
+            console.log('freeUses:', freeUses);
+            console.log('usingFreeTrial:', usingFreeTrial);
+            console.log('localStorage threadgen_free_uses:', localStorage.getItem('threadgen_free_uses'));
+
             if (!ltgvKey && freeUses <= 0) {
                 showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
@@ -2793,6 +2805,11 @@ The AI will find the most interesting hook and transform your content into an en
             var freeUses = getFreeTrialUses();
             var usingFreeTrial = !ltgvKey && freeUses > 0;
 
+            console.log('=== CONTINUE WITH HOOK ===');
+            console.log('ltgvKey:', ltgvKey ? 'exists (' + ltgvKey.substring(0,10) + '...)' : 'null');
+            console.log('freeUses:', freeUses);
+            console.log('usingFreeTrial:', usingFreeTrial);
+
             if (!ltgvKey && freeUses <= 0) {
                 showStatus('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>', 'error');
                 return;
@@ -2805,15 +2822,22 @@ The AI will find the most interesting hook and transform your content into an en
                 state.bodyTweets = bodyData.body;
                 state.ctaOptions = bodyData.ctas;
 
+                console.log('=== BODY GENERATION SUCCESS ===');
+                console.log('usingFreeTrial:', usingFreeTrial);
+
                 // Decrement free trial on successful body generation
                 if (usingFreeTrial) {
+                    console.log('Calling decrementFreeTrial...');
                     decrementFreeTrial();
                     updateFreeTrialUI();
+                } else {
+                    console.log('NOT decrementing - usingFreeTrial is false');
                 }
 
                 displayCtaOptions(state.ctaOptions);
                 setStep(4);
             } catch (error) {
+                console.log('Body generation FAILED:', error.message);
                 showStatus(error.message || 'Failed to generate thread body', 'error');
                 setStep(2);
             }

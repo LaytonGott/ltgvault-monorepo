@@ -22,6 +22,14 @@ module.exports = async function handler(req, res) {
   // GET - Get API key info
   if (req.method === 'GET') {
     try {
+      console.log('=== /api/keys GET DEBUG ===');
+      console.log('User ID:', user.id);
+      console.log('User email:', user.email);
+      console.log('User subscribed_postup:', user.subscribed_postup);
+      console.log('User subscribed_chaptergen:', user.subscribed_chaptergen);
+      console.log('User subscribed_threadgen:', user.subscribed_threadgen);
+      console.log('Full user object:', JSON.stringify(user, null, 2));
+
       const { data: keyData, error: keyError } = await supabase
         .from('api_keys')
         .select('key_prefix, last_four, created_at, last_used_at')
@@ -33,7 +41,7 @@ module.exports = async function handler(req, res) {
         return res.status(404).json({ error: 'No active API key found' });
       }
 
-      return res.status(200).json({
+      const response = {
         success: true,
         key: {
           prefix: keyData.key_prefix,
@@ -47,7 +55,12 @@ module.exports = async function handler(req, res) {
           chaptergen: user.subscribed_chaptergen || false,
           threadgen: user.subscribed_threadgen || false
         }
-      });
+      };
+
+      console.log('Returning response:', JSON.stringify(response, null, 2));
+      console.log('=== END /api/keys DEBUG ===');
+
+      return res.status(200).json(response);
 
     } catch (err) {
       console.error('Error fetching API key info:', err);

@@ -335,6 +335,51 @@
             text-decoration: underline;
         }
 
+        /* Access Status Card */
+        .access-status-container {
+            margin-bottom: 16px;
+        }
+
+        .access-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(40, 202, 65, 0.1);
+            border: 1px solid rgba(40, 202, 65, 0.3);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .access-icon {
+            font-size: 1.5rem;
+            color: var(--success);
+        }
+
+        .access-text {
+            color: var(--gray-light);
+            font-size: 0.95rem;
+        }
+
+        .access-text span {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .access-note {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .access-actions {
+            margin-top: 16px;
+        }
+
+        .access-actions .btn {
+            width: 100%;
+        }
+
         /* Subscriptions Card */
         .subscription-grid {
             display: grid;
@@ -673,18 +718,20 @@
 
         <!-- Dashboard Content -->
         <div class="dashboard-content" id="dashboardContent">
-            <!-- API Key Card -->
+            <!-- Access Status Card -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">API Key</h2>
+                    <h2 class="card-title">Access Status</h2>
                 </div>
-                <div class="api-key-container">
-                    <span class="api-key-value" id="maskedKey">ltgv_************************************abcd</span>
-                    <button class="copy-btn" id="copyKeyBtn">Copy</button>
+                <div class="access-status-container">
+                    <div class="access-status" id="accessStatus">
+                        <span class="access-icon">✓</span>
+                        <span class="access-text">Access active since <span id="accessSince">-</span></span>
+                    </div>
+                    <p class="access-note">Your access is linked to this browser. Use the button below to access from another device.</p>
                 </div>
-                <div class="api-key-info">
-                    <span id="keyCreatedAt">Created: -</span>
-                    <span class="regenerate-link" id="regenerateBtn">Regenerate Key</span>
+                <div class="access-actions">
+                    <button class="btn secondary" id="sendAccessLinkBtn">Send Access Link to Email</button>
                 </div>
             </div>
 
@@ -801,10 +848,8 @@
 
         var billingBtn = document.getElementById('billingBtn');
 
-        var maskedKey = document.getElementById('maskedKey');
-        var copyKeyBtn = document.getElementById('copyKeyBtn');
-        var keyCreatedAt = document.getElementById('keyCreatedAt');
-        var regenerateBtn = document.getElementById('regenerateBtn');
+        var accessSince = document.getElementById('accessSince');
+        var sendAccessLinkBtn = document.getElementById('sendAccessLinkBtn');
 
         var logoutBtn = document.getElementById('logoutBtn');
 
@@ -813,14 +858,41 @@
         var hasAnySubscription = false;
 
         // Check for stored email or session_id from checkout
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             var urlParams = new URLSearchParams(window.location.search);
             var sessionId = urlParams.get('session_id');
 
             if (sessionId) {
                 // Clear URL params
                 window.history.replaceState({}, '', window.location.pathname);
-                showStatus('Subscription activated! Enter your email below to access your dashboard.', 'success');
+
+                // Auto-claim API key from checkout session
+                showStatus('Activating your subscription...', 'info');
+                try {
+                    var response = await fetch('/api/claim-key', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sessionId: sessionId })
+                    });
+                    var data = await response.json();
+
+                    if (data.success && data.apiKey) {
+                        // Save API key to localStorage (never shown to user)
+                        localStorage.setItem('ltgv_api_key', data.apiKey);
+                        localStorage.setItem('ltgv_email', data.user.email);
+                        showStatus('Subscription activated! Your access is now set up on this browser.', 'success');
+
+                        // Load dashboard with the user's email
+                        emailInput.value = data.user.email;
+                        loadDashboard(data.user.email);
+                        return;
+                    } else {
+                        showStatus('Could not activate subscription. Please enter your email below.', 'error');
+                    }
+                } catch (err) {
+                    console.error('Claim key error:', err);
+                    showStatus('Could not activate subscription. Please enter your email below.', 'error');
+                }
             }
 
             // Check for stored email
@@ -885,16 +957,12 @@
                 currentEmail = email;
                 localStorage.setItem('ltgv_email', email);
 
-                // Store API key if available
-                if (data.apiKey) {
-                    currentApiKey = data.apiKey.maskedKey;
-                }
-
                 // Update UI with data
                 updateDashboardUI(data);
 
+                // Update access status
                 if (data.apiKey) {
-                    updateKeyUI(data.apiKey);
+                    updateAccessUI(data.apiKey);
                 }
 
                 // Show dashboard
@@ -983,70 +1051,43 @@
             }
         }
 
-        // Update API key UI
-        function updateKeyUI(keyInfo) {
-            maskedKey.textContent = keyInfo.maskedKey;
-
-            if (keyInfo.createdAt) {
+        // Update access status UI
+        function updateAccessUI(keyInfo) {
+            if (keyInfo && keyInfo.createdAt) {
                 var date = new Date(keyInfo.createdAt);
-                keyCreatedAt.textContent = 'Created: ' + date.toLocaleDateString();
+                accessSince.textContent = date.toLocaleDateString();
             }
         }
 
-        // Copy API key
-        copyKeyBtn.addEventListener('click', function() {
-            if (currentApiKey) {
-                navigator.clipboard.writeText(currentApiKey).then(function() {
-                    copyKeyBtn.textContent = 'Copied!';
-                    copyKeyBtn.classList.add('copied');
-                    setTimeout(function() {
-                        copyKeyBtn.textContent = 'Copy';
-                        copyKeyBtn.classList.remove('copied');
-                    }, 2000);
-                });
-            }
-        });
-
-        // Regenerate API key
-        regenerateBtn.addEventListener('click', async function() {
-            if (!confirm('Are you sure? Your current API key will stop working immediately.')) {
+        // Send access link button
+        sendAccessLinkBtn.addEventListener('click', async function() {
+            if (!currentEmail) {
+                showStatus('Please log in first.', 'error');
                 return;
             }
 
-            regenerateBtn.textContent = 'Regenerating...';
-            regenerateBtn.style.pointerEvents = 'none';
+            sendAccessLinkBtn.disabled = true;
+            sendAccessLinkBtn.textContent = 'Sending...';
 
             try {
-                var response = await fetch('/api/keys', {
+                var response = await fetch('/api/send-access-link', {
                     method: 'POST',
-                    headers: {
-                        'x-api-key': currentApiKey
-                    }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentEmail })
                 });
-
-                if (!response.ok) {
-                    throw new Error('Failed to regenerate key');
-                }
-
                 var data = await response.json();
 
-                // Update stored key
-                currentApiKey = data.apiKey;
-                localStorage.setItem('ltgv_api_key', data.apiKey);
-
-                // Show new key briefly
-                maskedKey.textContent = data.apiKey;
-                showStatus('New API key generated! Save it now - it won\'t be shown again.', 'success');
-
-                // Copy automatically
-                navigator.clipboard.writeText(data.apiKey);
-
-            } catch (error) {
-                showStatus('Failed to regenerate key. Please try again.', 'error');
-            } finally {
-                regenerateBtn.textContent = 'Regenerate Key';
-                regenerateBtn.style.pointerEvents = 'auto';
+                if (data.success) {
+                    showStatus('Access link sent to ' + currentEmail + '! Check your email.', 'success');
+                } else {
+                    showStatus(data.error || 'Failed to send access link.', 'error');
+                }
+            } catch (err) {
+                showStatus('Failed to send access link.', 'error');
             }
+
+            sendAccessLinkBtn.disabled = false;
+            sendAccessLinkBtn.textContent = 'Send Access Link to Email';
         });
 
         // Billing button

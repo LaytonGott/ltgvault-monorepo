@@ -957,6 +957,22 @@
                 currentEmail = email;
                 localStorage.setItem('ltgv_email', email);
 
+                // Sync API key to this browser (ensures tool pages work)
+                try {
+                    var syncResponse = await fetch('/api/sync-access', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+                    var syncData = await syncResponse.json();
+                    if (syncData.success && syncData.apiKey) {
+                        localStorage.setItem('ltgv_api_key', syncData.apiKey);
+                        console.log('API key synced to localStorage');
+                    }
+                } catch (syncErr) {
+                    console.log('Could not sync API key:', syncErr);
+                }
+
                 // Update UI with data
                 updateDashboardUI(data);
 

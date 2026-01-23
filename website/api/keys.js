@@ -41,6 +41,11 @@ module.exports = async function handler(req, res) {
           maskedKey: `${keyData.key_prefix}${'*'.repeat(44)}${keyData.last_four}`,
           createdAt: keyData.created_at,
           lastUsedAt: keyData.last_used_at
+        },
+        subscriptions: {
+          postup: user.subscribed_postup || false,
+          chaptergen: user.subscribed_chaptergen || false,
+          threadgen: user.subscribed_threadgen || false
         }
       });
 

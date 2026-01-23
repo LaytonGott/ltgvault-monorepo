@@ -2272,12 +2272,41 @@ The AI will find the most interesting hook and transform your content into an en
 
             if (ltgvKey) {
                 elements.apiKeyInput.value = ltgvKey;
+                // Check subscription status
+                checkSubscriptionStatus(ltgvKey);
             } else if (openaiKey) {
                 elements.apiKeyInput.value = openaiKey;
             } else {
                 elements.settingsPanel.classList.add('visible');
                 showStatus('Please add an API key to get started', 'info');
             }
+        }
+
+        // Check subscription status and hide Subscribe CTA if subscribed
+        function checkSubscriptionStatus(apiKey) {
+            fetch('/api/keys', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey
+                }
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success && data.subscriptions && data.subscriptions.threadgen) {
+                    // User is subscribed to ThreadGen - hide Subscribe CTA
+                    var bottomCta = document.getElementById('bottomCta');
+                    var pricingBanner = document.getElementById('pricingBanner');
+                    if (bottomCta) bottomCta.style.display = 'none';
+                    if (pricingBanner) pricingBanner.style.display = 'none';
+                    console.log('ThreadGen subscription active - hiding Subscribe CTAs');
+                }
+            })
+            .catch(function(err) {
+                console.log('Could not check subscription status:', err);
+            });
         }
 
         function saveApiKey() {
@@ -2292,6 +2321,8 @@ The AI will find the most interesting hook and transform your content into an en
                 localStorage.setItem('ltgv_api_key', apiKey);
                 localStorage.removeItem('openai_api_key');
                 showStatus('LTG Vault API key saved', 'success');
+                // Check subscription status for newly saved key
+                checkSubscriptionStatus(apiKey);
             } else if (isOpenAIKey(apiKey)) {
                 localStorage.setItem('openai_api_key', apiKey);
                 localStorage.removeItem('ltgv_api_key');

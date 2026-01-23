@@ -51,27 +51,52 @@ module.exports = async function handler(req, res) {
     const siteUrl = (process.env.SITE_URL || 'https://ltgvault.vercel.app').trim().replace(/\/$/, '');
     const accessLink = `${siteUrl}/activate.html?token=${token}`;
 
-    // For now, just log the link (in production, send via email service like Resend, SendGrid, etc.)
-    console.log('=== ACCESS LINK GENERATED ===');
-    console.log('Email:', user.email);
-    console.log('Link:', accessLink);
-    console.log('=============================');
+    // Send email via Resend
+    const resendApiKey = process.env.RESEND_API_KEY;
 
-    // TODO: Send email with accessLink
-    // For now, we'll return success and the user checks Vercel logs or we implement email later
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not configured');
+      return res.status(500).json({ error: 'Email service not configured' });
+    }
 
-    // If you have an email service configured, uncomment and implement:
-    // await sendEmail({
-    //   to: user.email,
-    //   subject: 'Your LTG Vault Access Link',
-    //   html: `<p>Click here to access LTG Vault on this device:</p><p><a href="${accessLink}">${accessLink}</a></p><p>This link expires in 24 hours.</p>`
-    // });
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'LTG Vault <noreply@ltgvault.com>',
+        to: user.email,
+        subject: 'Your LTG Vault Access Link',
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #c9a227;">LTG Vault Access Link</h2>
+            <p>Click the button below to access your LTG Vault tools on this device:</p>
+            <p style="margin: 24px 0;">
+              <a href="${accessLink}" style="background: #c9a227; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Activate Access</a>
+            </p>
+            <p style="color: #666; font-size: 14px;">Or copy this link: <a href="${accessLink}">${accessLink}</a></p>
+            <p style="color: #666; font-size: 14px;">This link expires in 24 hours.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+            <p style="color: #999; font-size: 12px;">If you didn't request this link, you can safely ignore this email.</p>
+          </div>
+        `
+      })
+    });
+
+    const emailResult = await emailResponse.json();
+
+    if (!emailResponse.ok) {
+      console.error('Resend API error:', emailResult);
+      return res.status(500).json({ error: 'Failed to send email' });
+    }
+
+    console.log('Access link email sent to:', user.email);
 
     return res.status(200).json({
       success: true,
-      message: 'Access link generated. Check Vercel logs for now (email integration pending).',
-      // In dev/testing, include the link. Remove in production!
-      _devLink: process.env.NODE_ENV !== 'production' ? accessLink : undefined
+      message: 'Access link sent to your email.'
     });
 
   } catch (error) {

@@ -56,23 +56,20 @@ CREATE TABLE usage (
 -- Index for faster usage lookups
 CREATE INDEX idx_usage_user_tool ON usage(user_id, tool);
 
--- Enable Row Level Security (optional, recommended for Supabase)
+-- ============================================================================
+-- ROW LEVEL SECURITY (RLS)
+-- ============================================================================
+-- RLS enabled with NO public policies = blocks all direct client access
+-- Service role key (used by our API) bypasses RLS entirely
+-- This means: API server can read/write, but no one can access directly
+-- ============================================================================
+
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE usage ENABLE ROW LEVEL SECURITY;
 
--- Service role policies (allows server-side access via service_role key)
-CREATE POLICY "Service role can do anything on users" ON users
-    FOR ALL
-    USING (auth.role() = 'service_role')
-    WITH CHECK (auth.role() = 'service_role');
-
-CREATE POLICY "Service role can do anything on api_keys" ON api_keys
-    FOR ALL
-    USING (auth.role() = 'service_role')
-    WITH CHECK (auth.role() = 'service_role');
-
-CREATE POLICY "Service role can do anything on usage" ON usage
-    FOR ALL
-    USING (auth.role() = 'service_role')
-    WITH CHECK (auth.role() = 'service_role');
+-- NO POLICIES NEEDED - service_role key bypasses RLS
+-- If you previously created service_role policies, drop them:
+-- DROP POLICY IF EXISTS "Service role can do anything on users" ON users;
+-- DROP POLICY IF EXISTS "Service role can do anything on api_keys" ON api_keys;
+-- DROP POLICY IF EXISTS "Service role can do anything on usage" ON usage;

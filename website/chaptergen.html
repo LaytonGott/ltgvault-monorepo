@@ -726,8 +726,406 @@
             opacity: 0.6;
         }
 
+        /* ============ TWO-COLUMN TOOL LAYOUT ============ */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .tool-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .panel-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #555;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        .char-count.warning { color: #ffbd2e; }
+        .char-count.error { color: #ff5f57; }
+
+        .text-area {
+            width: 100%;
+            min-height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--white);
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            resize: vertical;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: rgba(201, 162, 39, 0.4);
+        }
+
+        .text-area::placeholder {
+            color: #555;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .text-area[readonly] {
+            background: rgba(0, 0, 0, 0.2);
+            cursor: default;
+        }
+
+        .button-row {
+            margin-top: 16px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            background: var(--gold-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .generate-btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--black);
+        }
+
+        .generate-btn.loading .btn-text { display: none; }
+        .generate-btn.loading .spinner { display: block; }
+
+        .copy-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 10px;
+            color: var(--gold);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover:not(:disabled) {
+            background: rgba(201, 162, 39, 0.25);
+        }
+
+        .copy-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .copy-btn.copied {
+            background: rgba(40, 202, 65, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .error-message {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 95, 87, 0.1);
+            border: 1px solid rgba(255, 95, 87, 0.3);
+            border-radius: 8px;
+            color: var(--error);
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .error-message.visible { display: block; }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: none;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions.visible { display: flex; }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #999;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(201, 162, 39, 0.1);
+        }
+
+        .quick-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Variation Selector */
+        .variation-selector {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .variation-selector.visible { display: block; }
+
+        .variation-selector-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .variation-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .variation-tab {
+            padding: 10px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .variation-tab:hover {
+            border-color: rgba(201, 162, 39, 0.4);
+            color: var(--white);
+        }
+
+        .variation-tab.active {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Alternatives Section */
+        .alternatives-section {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .alternatives-section.visible { display: block; }
+
+        .alternatives-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .alternative-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .alternative-item:hover {
+            border-color: rgba(201, 162, 39, 0.4);
+        }
+
+        .alternative-item:last-child { margin-bottom: 0; }
+
+        .alternative-text {
+            font-size: 0.85rem;
+            color: var(--white);
+        }
+
+        .alternative-timestamp {
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .use-this-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            color: var(--gold);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .use-this-btn:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        /* Improvement Tips */
+        .improvement-tips {
+            display: none;
+            padding: 20px;
+            background: rgba(40, 202, 65, 0.05);
+            border: 1px solid rgba(40, 202, 65, 0.15);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .improvement-tips.visible { display: block; }
+
+        .improvement-tips-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .improvement-tips-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--gray-light);
+            line-height: 1.5;
+        }
+
+        .tip-bullet {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Confidence Score */
+        .confidence-score {
+            display: none;
+            text-align: right;
+            margin-bottom: 16px;
+        }
+
+        .confidence-score.visible { display: block; }
+
+        .confidence-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-right: 8px;
+        }
+
+        .confidence-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .confidence-value.high { color: var(--success); }
+        .confidence-value.medium { color: #ffbd2e; }
+        .confidence-value.low { color: var(--error); }
+
         /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+            .tool-panel {
+                padding: 20px;
+            }
+            .text-area {
+                min-height: 200px;
+            }
             header {
                 padding: 16px 0;
             }
@@ -1285,63 +1683,126 @@
                 </ol>
             </div>
 
-            <!-- Transcript Area -->
-            <div class="card">
-                <div class="card-header">
-                    <label class="card-title" style="margin-bottom: 0;">Transcript</label>
-                    <button id="settingsBtn" class="icon-btn" title="API Settings">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"/>
-                            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-                        </svg>
-                    </button>
-                </div>
-                <textarea id="transcriptArea" placeholder="Paste your YouTube transcript here...
+            <!-- Tool Grid: Two Columns -->
+            <div class="tool-grid">
+                <!-- Left Panel: Input -->
+                <div class="tool-panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Transcript</span>
+                        <span class="char-count" id="inputCount">0 / 50,000</span>
+                    </div>
+                    <textarea class="text-area" id="transcriptArea" placeholder="Paste your YouTube transcript here...
 
 Example format:
 0:00 Welcome to the video
 0:15 Today we're covering...
 1:30 First topic starts here
 2:45 Moving on to the next section"></textarea>
-                <div id="charCounter" class="char-counter">0 / 50,000 characters</div>
+
+                    <!-- Usage Counter -->
+                    <div id="usageCounter" class="usage-counter" style="margin-top: 16px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                        </svg>
+                        <span id="usageText"><span class="count">1</span> <span class="label">free use left</span></span>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="generate-btn" id="generateBtn">
+                            <span class="btn-text">Generate Chapters</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </div>
+                    <div class="error-message" id="errorMessage"></div>
+                </div>
+
+                <!-- Right Panel: Output -->
+                <div class="tool-panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Generated Chapters</span>
+                        <span class="char-count" id="outputCount">0 chars</span>
+                    </div>
+                    <textarea class="text-area" id="outputText" placeholder="Your YouTube chapters will appear here..." readonly></textarea>
+
+                    <div class="button-row">
+                        <button class="copy-btn" id="copyBtn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span id="copyText">Copy to Clipboard</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions" id="quickActions">
+                        <button class="quick-action-btn" data-action="more_chapters">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            More Chapters
+                        </button>
+                        <button class="quick-action-btn" data-action="shorter_titles">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 4H3M21 8H9M21 12H3M21 16H9M21 20H3"/>
+                            </svg>
+                            Shorter Titles
+                        </button>
+                        <button class="quick-action-btn" data-action="add_timestamps">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            Add Timestamps
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Usage Counter -->
-            <div id="usageCounter" class="usage-counter">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                </svg>
-                <span id="usageText"><span class="count">1</span> <span class="label">free use left</span></span>
-            </div>
-
-            <!-- Generate Button -->
-            <button id="generateBtn" class="btn primary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                Generate Chapters
-            </button>
-
-            <!-- Loading -->
+            <!-- Loading (shows during generation) -->
             <div id="loading" class="loading">
                 <div class="spinner"></div>
                 <p id="loadingText">Analyzing transcript...</p>
             </div>
 
-            <!-- Results -->
-            <div id="results" class="results">
-                <div class="results-header">
-                    <h3 class="results-title">Generated Chapters</h3>
-                    <button id="copyBtn" class="btn secondary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                        </svg>
-                        Copy
-                    </button>
-                </div>
-                <pre id="chaptersOutput" class="chapters-output"></pre>
+            <!-- Variation Selector -->
+            <div class="variation-selector" id="variationSelector">
+                <div class="variation-selector-title">Chapter Styles</div>
+                <div class="variation-tabs" id="variationTabs"></div>
             </div>
+
+            <!-- Alternative Titles -->
+            <div class="alternatives-section" id="alternativesSection">
+                <div class="alternatives-title">Alternative Titles</div>
+                <div class="alternatives-list" id="alternativesList"></div>
+            </div>
+
+            <!-- Improvement Tips -->
+            <div class="improvement-tips" id="improvementTips">
+                <div class="improvement-tips-header">
+                    <div class="improvement-tips-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                        Improvement Tips
+                    </div>
+                </div>
+                <div class="tips-list" id="tipsList"></div>
+            </div>
+
+            <!-- Confidence Score -->
+            <div class="confidence-score" id="confidenceScore">
+                <span class="confidence-label">Quality Score:</span>
+                <span class="confidence-value" id="confidenceValue">--/100</span>
+            </div>
+
+            <!-- Settings Button (floating) -->
+            <button id="settingsBtn" class="icon-btn" title="API Settings" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 50%; z-index: 100;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+            </button>
 
             <!-- Bottom CTA -->
             <div class="bottom-cta" id="bottomCta">
@@ -1516,15 +1977,27 @@ Example format:
             generateBtn: document.getElementById('generateBtn'),
             loading: document.getElementById('loading'),
             loadingText: document.getElementById('loadingText'),
-            results: document.getElementById('results'),
-            chaptersOutput: document.getElementById('chaptersOutput'),
+            outputText: document.getElementById('outputText'),
             copyBtn: document.getElementById('copyBtn'),
             freeUsesText: document.getElementById('freeUsesText'),
-            charCounter: document.getElementById('charCounter')
+            inputCount: document.getElementById('inputCount'),
+            outputCount: document.getElementById('outputCount'),
+            quickActions: document.getElementById('quickActions'),
+            variationSelector: document.getElementById('variationSelector'),
+            variationTabs: document.getElementById('variationTabs'),
+            alternativesSection: document.getElementById('alternativesSection'),
+            alternativesList: document.getElementById('alternativesList'),
+            improvementTips: document.getElementById('improvementTips'),
+            tipsList: document.getElementById('tipsList'),
+            confidenceScore: document.getElementById('confidenceScore'),
+            confidenceValue: document.getElementById('confidenceValue'),
+            errorMessage: document.getElementById('errorMessage')
         };
 
         // State
         var generatedChapters = '';
+        var currentVariations = [];
+        var currentVariationIndex = 0;
         var apiKeyValid = false;  // Track if stored API key is valid
         var isSubscribed = false; // Track if subscribed to THIS tool specifically
 
@@ -1533,7 +2006,7 @@ Example format:
             loadApiKey();
             setupEventListeners();
             updateFreeTrialUI();
-            updateCharCounter();
+            updateInputCounter();
         });
 
         function setupEventListeners() {
@@ -1542,7 +2015,17 @@ Example format:
             elements.saveKeyBtn.addEventListener('click', saveApiKey);
             elements.generateBtn.addEventListener('click', generateChapters);
             elements.copyBtn.addEventListener('click', copyChapters);
-            elements.transcriptArea.addEventListener('input', updateCharCounter);
+            elements.transcriptArea.addEventListener('input', updateInputCounter);
+            elements.outputText.addEventListener('input', updateOutputCounter);
+
+            // Quick action buttons
+            var quickBtns = document.querySelectorAll('.quick-action-btn');
+            quickBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var action = btn.getAttribute('data-action');
+                    handleQuickAction(action);
+                });
+            });
         }
 
         function toggleSettings() {
@@ -1736,19 +2219,25 @@ Example format:
             }
         }
 
-        // Character counter for transcript
-        function updateCharCounter() {
+        // Character counter for transcript input
+        function updateInputCounter() {
             var length = elements.transcriptArea.value.length;
             var formatted = length.toLocaleString();
-            elements.charCounter.textContent = formatted + ' / 50,000 characters';
+            elements.inputCount.textContent = formatted + ' / 50,000';
 
             // Update color based on length
-            elements.charCounter.classList.remove('warning', 'error');
+            elements.inputCount.classList.remove('warning', 'error');
             if (length >= 50000) {
-                elements.charCounter.classList.add('error');
+                elements.inputCount.classList.add('error');
             } else if (length >= 40000) {
-                elements.charCounter.classList.add('warning');
+                elements.inputCount.classList.add('warning');
             }
+        }
+
+        // Character counter for output
+        function updateOutputCounter() {
+            var length = elements.outputText.value.length;
+            elements.outputCount.textContent = length.toLocaleString() + ' chars';
         }
 
         async function generateChapters() {
@@ -1790,10 +2279,15 @@ Example format:
             }
 
             // Show loading
-            elements.results.classList.remove('visible');
             elements.generateBtn.disabled = true;
+            elements.generateBtn.classList.add('loading');
             elements.loading.classList.add('visible');
             elements.loadingText.textContent = 'Analyzing transcript...';
+            elements.quickActions.classList.remove('visible');
+            elements.variationSelector.classList.remove('visible');
+            elements.alternativesSection.classList.remove('visible');
+            elements.improvementTips.classList.remove('visible');
+            elements.confidenceScore.classList.remove('visible');
             hideStatus();
 
             try {
@@ -1845,8 +2339,12 @@ Example format:
 
                 // Display results
                 generatedChapters = chapters;
-                elements.chaptersOutput.textContent = chapters;
-                elements.results.classList.add('visible');
+                elements.outputText.value = chapters;
+                updateOutputCounter();
+
+                // Enable UI elements
+                elements.copyBtn.disabled = false;
+                elements.quickActions.classList.add('visible');
 
                 // Auto-copy
                 try {
@@ -1862,6 +2360,7 @@ Example format:
             } finally {
                 elements.loading.classList.remove('visible');
                 elements.generateBtn.disabled = false;
+                elements.generateBtn.classList.remove('loading');
             }
         }
 
@@ -1877,13 +2376,68 @@ Example format:
         }
 
         async function copyChapters() {
-            if (!generatedChapters) return;
+            var text = elements.outputText.value;
+            if (!text) return;
 
             try {
-                await navigator.clipboard.writeText(generatedChapters);
+                await navigator.clipboard.writeText(text);
                 showCopiedFeedback();
             } catch (e) {
                 showStatus('Failed to copy to clipboard', 'error');
+            }
+        }
+
+        // Quick action handler
+        async function handleQuickAction(action) {
+            var currentOutput = elements.outputText.value;
+            if (!currentOutput) {
+                showStatus('Generate chapters first', 'error');
+                return;
+            }
+
+            // Disable quick action buttons during processing
+            var quickBtns = document.querySelectorAll('.quick-action-btn');
+            quickBtns.forEach(function(btn) { btn.disabled = true; });
+
+            elements.loading.classList.add('visible');
+            elements.loadingText.textContent = 'Refining chapters...';
+
+            try {
+                var ltgvKey = localStorage.getItem('ltgv_api_key');
+                var headers = { 'Content-Type': 'application/json' };
+                if (ltgvKey) {
+                    headers['x-api-key'] = ltgvKey;
+                } else {
+                    headers['x-free-trial'] = 'true';
+                }
+
+                var response = await fetch('/api/tools/chaptergen', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        transcript: elements.transcriptArea.value,
+                        action: action,
+                        currentChapters: currentOutput
+                    })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to refine chapters');
+                }
+
+                // Update output
+                elements.outputText.value = data.result;
+                generatedChapters = data.result;
+                updateOutputCounter();
+                showStatus('Chapters refined!', 'success');
+
+            } catch (error) {
+                showStatus(error.message || 'Failed to refine chapters', 'error');
+            } finally {
+                elements.loading.classList.remove('visible');
+                quickBtns.forEach(function(btn) { btn.disabled = false; });
             }
         }
 

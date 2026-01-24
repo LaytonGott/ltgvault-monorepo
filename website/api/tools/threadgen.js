@@ -61,15 +61,19 @@ module.exports = async function handler(req, res) {
     }
     // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
 
-    // Get action from request (hooks or body)
+    // Get action from request (hooks, body, full_thread, or quick actions)
     const { action } = req.body;
 
     if (action === 'hooks') {
       return await generateHooks(req, res, user, used, limit, subscribed);
     } else if (action === 'body') {
       return await generateBody(req, res, user, used, limit, subscribed);
+    } else if (action === 'full_thread') {
+      return await generateFullThread(req, res, user, used, limit, subscribed);
+    } else if (action === 'stronger_hook' || action === 'add_tweet' || action === 'sharper_cta') {
+      return await refineThread(req, res, action);
     } else {
-      return res.status(400).json({ error: 'Invalid action. Use "hooks" or "body".' });
+      return res.status(400).json({ error: 'Invalid action.' });
     }
 
   } catch (error) {
@@ -535,4 +539,252 @@ Return JSON array with exactly 3 objects:
       limit: subscribed ? 'unlimited' : limit
     }
   });
+}
+
+// Generate complete thread at once (simplified flow)
+async function generateFullThread(req, res, user, used, limit, subscribed) {
+  const { content, tone, tweetNumbering, emojiUsage } = req.body;
+
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({ error: 'content is required' });
+  }
+
+  if (content.length < 100) {
+    return res.status(400).json({ error: 'Content is too short. Minimum 100 characters.' });
+  }
+
+  if (content.length > 20000) {
+    return res.status(400).json({ error: 'Content too long. Maximum 20,000 characters.' });
+  }
+
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (!anthropicKey) {
+    return res.status(500).json({ error: 'Anthropic API not configured' });
+  }
+
+  const emojiInstruction = emojiUsage
+    ? 'You may use emojis sparingly where appropriate.'
+    : 'Do NOT use any emojis.';
+
+  const toneInstructions = {
+    'educational': 'TONE: Educational — clear, informative, helpful. Focus on teaching or sharing knowledge.',
+    'spicy': 'TONE: Spicy/Hot Take — bold, controversial, challenges conventional wisdom. Be provocative but not offensive.',
+    'story': 'TONE: Story-driven — narrative, personal, pulls reader into a journey. Start mid-action.',
+    'opinionated': 'TONE: Opinionated — strong personal views, not afraid to disagree. Voice your perspective confidently.'
+  };
+
+  const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
+
+  const systemPrompt = `You are a Twitter thread expert. Create engaging Twitter threads that capture attention and drive engagement.
+
+${toneInstruction}
+
+${emojiInstruction}
+
+Rules:
+1. Each tweet must be under 280 characters
+2. The first tweet (hook) must grab attention immediately
+3. Use short, punchy sentences
+4. Include a clear CTA at the end
+5. Preserve the author's voice and key points
+6. Make it scannable and easy to read
+
+Return ONLY a JSON array of tweets. Example:
+["First tweet (hook)", "Second tweet", "Third tweet", "Final tweet with CTA"]`;
+
+  const userPrompt = `Transform this content into an engaging Twitter thread (4-8 tweets):
+
+${content}
+
+Return ONLY a JSON array of tweets, nothing else.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 2000,
+        temperature: 0.7,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Anthropic error:', errorData);
+      return res.status(500).json({
+        error: errorData?.error?.message || 'Failed to generate thread'
+      });
+    }
+
+    const data = await response.json();
+    const rawResult = data.content?.[0]?.text;
+
+    if (!rawResult) {
+      return res.status(500).json({ error: 'Empty response from AI' });
+    }
+
+    // Parse the JSON array
+    let tweets;
+    try {
+      const match = rawResult.match(/\[[\s\S]*\]/);
+      if (match) {
+        tweets = JSON.parse(match[0]);
+      } else {
+        throw new Error('No JSON array found');
+      }
+    } catch (e) {
+      // Try to parse as newline-separated tweets
+      tweets = rawResult.split('\n\n').filter(t => t.trim());
+    }
+
+    // Validate and trim tweets
+    tweets = tweets.map(tweet => {
+      const cleaned = tweet.replace(/^\d+[\/\.]\s*/, ''); // Remove existing numbering
+      if (cleaned.length > 280) {
+        return cleaned.substring(0, 277) + '...';
+      }
+      return cleaned;
+    });
+
+    // Add numbering if requested
+    if (tweetNumbering) {
+      tweets = tweets.map((tweet, i) => `${i + 1}/${tweets.length}\n${tweet}`);
+    }
+
+    // Increment usage after successful generation
+    if (user) {
+      await incrementUsage(user.id, 'threadgen');
+    }
+
+    return res.status(200).json({
+      success: true,
+      result: tweets,
+      usage: {
+        used: used + 1,
+        limit: subscribed ? 'unlimited' : limit
+      }
+    });
+
+  } catch (error) {
+    console.error('Full thread generation error:', error);
+    return res.status(500).json({ error: 'Failed to generate thread' });
+  }
+}
+
+// Refine thread (quick actions)
+async function refineThread(req, res, action) {
+  const { content, currentThread, tone, tweetNumbering, emojiUsage } = req.body;
+
+  if (!currentThread) {
+    return res.status(400).json({ error: 'currentThread is required for refinement' });
+  }
+
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (!anthropicKey) {
+    return res.status(500).json({ error: 'Anthropic API not configured' });
+  }
+
+  const emojiInstruction = emojiUsage
+    ? 'You may use emojis sparingly.'
+    : 'Do NOT use any emojis.';
+
+  const actionPrompts = {
+    'stronger_hook': `Rewrite the first tweet of this thread with a stronger, more attention-grabbing hook. Make it more compelling and scroll-stopping.
+
+Current thread:
+${currentThread}
+
+Return the COMPLETE thread as a JSON array with the improved hook.`,
+
+    'add_tweet': `Add one more tweet to this thread that adds value. It should fit naturally and maintain the thread's tone.
+
+Current thread:
+${currentThread}
+
+Return the COMPLETE thread as a JSON array with the new tweet added.`,
+
+    'sharper_cta': `Rewrite the last tweet of this thread with a sharper, more compelling call-to-action. Make it drive engagement.
+
+Current thread:
+${currentThread}
+
+Return the COMPLETE thread as a JSON array with the improved CTA.`
+  };
+
+  const userPrompt = actionPrompts[action];
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-haiku-20240307',
+        max_tokens: 2000,
+        temperature: 0.7,
+        system: `You are a Twitter thread expert. ${emojiInstruction} Return ONLY a JSON array of tweets.`,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return res.status(500).json({
+        error: errorData?.error?.message || 'Failed to refine thread'
+      });
+    }
+
+    const data = await response.json();
+    const rawResult = data.content?.[0]?.text;
+
+    if (!rawResult) {
+      return res.status(500).json({ error: 'Empty response from AI' });
+    }
+
+    // Parse the JSON array
+    let tweets;
+    try {
+      const match = rawResult.match(/\[[\s\S]*\]/);
+      if (match) {
+        tweets = JSON.parse(match[0]);
+      } else {
+        throw new Error('No JSON array found');
+      }
+    } catch (e) {
+      tweets = rawResult.split('\n\n').filter(t => t.trim());
+    }
+
+    // Validate and trim tweets
+    tweets = tweets.map(tweet => {
+      const cleaned = tweet.replace(/^\d+[\/\.]\s*/, '');
+      if (cleaned.length > 280) {
+        return cleaned.substring(0, 277) + '...';
+      }
+      return cleaned;
+    });
+
+    // Add numbering if requested
+    if (tweetNumbering) {
+      tweets = tweets.map((tweet, i) => `${i + 1}/${tweets.length}\n${tweet}`);
+    }
+
+    return res.status(200).json({
+      success: true,
+      result: tweets
+    });
+
+  } catch (error) {
+    console.error('Thread refinement error:', error);
+    return res.status(500).json({ error: 'Failed to refine thread' });
+  }
 }

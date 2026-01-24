@@ -68,6 +68,40 @@ Return ONLY chapters in format (timestamps at segment STARTS):
 0:02 Player's Goal`;
 }
 
+// Build refinement prompt for quick actions
+function buildRefinementPrompt(currentChapters, action, transcript) {
+  const actionPrompts = {
+    'more_chapters': `Add more chapters to break this video into smaller segments. Find additional natural breakpoints in the content.
+
+Current chapters:
+${currentChapters}
+
+Reference transcript:
+${transcript}
+
+Return the improved chapters with more granular timestamps. Keep existing chapters but add new ones between them where appropriate.`,
+
+    'shorter_titles': `Make these chapter titles shorter and punchier. Aim for 2-4 words per title.
+
+Current chapters:
+${currentChapters}
+
+Return the same chapters with shorter, more scannable titles. Keep the same timestamps.`,
+
+    'add_timestamps': `Find more section breaks and add additional timestamps to these chapters.
+
+Current chapters:
+${currentChapters}
+
+Reference transcript:
+${transcript}
+
+Add more timestamps to capture transitions and topic changes that were missed. Return the complete chapter list with additions.`
+  };
+
+  return actionPrompts[action] || null;
+}
+
 // Fix name spellings (second pass)
 async function fixNameSpellings(chapters, openaiKey) {
   try {
@@ -157,18 +191,24 @@ module.exports = async function handler(req, res) {
     }
     // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
 
-    // Get transcript from request
-    const transcript = req.body.transcript;
+    // Get transcript and action from request
+    const { transcript, action, currentChapters } = req.body;
 
-    if (!transcript || transcript.trim().length === 0) {
+    // For quick actions, we need currentChapters
+    if (action && !currentChapters) {
+      return res.status(400).json({ error: 'currentChapters is required for quick actions' });
+    }
+
+    // For normal generation, we need transcript
+    if (!action && (!transcript || transcript.trim().length === 0)) {
       return res.status(400).json({ error: 'transcript is required' });
     }
 
-    if (transcript.length < 100) {
+    if (transcript && transcript.length < 100) {
       return res.status(400).json({ error: 'Transcript is too short. Minimum 100 characters.' });
     }
 
-    if (transcript.length > 50000) {
+    if (transcript && transcript.length > 50000) {
       return res.status(400).json({ error: 'Transcript too long. Maximum 50,000 characters.' });
     }
 
@@ -179,15 +219,25 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'OpenAI not configured' });
     }
 
-    // Extract video duration from last timestamp in transcript
-    const timestampMatches = transcript.match(/\[?(\d+):(\d+)\]?/g);
-    let videoDuration = '10:00';
-    if (timestampMatches && timestampMatches.length > 0) {
-      videoDuration = timestampMatches[timestampMatches.length - 1].replace(/[\[\]]/g, '');
-    }
+    let userPrompt;
+    let systemPrompt = SYSTEM_PROMPT;
 
-    // Build user prompt
-    const userPrompt = buildUserPrompt(transcript, videoDuration);
+    // Check if this is a quick action refinement
+    if (action && currentChapters) {
+      userPrompt = buildRefinementPrompt(currentChapters, action, transcript || '');
+      if (!userPrompt) {
+        return res.status(400).json({ error: 'Invalid action specified' });
+      }
+      systemPrompt = 'You are a YouTube chapter expert. Improve the given chapters based on the request. Return ONLY the improved chapters in the same format (timestamp followed by title, one per line).';
+    } else {
+      // Extract video duration from last timestamp in transcript
+      const timestampMatches = transcript.match(/\[?(\d+):(\d+)\]?/g);
+      let videoDuration = '10:00';
+      if (timestampMatches && timestampMatches.length > 0) {
+        videoDuration = timestampMatches[timestampMatches.length - 1].replace(/[\[\]]/g, '');
+      }
+      userPrompt = buildUserPrompt(transcript, videoDuration);
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -198,7 +248,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.3,
@@ -224,12 +274,14 @@ module.exports = async function handler(req, res) {
     // Process the response
     let chapters = rawResult.trim();
 
-    // Run second pass: Fix name spellings
-    chapters = await fixNameSpellings(chapters, openaiKey);
+    // Run second pass: Fix name spellings (skip for quick actions to save API calls)
+    if (!action) {
+      chapters = await fixNameSpellings(chapters, openaiKey);
+    }
 
-    // Increment usage after successful generation
+    // Increment usage after successful generation (only for new generations, not refinements)
     // Increment usage only for authenticated users
-    if (user) {
+    if (user && !action) {
       await incrementUsage(user.id, 'chaptergen');
     }
 

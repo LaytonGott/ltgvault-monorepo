@@ -735,8 +735,420 @@
             opacity: 0.6;
         }
 
+        /* ============ TWO-COLUMN TOOL LAYOUT ============ */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .tool-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .panel-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .text-area {
+            width: 100%;
+            min-height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            resize: vertical;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: rgba(201, 162, 39, 0.4);
+        }
+
+        .text-area::placeholder {
+            color: #555;
+        }
+
+        .text-area[readonly] {
+            background: rgba(0, 0, 0, 0.2);
+            cursor: default;
+        }
+
+        .button-row {
+            margin-top: 16px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            background: var(--gold-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .generate-btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--black);
+        }
+
+        .generate-btn.loading .btn-text { display: none; }
+        .generate-btn.loading .spinner { display: block; }
+
+        .copy-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 10px;
+            color: var(--gold);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover:not(:disabled) {
+            background: rgba(201, 162, 39, 0.25);
+        }
+
+        .copy-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .copy-btn.copied {
+            background: rgba(40, 202, 65, 0.15);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .error-message {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 95, 87, 0.1);
+            border: 1px solid rgba(255, 95, 87, 0.3);
+            border-radius: 8px;
+            color: var(--error);
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .error-message.visible { display: block; }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: none;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions.visible { display: flex; }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #999;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(201, 162, 39, 0.1);
+        }
+
+        .quick-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Variation Selector */
+        .variation-selector {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .variation-selector.visible { display: block; }
+
+        .variation-selector-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .variation-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .variation-tab {
+            padding: 10px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .variation-tab:hover {
+            border-color: rgba(201, 162, 39, 0.4);
+            color: var(--white);
+        }
+
+        .variation-tab.active {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Alternatives Section */
+        .alternatives-section {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .alternatives-section.visible { display: block; }
+
+        .alternatives-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .alternative-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .alternative-item:hover {
+            border-color: rgba(201, 162, 39, 0.4);
+        }
+
+        .alternative-item:last-child { margin-bottom: 0; }
+
+        .alternative-text {
+            font-size: 0.85rem;
+            color: var(--white);
+            flex: 1;
+        }
+
+        .use-this-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            color: var(--gold);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .use-this-btn:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        /* Improvement Tips */
+        .improvement-tips {
+            display: none;
+            padding: 20px;
+            background: rgba(40, 202, 65, 0.05);
+            border: 1px solid rgba(40, 202, 65, 0.15);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .improvement-tips.visible { display: block; }
+
+        .improvement-tips-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .improvement-tips-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tips-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--gray-light);
+            line-height: 1.5;
+        }
+
+        .tip-bullet {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Confidence Score */
+        .confidence-score {
+            display: none;
+            text-align: right;
+            margin-bottom: 16px;
+        }
+
+        .confidence-score.visible { display: block; }
+
+        .confidence-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-right: 8px;
+        }
+
+        .confidence-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .confidence-value.high { color: var(--success); }
+        .confidence-value.medium { color: #ffbd2e; }
+        .confidence-value.low { color: var(--error); }
+
+        /* Thread Output Display */
+        .thread-output {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .thread-tweet {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .thread-tweet:last-child { margin-bottom: 0; }
+
+        .thread-tweet-number {
+            color: var(--gold);
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
         /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+            .tool-panel {
+                padding: 20px;
+            }
+            .text-area {
+                min-height: 200px;
+            }
             header {
                 padding: 16px 0;
             }
@@ -1910,116 +2322,158 @@
 
         <!-- Main Content -->
         <div id="mainContent">
-            <!-- Content Input -->
-            <div class="card tool-card">
-                <div class="tool-section-header">
-                    <span class="tool-section-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            <!-- Tool Grid: Two Columns -->
+            <div class="tool-grid">
+                <!-- Left Panel: Input -->
+                <div class="tool-panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Your Content</span>
+                        <span class="char-count" id="inputCount">0 chars</span>
+                    </div>
+                    <textarea class="text-area" id="inputText" placeholder="Paste your blog post, article, or notes here...
+
+The AI will transform your content into an engaging Twitter thread."></textarea>
+
+                    <!-- Formatting Options -->
+                    <div class="formatting-options" style="margin-top: 16px;">
+                        <label class="toggle-option">
+                            <input type="checkbox" id="tweetNumbering" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Tweet numbering (1/, 2/...)</span>
+                        </label>
+                        <label class="toggle-option">
+                            <input type="checkbox" id="emojiUsage">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Allow emojis</span>
+                        </label>
+                    </div>
+
+                    <!-- Tone Selector -->
+                    <div class="tone-selector" style="margin-top: 16px;">
+                        <label class="tone-label">Thread Tone</label>
+                        <div class="tone-options">
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="educational" checked>
+                                <span class="tone-btn">Educational</span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="spicy">
+                                <span class="tone-btn">Spicy</span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="story">
+                                <span class="tone-btn">Story</span>
+                            </label>
+                            <label class="tone-option">
+                                <input type="radio" name="tone" value="opinionated">
+                                <span class="tone-btn">Opinionated</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Usage Counter -->
+                    <div id="usageCounter" class="usage-counter" style="margin-top: 16px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                         </svg>
-                        Create Your Thread
-                    </span>
+                        <span id="usageText"><span class="count">3</span> <span class="label">free uses left</span></span>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="generate-btn" id="generateBtn">
+                            <span class="btn-text">Generate Thread</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </div>
+                    <div class="error-message" id="errorMessage"></div>
                 </div>
-                <div class="card-header">
-                    <label class="card-title" style="margin-bottom: 0;">Your Content</label>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="char-count"><span id="charCount">0</span> characters</span>
-                        <button id="settingsBtn" class="icon-btn" title="API Settings">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+
+                <!-- Right Panel: Output -->
+                <div class="tool-panel">
+                    <div class="panel-header">
+                        <span class="panel-label">Generated Thread</span>
+                        <span class="char-count" id="outputCount">0 tweets</span>
+                    </div>
+                    <div class="thread-output" id="threadOutput">
+                        <div style="text-align: center; color: #555; padding: 40px 20px;">
+                            Your thread will appear here...
+                        </div>
+                    </div>
+
+                    <div class="button-row">
+                        <button class="copy-btn" id="copyBtn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
+                            <span id="copyText">Copy Thread</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions" id="quickActions">
+                        <button class="quick-action-btn" data-action="stronger_hook">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                            Stronger Hook
+                        </button>
+                        <button class="quick-action-btn" data-action="add_tweet">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            Add Tweet
+                        </button>
+                        <button class="quick-action-btn" data-action="sharper_cta">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            Sharper CTA
                         </button>
                     </div>
                 </div>
-                <textarea id="inputText" placeholder="Paste your blog post, article, or notes here...
-
-The AI will find the most interesting hook and transform your content into an engaging Twitter thread."></textarea>
-
-                <!-- Formatting Options -->
-                <div class="formatting-options">
-                    <label class="toggle-option">
-                        <input type="checkbox" id="tweetNumbering" checked>
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-label">Tweet numbering (1/, 2/...)</span>
-                    </label>
-                    <label class="toggle-option">
-                        <input type="checkbox" id="emojiUsage">
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-label">Allow emojis</span>
-                    </label>
-                </div>
-
-                <!-- Tone Selector -->
-                <div class="tone-selector">
-                    <label class="tone-label">Thread Tone</label>
-                    <div class="tone-options">
-                        <label class="tone-option">
-                            <input type="radio" name="tone" value="educational" checked>
-                            <span class="tone-btn">Educational</span>
-                        </label>
-                        <label class="tone-option">
-                            <input type="radio" name="tone" value="spicy">
-                            <span class="tone-btn">Spicy / Hot Take</span>
-                        </label>
-                        <label class="tone-option">
-                            <input type="radio" name="tone" value="story">
-                            <span class="tone-btn">Story-driven</span>
-                        </label>
-                        <label class="tone-option">
-                            <input type="radio" name="tone" value="opinionated">
-                            <span class="tone-btn">Opinionated</span>
-                        </label>
-                    </div>
-                </div>
             </div>
 
-            <!-- Usage Counter -->
-            <div id="usageCounter" class="usage-counter">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                </svg>
-                <span id="usageText"><span class="count">3</span> <span class="label">free uses left</span></span>
-            </div>
-
-            <!-- Generate Button -->
-            <button id="generateBtn" class="btn primary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                Generate Thread
-            </button>
-
-            <!-- Loading -->
+            <!-- Loading (shows during generation) -->
             <div id="loading" class="loading">
                 <div class="spinner"></div>
-                <p>Creating your thread...</p>
+                <p id="loadingText">Creating your thread...</p>
             </div>
 
-            <!-- Results -->
-            <div id="results" class="results">
-                <div class="results-header">
-                    <h3 class="results-title">Your Thread</h3>
-                    <div class="results-actions">
-                        <button id="startOverBtn" class="btn secondary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                                <path d="M3 3v5h5"></path>
-                            </svg>
-                            Start Over
-                        </button>
-                        <button id="copyAllBtn" class="btn secondary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2"/>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                            </svg>
-                            Copy All
-                        </button>
+            <!-- Alternative Hooks -->
+            <div class="alternatives-section" id="alternativesSection">
+                <div class="alternatives-title">Alternative Hooks</div>
+                <div class="alternatives-list" id="alternativesList"></div>
+            </div>
+
+            <!-- Improvement Tips -->
+            <div class="improvement-tips" id="improvementTips">
+                <div class="improvement-tips-header">
+                    <div class="improvement-tips-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                        Improvement Tips
                     </div>
                 </div>
-                <div id="tweetsContainer" class="tweets-container"></div>
+                <div class="tips-list" id="tipsList"></div>
             </div>
+
+            <!-- Confidence Score -->
+            <div class="confidence-score" id="confidenceScore">
+                <span class="confidence-label">Thread Score:</span>
+                <span class="confidence-value" id="confidenceValue">--/100</span>
+            </div>
+
+            <!-- Settings Button (floating) -->
+            <button id="settingsBtn" class="icon-btn" title="API Settings" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 50%; z-index: 100;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+            </button>
+
             <!-- Bottom CTA -->
             <div class="bottom-cta" id="bottomCta">
                 <h3 class="bottom-cta-title">Get unlimited access</h3>
@@ -2242,42 +2696,34 @@ The AI will find the most interesting hook and transform your content into an en
             mainContent: document.getElementById('mainContent'),
             status: document.getElementById('status'),
             inputText: document.getElementById('inputText'),
-            charCount: document.getElementById('charCount'),
+            inputCount: document.getElementById('inputCount'),
+            outputCount: document.getElementById('outputCount'),
             generateBtn: document.getElementById('generateBtn'),
             loading: document.getElementById('loading'),
-            results: document.getElementById('results'),
-            tweetsContainer: document.getElementById('tweetsContainer'),
-            copyAllBtn: document.getElementById('copyAllBtn'),
-            // New elements
-            stepIndicator: document.getElementById('stepIndicator'),
-            tooShortWarning: document.getElementById('tooShortWarning'),
-            hookSelectionView: document.getElementById('hookSelectionView'),
-            bodyGenerationView: document.getElementById('bodyGenerationView'),
-            ctaSelectionView: document.getElementById('ctaSelectionView'),
-            hookOptions: document.getElementById('hookOptions'),
-            ctaOptions: document.getElementById('ctaOptions')
+            loadingText: document.getElementById('loadingText'),
+            threadOutput: document.getElementById('threadOutput'),
+            copyBtn: document.getElementById('copyBtn'),
+            copyText: document.getElementById('copyText'),
+            quickActions: document.getElementById('quickActions'),
+            alternativesSection: document.getElementById('alternativesSection'),
+            alternativesList: document.getElementById('alternativesList'),
+            improvementTips: document.getElementById('improvementTips'),
+            tipsList: document.getElementById('tipsList'),
+            confidenceScore: document.getElementById('confidenceScore'),
+            confidenceValue: document.getElementById('confidenceValue'),
+            errorMessage: document.getElementById('errorMessage')
         };
 
         // State
         var currentThread = [];
+        var generatedThread = '';
 
-        // Enhanced State for Multi-Step Flow
+        // Simplified state
         var state = {
-            currentStep: 1,
             originalContent: '',
-            processedContent: '',
-            selectedHook: null,
-            selectedHookIndex: -1,
-            hookOptions: [],
-            bodyTweets: [],
-            selectedCta: null,
-            selectedCtaIndex: -1,
-            ctaOptions: [],
-            customCta: '',
-            useCustomCta: false,
-            finalThread: [],
-            apiKeyValid: false,  // Track if stored API key is valid
-            isSubscribed: false, // Track if subscribed to THIS tool specifically
+            thread: [],
+            apiKeyValid: false,
+            isSubscribed: false,
             settings: {
                 tweetNumbering: true,
                 emojiUsage: false,
@@ -2297,9 +2743,18 @@ The AI will find the most interesting hook and transform your content into an en
             elements.settingsBtn.addEventListener('click', toggleSettings);
             elements.toggleKeyBtn.addEventListener('click', toggleKeyVisibility);
             elements.saveKeyBtn.addEventListener('click', saveApiKey);
-            elements.inputText.addEventListener('input', updateCharCount);
+            elements.inputText.addEventListener('input', updateInputCount);
             elements.generateBtn.addEventListener('click', startGeneration);
-            elements.copyAllBtn.addEventListener('click', copyAllTweets);
+            elements.copyBtn.addEventListener('click', copyThread);
+
+            // Quick action buttons
+            var quickBtns = document.querySelectorAll('.quick-action-btn');
+            quickBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var action = btn.getAttribute('data-action');
+                    handleQuickAction(action);
+                });
+            });
 
             // Formatting toggles
             var numberingToggle = document.getElementById('tweetNumbering');
@@ -2381,8 +2836,13 @@ The AI will find the most interesting hook and transform your content into an en
             elements.apiKeyInput.type = elements.apiKeyInput.type === 'password' ? 'text' : 'password';
         }
 
-        function updateCharCount() {
-            elements.charCount.textContent = elements.inputText.value.length;
+        function updateInputCount() {
+            var length = elements.inputText.value.length;
+            elements.inputCount.textContent = length.toLocaleString() + ' chars';
+        }
+
+        function updateOutputCount(tweetCount) {
+            elements.outputCount.textContent = tweetCount + ' tweet' + (tweetCount !== 1 ? 's' : '');
         }
 
         function isLtgvKey(key) {
@@ -2604,8 +3064,8 @@ The AI will find the most interesting hook and transform your content into an en
             return { valid: true, wordCount: wordCount, charCount: charCount };
         }
 
-        // Start Generation (Step 1 -> Step 2)
-        function startGeneration() {
+        // Start Generation - generates complete thread at once
+        async function startGeneration() {
             var text = elements.inputText.value.trim();
 
             if (!text) {
@@ -2613,45 +3073,16 @@ The AI will find the most interesting hook and transform your content into an en
                 return;
             }
 
-            state.originalContent = text;
-            state.processedContent = preprocessContent(text);
-
-            var lengthCheck = checkContentLength(state.processedContent);
-            if (!lengthCheck.valid) {
-                elements.tooShortWarning.classList.remove('hidden');
+            if (text.length < 100) {
+                showStatus('Content is too short. Please provide at least 100 characters.', 'error');
                 return;
             }
 
-            proceedWithGeneration(false);
-        }
-
-        // Use as single tweet
-        function useSingleTweet() {
-            var content = state.processedContent || state.originalContent;
-            var singleTweet = content.length > 280 ? content.substring(0, 277) + '...' : content;
-            currentThread = [singleTweet];
-            state.finalThread = [singleTweet];
-            elements.tooShortWarning.classList.add('hidden');
-            displayThread([singleTweet]);
-            setStep(5);
-        }
-
-        // Proceed with hook generation
-        async function proceedWithGeneration(skipLengthCheck) {
-            elements.tooShortWarning.classList.add('hidden');
+            state.originalContent = text;
 
             var ltgvKey = localStorage.getItem('ltgv_api_key');
             var freeUses = getFreeTrialUses();
-            // Use free trial if: no key OR invalid key OR not subscribed to THIS tool
             var usingFreeTrial = (!ltgvKey || !state.apiKeyValid || !state.isSubscribed) && freeUses > 0;
-
-            console.log('=== PROCEED WITH GENERATION ===');
-            console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
-            console.log('state.apiKeyValid:', state.apiKeyValid);
-            console.log('state.isSubscribed:', state.isSubscribed);
-            console.log('freeUses:', freeUses);
-            console.log('usingFreeTrial:', usingFreeTrial);
-            console.log('localStorage threadgen_free_uses:', localStorage.getItem('threadgen_free_uses'));
 
             // Block if not subscribed AND no free uses left
             if ((!ltgvKey || !state.apiKeyValid || !state.isSubscribed) && freeUses <= 0) {
@@ -2660,18 +3091,63 @@ The AI will find the most interesting hook and transform your content into an en
             }
 
             elements.generateBtn.disabled = true;
+            elements.generateBtn.classList.add('loading');
             elements.loading.classList.add('visible');
+            if (elements.loadingText) {
+                elements.loadingText.textContent = 'Creating your thread...';
+            }
+            elements.quickActions.classList.remove('visible');
+            elements.alternativesSection.classList.remove('visible');
+            elements.improvementTips.classList.remove('visible');
+            elements.confidenceScore.classList.remove('visible');
             hideStatus();
 
             try {
-                state.hookOptions = await generateHookOptionsLTGV(ltgvKey, state.processedContent, usingFreeTrial);
-                displayHookOptions(state.hookOptions);
-                setStep(2);
+                var headers = { 'Content-Type': 'application/json' };
+                if (ltgvKey) {
+                    headers['x-api-key'] = ltgvKey;
+                } else {
+                    headers['x-free-trial'] = 'true';
+                }
+
+                // Call API to generate complete thread
+                var response = await fetch('/api/tools/threadgen', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        action: 'full_thread',
+                        content: text,
+                        tone: state.settings.tone,
+                        tweetNumbering: state.settings.tweetNumbering,
+                        emojiUsage: state.settings.emojiUsage
+                    })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok) {
+                    if (data.error === 'LIMIT_EXCEEDED') {
+                        throw new Error(data.message + ' <a href="/pricing.html">pricing</a>');
+                    }
+                    throw new Error(data.error || 'Failed to generate thread');
+                }
+
+                // Decrement free trial if applicable
+                if (usingFreeTrial) {
+                    decrementFreeTrial();
+                    updateFreeTrialUI();
+                }
+
+                // Display the thread
+                displayThread(data.result);
+                showStatus('Thread generated! Click Copy Thread to use it.', 'success');
+
             } catch (error) {
-                showStatus(error.message || 'Failed to generate hooks', 'error');
+                showStatus(error.message || 'Failed to generate thread', 'error');
             } finally {
                 elements.loading.classList.remove('visible');
                 elements.generateBtn.disabled = false;
+                elements.generateBtn.classList.remove('loading');
             }
         }
 
@@ -3109,6 +3585,100 @@ The AI will find the most interesting hook and transform your content into an en
             }).catch(function() {
                 showStatus('Failed to copy to clipboard', 'error');
             });
+        }
+
+        // Copy thread (new UI)
+        function copyThread() {
+            if (!generatedThread) return;
+
+            navigator.clipboard.writeText(generatedThread).then(function() {
+                elements.copyBtn.classList.add('copied');
+                elements.copyText.textContent = 'Copied!';
+
+                setTimeout(function() {
+                    elements.copyBtn.classList.remove('copied');
+                    elements.copyText.textContent = 'Copy Thread';
+                }, 2000);
+            }).catch(function() {
+                showStatus('Failed to copy to clipboard', 'error');
+            });
+        }
+
+        // Quick action handler
+        async function handleQuickAction(action) {
+            if (!generatedThread) {
+                showStatus('Generate a thread first', 'error');
+                return;
+            }
+
+            // Disable quick action buttons
+            var quickBtns = document.querySelectorAll('.quick-action-btn');
+            quickBtns.forEach(function(btn) { btn.disabled = true; });
+
+            elements.loading.classList.add('visible');
+            if (elements.loadingText) {
+                elements.loadingText.textContent = 'Refining thread...';
+            }
+
+            try {
+                var ltgvKey = localStorage.getItem('ltgv_api_key');
+                var headers = { 'Content-Type': 'application/json' };
+                if (ltgvKey) {
+                    headers['x-api-key'] = ltgvKey;
+                } else {
+                    headers['x-free-trial'] = 'true';
+                }
+
+                var response = await fetch('/api/tools/threadgen', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        content: elements.inputText.value,
+                        action: action,
+                        currentThread: generatedThread,
+                        tone: state.settings.tone,
+                        tweetNumbering: state.settings.tweetNumbering,
+                        emojiUsage: state.settings.emojiUsage
+                    })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to refine thread');
+                }
+
+                // Update output
+                displayThread(data.result);
+                showStatus('Thread refined!', 'success');
+
+            } catch (error) {
+                showStatus(error.message || 'Failed to refine thread', 'error');
+            } finally {
+                elements.loading.classList.remove('visible');
+                quickBtns.forEach(function(btn) { btn.disabled = false; });
+            }
+        }
+
+        // Display thread in output panel
+        function displayThread(thread) {
+            var tweets = Array.isArray(thread) ? thread : thread.split('\n\n').filter(function(t) { return t.trim(); });
+            currentThread = tweets;
+            generatedThread = tweets.join('\n\n');
+
+            var html = '';
+            for (var i = 0; i < tweets.length; i++) {
+                html += '<div class="thread-tweet">';
+                if (state.settings.tweetNumbering) {
+                    html += '<span class="thread-tweet-number">' + (i + 1) + '/' + tweets.length + '</span>';
+                }
+                html += escapeHtml(tweets[i]).replace(/\n/g, '<br>');
+                html += '</div>';
+            }
+            elements.threadOutput.innerHTML = html;
+            updateOutputCount(tweets.length);
+            elements.copyBtn.disabled = false;
+            elements.quickActions.classList.add('visible');
         }
 
         function escapeHtml(text) {

@@ -284,6 +284,25 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* Character Counter */
+        .char-counter {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #666;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        .char-counter.warning {
+            color: #ffbd2e;
+        }
+
+        .char-counter.error {
+            color: #ff5f57;
+            font-weight: 600;
+        }
+
         /* Buttons */
         .btn {
             display: inline-flex;
@@ -1211,17 +1230,9 @@
         <div class="demo-video-section">
             <p class="demo-video-title">Watch it in action</p>
             <div class="demo-video-container">
-                <!-- Replace with your video:
-                     <video class="demo-video" autoplay muted loop playsinline>
-                         <source src="chaptergen-demo.mp4" type="video/mp4">
-                     </video>
-                -->
-                <div class="demo-video-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    <span>Record a 10-15 second demo: paste transcript → generate → chapters appear</span>
-                </div>
+                <video class="demo-video" autoplay muted loop playsinline>
+                    <source src="chaptergen-demo.mp4" type="video/mp4">
+                </video>
             </div>
         </div>
 
@@ -1292,6 +1303,7 @@ Example format:
 0:15 Today we're covering...
 1:30 First topic starts here
 2:45 Moving on to the next section"></textarea>
+                <div id="charCounter" class="char-counter">0 / 50,000 characters</div>
             </div>
 
             <!-- Usage Counter -->
@@ -1507,7 +1519,8 @@ Example format:
             results: document.getElementById('results'),
             chaptersOutput: document.getElementById('chaptersOutput'),
             copyBtn: document.getElementById('copyBtn'),
-            freeUsesText: document.getElementById('freeUsesText')
+            freeUsesText: document.getElementById('freeUsesText'),
+            charCounter: document.getElementById('charCounter')
         };
 
         // State
@@ -1520,6 +1533,7 @@ Example format:
             loadApiKey();
             setupEventListeners();
             updateFreeTrialUI();
+            updateCharCounter();
         });
 
         function setupEventListeners() {
@@ -1528,6 +1542,7 @@ Example format:
             elements.saveKeyBtn.addEventListener('click', saveApiKey);
             elements.generateBtn.addEventListener('click', generateChapters);
             elements.copyBtn.addEventListener('click', copyChapters);
+            elements.transcriptArea.addEventListener('input', updateCharCounter);
         }
 
         function toggleSettings() {
@@ -1721,6 +1736,21 @@ Example format:
             }
         }
 
+        // Character counter for transcript
+        function updateCharCounter() {
+            var length = elements.transcriptArea.value.length;
+            var formatted = length.toLocaleString();
+            elements.charCounter.textContent = formatted + ' / 50,000 characters';
+
+            // Update color based on length
+            elements.charCounter.classList.remove('warning', 'error');
+            if (length >= 50000) {
+                elements.charCounter.classList.add('error');
+            } else if (length >= 40000) {
+                elements.charCounter.classList.add('warning');
+            }
+        }
+
         async function generateChapters() {
             // Check for API key or free trial
             var ltgvKey = localStorage.getItem('ltgv_api_key');
@@ -1750,6 +1780,12 @@ Example format:
 
             if (transcript.length < 100) {
                 showStatus('Transcript is too short. Please provide a longer transcript.', 'error');
+                return;
+            }
+
+            if (transcript.length > 50000) {
+                var charCount = transcript.length.toLocaleString();
+                showStatus('Transcript is too long (' + charCount + ' characters). Maximum is 50,000. Try trimming the beginning or end, or split into parts.', 'error');
                 return;
             }
 

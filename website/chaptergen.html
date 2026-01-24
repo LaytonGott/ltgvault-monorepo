@@ -954,19 +954,6 @@
         .char-count.warning { color: #ffbd2e; }
         .char-count.error { color: #ff5f57; }
 
-        .example-label {
-            display: none;
-            font-size: 0.75rem;
-            color: var(--gold);
-            margin-bottom: 8px;
-            font-style: italic;
-            opacity: 0.8;
-        }
-
-        .example-label.visible {
-            display: block;
-        }
-
         .text-area {
             width: 100%;
             min-height: 300px;
@@ -2065,7 +2052,6 @@
                         <span class="panel-label">Transcript</span>
                         <span class="char-count" id="inputCount">0 / 50,000</span>
                     </div>
-                    <div class="example-label" id="exampleLabel">Example — edit or replace with your own</div>
                     <textarea class="text-area" id="transcriptArea" placeholder="Paste your YouTube transcript here...
 
 Example format:
@@ -2416,22 +2402,10 @@ Example format:
             var exampleText = "[0:00] Hey everyone, welcome back to the channel! Today we're diving into the top 5 plays from last night's games.\n\n[0:15] Before we get started, make sure to hit that subscribe button if you haven't already.\n\n[0:32] Alright, let's jump right into it. Coming in at number 5...\n\n[1:15] That was absolutely insane! The crowd went wild. Moving on to number 4...\n\n[2:03] What a save! I've watched this replay about 50 times and I still can't believe it.\n\n[2:48] Number 3 on our list features a rookie who's been making waves all season.\n\n[3:35] The skill on display here is just unreal. Now for number 2...\n\n[4:22] That's going to be remembered for years to come. And finally, our number 1 play...\n\n[5:10] Absolutely incredible. That's a wrap for today's top 5!\n\n[5:45] Thanks for watching, drop a comment with your favorite play, and I'll see you in the next one.";
 
             elements.transcriptArea.value = exampleText;
-
-            var exampleLabel = document.getElementById('exampleLabel');
-            if (exampleLabel) {
-                exampleLabel.classList.add('visible');
-            }
-
-            elements.transcriptArea.addEventListener('input', function hideLabel() {
-                if (exampleLabel) exampleLabel.classList.remove('visible');
-                elements.transcriptArea.removeEventListener('input', hideLabel);
-            }, { once: true });
         }
 
         function markAsGenerated() {
             localStorage.setItem('chaptergen_has_generated', 'true');
-            var exampleLabel = document.getElementById('exampleLabel');
-            if (exampleLabel) exampleLabel.classList.remove('visible');
         }
 
         // Animated Demo
@@ -2654,12 +2628,13 @@ Example format:
             var ltgvKey = localStorage.getItem('ltgv_api_key');
             var usageCounter = document.getElementById('usageCounter');
             var usageText = document.getElementById('usageText');
+            var settingsPanel = document.getElementById('settingsPanel');
 
             console.log('=== UPDATE FREE TRIAL UI ===');
             console.log('isSubscribed:', isSubscribed);
             console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
 
-            // If user is subscribed, show unlimited
+            // If user is subscribed, show unlimited and hide settings panel
             if (isSubscribed) {
                 if (usageCounter) {
                     usageCounter.className = 'usage-counter unlimited';
@@ -2668,8 +2643,16 @@ Example format:
                 if (elements.freeUsesText) {
                     elements.freeUsesText.style.display = 'none';
                 }
+                if (settingsPanel) {
+                    settingsPanel.style.display = 'none';
+                }
                 elements.generateBtn.disabled = false;
                 return;
+            }
+
+            // Show settings panel for non-subscribed users
+            if (settingsPanel) {
+                settingsPanel.style.display = 'block';
             }
 
             // If user has API key but not subscribed, hide counter (they use API limits)

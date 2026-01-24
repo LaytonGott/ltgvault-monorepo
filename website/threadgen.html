@@ -686,12 +686,12 @@
             }
         }
 
-        /* ============ DEMO VIDEO SECTION ============ */
-        .demo-video-section {
+        /* ============ ANIMATED DEMO SECTION ============ */
+        .demo-section {
             margin-bottom: 32px;
         }
 
-        .demo-video-title {
+        .demo-title {
             font-size: 0.8rem;
             color: #666;
             text-transform: uppercase;
@@ -700,39 +700,107 @@
             margin-bottom: 16px;
         }
 
-        .demo-video-container {
-            position: relative;
+        .demo-container {
             border-radius: 12px;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--border);
+            padding: 20px;
         }
 
-        .demo-video {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 12px;
-        }
-
-        .demo-video-placeholder {
-            aspect-ratio: 16 / 9;
+        .demo-preview {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(201, 162, 39, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%);
+            gap: 16px;
+            font-family: inherit;
+        }
+
+        .demo-input-panel, .demo-output-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 140px;
+        }
+
+        .demo-panel-label {
+            font-size: 0.7rem;
             color: #666;
-            font-size: 0.8rem;
-            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            display: block;
         }
 
-        .demo-video-placeholder svg {
-            opacity: 0.4;
+        .demo-text-area {
+            font-size: 0.75rem;
+            color: #999;
+            line-height: 1.5;
+            min-height: 80px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
-        .demo-video-placeholder span {
-            opacity: 0.6;
+        .demo-text-area .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 12px;
+            background: var(--gold);
+            margin-left: 2px;
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .demo-button {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .demo-button.active {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.4);
+        }
+
+        .demo-button.clicked {
+            transform: scale(0.95);
+        }
+
+        .demo-output-panel .demo-text-area {
+            color: #ccc;
+        }
+
+        .demo-output-panel .demo-text-area.generating {
+            color: var(--gold);
+        }
+
+        .demo-tweet {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.7rem;
+        }
+
+        .demo-tweet:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 600px) {
+            .demo-preview {
+                flex-direction: column;
+            }
         }
 
         /* ============ TWO-COLUMN TOOL LAYOUT ============ */
@@ -2205,13 +2273,21 @@
             </div>
         </div>
 
-        <!-- Demo Video Section -->
-        <div class="demo-video-section">
-            <p class="demo-video-title">Watch it in action</p>
-            <div class="demo-video-container">
-                <video class="demo-video" autoplay muted loop playsinline>
-                    <source src="threadgen-demo.mp4" type="video/mp4">
-                </video>
+        <!-- Animated Demo Section -->
+        <div class="demo-section">
+            <p class="demo-title">Watch it in action</p>
+            <div class="demo-container">
+                <div class="demo-preview">
+                    <div class="demo-input-panel">
+                        <span class="demo-panel-label">Your idea</span>
+                        <div class="demo-text-area" id="demoInput"></div>
+                        <div class="demo-button" id="demoButton">Generate Thread</div>
+                    </div>
+                    <div class="demo-output-panel">
+                        <span class="demo-panel-label">Thread</span>
+                        <div class="demo-text-area" id="demoOutput"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2737,7 +2813,92 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             loadFormattingSettings();
             setupEventListeners();
             updateFreeTrialUI();
+            startDemoAnimation();
         });
+
+        // Animated Demo
+        function startDemoAnimation() {
+            var demoInput = document.getElementById('demoInput');
+            var demoOutput = document.getElementById('demoOutput');
+            var demoButton = document.getElementById('demoButton');
+
+            if (!demoInput || !demoOutput || !demoButton) return;
+
+            var inputText = "5 lessons I learned from building my first startup that failed";
+            var outputTweets = [
+                "1/ I spent 2 years building a startup that failed.\n\nBut I learned more from that failure than any success.\n\nHere are 5 lessons that changed everything:",
+                "2/ Lesson 1: Talk to customers BEFORE building.\n\nI built what I thought was cool.\nNot what people actually needed.\n\nExpensive mistake.",
+                "3/ Lesson 2: Launch ugly, launch fast.\n\nPerfectionism is procrastination in disguise.\n\nYour first version should embarrass you.",
+                "4/ Lesson 3: Revenue > Users\n\nFree users don't validate your business.\nPaying customers do.",
+                "5/ If this resonated, follow me for more startup lessons.\n\nAnd drop a comment: What's YOUR biggest lesson from failure?"
+            ];
+
+            function runAnimation() {
+                // Reset
+                demoInput.innerHTML = '<span class="cursor"></span>';
+                demoOutput.innerHTML = '';
+                demoButton.classList.remove('active', 'clicked');
+
+                var inputIndex = 0;
+                var tweetIndex = 0;
+                var charIndex = 0;
+
+                // Phase 1: Type input
+                function typeInput() {
+                    if (inputIndex < inputText.length) {
+                        demoInput.innerHTML = inputText.substring(0, inputIndex + 1) + '<span class="cursor"></span>';
+                        inputIndex++;
+                        setTimeout(typeInput, 35);
+                    } else {
+                        demoInput.innerHTML = inputText;
+                        setTimeout(clickButton, 500);
+                    }
+                }
+
+                // Phase 2: Click button
+                function clickButton() {
+                    demoButton.classList.add('active');
+                    setTimeout(function() {
+                        demoButton.classList.add('clicked');
+                        setTimeout(function() {
+                            demoButton.classList.remove('clicked');
+                            demoOutput.classList.add('generating');
+                            setTimeout(typeThread, 300);
+                        }, 150);
+                    }, 300);
+                }
+
+                // Phase 3: Type thread tweets
+                function typeThread() {
+                    if (tweetIndex < outputTweets.length) {
+                        var currentTweet = outputTweets[tweetIndex];
+                        if (charIndex < currentTweet.length) {
+                            // Build all completed tweets + current partial tweet
+                            var html = '';
+                            for (var i = 0; i < tweetIndex; i++) {
+                                html += '<div class="demo-tweet">' + outputTweets[i].replace(/\n/g, '<br>') + '</div>';
+                            }
+                            html += '<div class="demo-tweet">' + currentTweet.substring(0, charIndex + 1).replace(/\n/g, '<br>') + '</div>';
+                            demoOutput.innerHTML = html;
+                            charIndex++;
+                            setTimeout(typeThread, 12);
+                        } else {
+                            tweetIndex++;
+                            charIndex = 0;
+                            setTimeout(typeThread, 200);
+                        }
+                    } else {
+                        demoOutput.classList.remove('generating');
+                        // Pause then restart
+                        setTimeout(runAnimation, 3000);
+                    }
+                }
+
+                setTimeout(typeInput, 500);
+            }
+
+            runAnimation();
+        }
 
         function setupEventListeners() {
             elements.settingsBtn.addEventListener('click', toggleSettings);

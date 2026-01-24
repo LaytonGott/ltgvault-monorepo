@@ -474,197 +474,98 @@
             color: #28ca41;
         }
 
-        /* ============ DEMO SECTION ============ */
-        .demo-section {
-            margin-bottom: 48px;
+        /* ============ BEFORE/AFTER SECTION ============ */
+        .before-after {
+            margin-bottom: 40px;
         }
 
-        .demo-title {
-            font-size: 0.9rem;
-            color: #888;
+        .before-after-title {
+            font-size: 0.8rem;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
-        .demo-window {
+        .before-after-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0;
+            align-items: stretch;
+        }
+
+        .before-box, .after-box {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .demo-titlebar {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .demo-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .demo-dot:first-child { background: #ff5f57; }
-        .demo-dot:nth-child(2) { background: #ffbd2e; }
-        .demo-dot:nth-child(3) { background: #28ca41; }
-
-        .demo-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: 280px;
-        }
-
-        .demo-left, .demo-right {
+            border-radius: 12px;
             padding: 20px;
         }
 
-        .demo-left {
-            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        .before-box {
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
         }
 
-        .demo-label {
-            font-size: 0.7rem;
+        .after-box {
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-color: rgba(201, 162, 39, 0.3);
+            background: rgba(201, 162, 39, 0.03);
+        }
+
+        .box-label {
+            font-size: 0.65rem;
             color: #666;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            margin-bottom: 10px;
-        }
-
-        .demo-input {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 14px;
-            min-height: 150px;
-            font-size: 0.8rem;
-            color: #888;
-            line-height: 1.6;
             margin-bottom: 12px;
         }
 
-        .demo-input.typing {
-            color: #ccc;
-        }
-
-        .demo-input .cursor {
-            display: inline-block;
-            width: 2px;
-            height: 1em;
-            background: var(--gold);
-            animation: cursorBlink 1s infinite;
-            vertical-align: text-bottom;
-            margin-left: 2px;
-        }
-
-        @keyframes cursorBlink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        .demo-generate-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: var(--gold);
-            color: var(--black);
-            border: none;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.4;
-        }
-
-        .demo-generate-btn.active {
-            opacity: 1;
-        }
-
-        .demo-generate-btn.loading {
-            opacity: 0.7;
-        }
-
-        .demo-generate-btn .spinner {
-            width: 12px;
-            height: 12px;
-            border: 2px solid transparent;
-            border-top-color: var(--black);
-            border-radius: 50%;
-            animation: demoSpin 0.8s linear infinite;
-            display: none;
-        }
-
-        .demo-generate-btn.loading .spinner {
-            display: block;
-        }
-
-        .demo-generate-btn.loading .btn-text {
-            display: none;
-        }
-
-        @keyframes demoSpin {
-            to { transform: rotate(360deg); }
-        }
-
-        .demo-output {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 14px;
-            min-height: 150px;
-            font-size: 0.8rem;
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 12px;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .demo-output.visible {
-            opacity: 1;
-        }
-
-        .demo-copy-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid rgba(201, 162, 39, 0.4);
+        .after-box .box-label {
             color: var(--gold);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0;
         }
 
-        .demo-copy-btn.visible {
-            opacity: 1;
+        .box-content {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #888;
         }
 
-        .demo-copy-btn.copied {
-            background: rgba(40, 202, 65, 0.15);
-            border-color: #28ca41;
-            color: #28ca41;
+        .after-box .box-content {
+            color: #ccc;
+        }
+
+        .before-after-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            color: var(--gold);
+            font-size: 1.2rem;
+            background: linear-gradient(to right, rgba(255,255,255,0.02), rgba(201,162,39,0.03));
         }
 
         @media (max-width: 768px) {
-            .demo-content {
+            .before-after-grid {
                 grid-template-columns: 1fr;
+                gap: 0;
             }
-            .demo-left {
-                border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            .before-box {
+                border-radius: 12px 12px 0 0;
+                border-right: 1px solid rgba(255, 255, 255, 0.08);
+                border-bottom: none;
+            }
+            .after-box {
+                border-radius: 0 0 12px 12px;
+                border-left: 1px solid rgba(201, 162, 39, 0.3);
+                border-top: none;
+            }
+            .before-after-arrow {
+                padding: 8px 0;
+                background: linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(201,162,39,0.03));
             }
         }
 
@@ -1598,35 +1499,18 @@
             <button class="btn-subscribe" onclick="openCheckoutModal()">Subscribe</button>
         </div>
 
-        <!-- Demo Section -->
-        <div class="demo-section">
-            <p class="demo-title">See it in action</p>
-            <div class="demo-window" id="demoWindow">
-                <div class="demo-titlebar">
-                    <div class="demo-dot"></div>
-                    <div class="demo-dot"></div>
-                    <div class="demo-dot"></div>
+        <!-- Before/After Section -->
+        <div class="before-after">
+            <p class="before-after-title">See the difference</p>
+            <div class="before-after-grid">
+                <div class="before-box">
+                    <div class="box-label">Your rough idea</div>
+                    <div class="box-content">I've been thinking about how being busy isn't the same as being productive. Sometimes I work all day but don't actually accomplish anything important.</div>
                 </div>
-                <div class="demo-content">
-                    <div class="demo-left">
-                        <div class="demo-label">Your idea</div>
-                        <div class="demo-input" id="demoInput"></div>
-                        <button class="demo-generate-btn" id="demoGenerate">
-                            <span class="btn-text">Generate</span>
-                            <div class="spinner"></div>
-                        </button>
-                    </div>
-                    <div class="demo-right">
-                        <div class="demo-label">Ready to post</div>
-                        <div class="demo-output" id="demoOutput"></div>
-                        <button class="demo-copy-btn" id="demoCopy">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            <span id="demoCopyText">Copy to clipboard</span>
-                        </button>
-                    </div>
+                <div class="before-after-arrow">→</div>
+                <div class="after-box">
+                    <div class="box-label">PostUp output</div>
+                    <div class="box-content">Your packed schedule is a lie.<br><br>8 hours of meetings. 47 emails. 12 Slack threads.<br><br>Zero progress on what actually matters.<br><br>Busy is the new lazy.</div>
                 </div>
             </div>
         </div>
@@ -2702,102 +2586,6 @@
             }
         })();
 
-        // ============ DEMO ANIMATION ============
-        (function() {
-            var demoInputEl = document.getElementById('demoInput');
-            var demoOutputEl = document.getElementById('demoOutput');
-            var demoGenerateBtn = document.getElementById('demoGenerate');
-            var demoCopyBtn = document.getElementById('demoCopy');
-            var demoCopyTextEl = document.getElementById('demoCopyText');
-
-            var demoInputText = "I built 3 chrome extensions in 3 days while everyone told me to focus on one thing. Now all 3 are getting users and I'm learning what actually works.";
-            var demoOutputText = "I just wrapped up building three Chrome extensions in three days. I know, everyone keeps saying to focus on one thing, but I couldn't help myself.\n\nHonestly, I was curious to see what would resonate with users. Now, all three are gaining traction, and I'm finally starting to understand what actually works in this space.\n\nSometimes, you just have to ship something and see what sticks instead of overthinking it for months.";
-
-            var demoPlayed = false;
-            var demoVisible = false;
-            var typeInterval = null;
-
-            function runPageDemo() {
-                if (demoPlayed || !demoVisible) return;
-                demoPlayed = true;
-
-                // Reset
-                demoInputEl.innerHTML = '';
-                demoInputEl.classList.remove('typing');
-                demoOutputEl.innerHTML = '';
-                demoOutputEl.classList.remove('visible');
-                demoGenerateBtn.classList.remove('active', 'loading');
-                demoCopyBtn.classList.remove('visible', 'copied');
-                demoCopyTextEl.textContent = 'Copy to clipboard';
-
-                // Type input
-                var charIndex = 0;
-                demoInputEl.classList.add('typing');
-                demoInputEl.innerHTML = '<span class="cursor"></span>';
-
-                typeInterval = setInterval(function() {
-                    if (charIndex < demoInputText.length) {
-                        demoInputEl.innerHTML = demoInputText.slice(0, charIndex + 1) + '<span class="cursor"></span>';
-                        charIndex++;
-                    } else {
-                        clearInterval(typeInterval);
-                        demoInputEl.innerHTML = demoInputText;
-                        demoGenerateBtn.classList.add('active');
-
-                        setTimeout(function() {
-                            demoGenerateBtn.classList.add('loading');
-                            demoGenerateBtn.classList.remove('active');
-
-                            setTimeout(function() {
-                                demoGenerateBtn.classList.remove('loading');
-                                demoGenerateBtn.classList.add('active');
-                                demoOutputEl.innerHTML = demoOutputText.replace(/\n/g, '<br>');
-                                demoOutputEl.classList.add('visible');
-
-                                setTimeout(function() {
-                                    demoCopyBtn.classList.add('visible');
-
-                                    setTimeout(function() {
-                                        demoCopyBtn.classList.add('copied');
-                                        demoCopyTextEl.textContent = 'Copied!';
-
-                                        setTimeout(function() {
-                                            demoPlayed = false;
-                                            if (demoVisible) runPageDemo();
-                                        }, 2500);
-                                    }, 1200);
-                                }, 600);
-                            }, 1500);
-                        }, 800);
-                    }
-                }, 30);
-            }
-
-            // Trigger demo when visible
-            var demoWindowEl = document.getElementById('demoWindow');
-            if (demoWindowEl && 'IntersectionObserver' in window) {
-                var demoObserver = new IntersectionObserver(function(entries) {
-                    for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i];
-                        if (entry.isIntersecting && !demoVisible) {
-                            demoVisible = true;
-                            setTimeout(runPageDemo, 500);
-                        } else if (!entry.isIntersecting) {
-                            demoVisible = false;
-                        }
-                    }
-                }, { threshold: 0.3 });
-                demoObserver.observe(demoWindowEl);
-            }
-
-            // Fallback: Auto-start demo after 1 second if not started
-            setTimeout(function() {
-                if (!demoPlayed && !demoVisible) {
-                    demoVisible = true;
-                    runPageDemo();
-                }
-            }, 1000);
-        })();
     </script>
 
 </body>

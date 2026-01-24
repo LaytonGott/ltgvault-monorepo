@@ -16,10 +16,11 @@ if (!stripeSecretKey) {
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
 
 // Price IDs for each tool ($7/month each) - trim to remove any trailing newlines
+// Note: Vercel env vars use inconsistent naming, so we check both patterns
 const PRICE_IDS = {
-  postup: process.env.STRIPE_POSTUP_PRICE_ID?.trim(),
-  chaptergen: process.env.STRIPE_CHAPTERGEN_PRICE_ID?.trim(),
-  threadgen: process.env.STRIPE_THREADGEN_PRICE_ID?.trim()
+  postup: (process.env.STRIPE_POSTUP_PRICE_ID || process.env.STRIPE_POSTUP_PRICE)?.trim(),
+  chaptergen: (process.env.STRIPE_CHAPTERGEN_PRICE_ID || process.env.STRIPE_CHAPTERGEN_PRICE)?.trim(),
+  threadgen: (process.env.STRIPE_THREADGEN_PRICE_ID || process.env.STRIPE_THREADGEN_PRICE)?.trim()
 };
 
 // Free tier limits (lifetime, not monthly)

@@ -137,11 +137,12 @@
 
         /* Status Messages */
         .status {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             margin-bottom: 16px;
             display: none;
+            line-height: 1.5;
         }
 
         .status.visible {
@@ -149,9 +150,19 @@
         }
 
         .status.error {
-            background: rgba(255, 95, 87, 0.1);
-            border: 1px solid rgba(255, 95, 87, 0.3);
-            color: var(--error);
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            color: var(--gold);
+        }
+
+        .status.error a {
+            color: var(--white);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .status.error a:hover {
+            color: var(--gold-light);
         }
 
         .status.success {
@@ -972,16 +983,27 @@
 
         .error-message {
             margin-top: 12px;
-            padding: 12px 16px;
-            background: rgba(255, 95, 87, 0.1);
-            border: 1px solid rgba(255, 95, 87, 0.3);
-            border-radius: 8px;
-            color: var(--error);
-            font-size: 0.85rem;
+            padding: 14px 18px;
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 10px;
+            color: var(--gold);
+            font-size: 0.9rem;
             display: none;
+            line-height: 1.5;
         }
 
         .error-message.visible { display: block; }
+
+        .error-message a {
+            color: var(--white);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .error-message a:hover {
+            color: var(--gold-light);
+        }
 
         /* Quick Actions */
         .quick-actions {
@@ -2314,7 +2336,7 @@ Example format:
             var apiKey = elements.apiKeyInput.value.trim();
 
             if (!apiKey) {
-                showStatus('Please enter an API key', 'error');
+                showStatus('Please enter your API key. <a href="/dashboard.html">Get your key from the dashboard</a>', 'error');
                 return;
             }
 
@@ -2325,7 +2347,7 @@ Example format:
                 checkSubscriptionStatus(apiKey);
                 updateFreeTrialUI();
             } else {
-                showStatus('Invalid API key format. Use ltgv_...', 'error');
+                showStatus('Invalid key format. Your key should start with ltgv_. <a href="/dashboard.html">Get a new key</a>', 'error');
                 return;
             }
 
@@ -2453,18 +2475,18 @@ Example format:
             // Check for transcript
             var transcript = elements.transcriptArea.value.trim();
             if (!transcript) {
-                showStatus('Please paste a transcript first', 'error');
+                showStatus('Paste a YouTube transcript to generate chapters. Copy it from the video\'s description or transcript tab.', 'error');
                 return;
             }
 
             if (transcript.length < 100) {
-                showStatus('Transcript is too short. Please provide a longer transcript.', 'error');
+                showStatus('Transcript is too short (minimum 100 characters). Paste a longer transcript to generate meaningful chapters.', 'error');
                 return;
             }
 
             if (transcript.length > 50000) {
                 var charCount = transcript.length.toLocaleString();
-                showStatus('Transcript is too long (' + charCount + ' characters). Maximum is 50,000. Try trimming the beginning or end, or split into parts.', 'error');
+                showStatus('Transcript is too long (' + charCount + ' characters). Maximum is 50,000. Try trimming the beginning or end.', 'error');
                 return;
             }
 
@@ -2501,9 +2523,12 @@ Example format:
 
                 if (!response.ok) {
                     if (data.error === 'LIMIT_EXCEEDED') {
-                        throw new Error(data.message + ' <a href="/pricing.html">pricing</a>');
+                        throw new Error('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>');
                     }
-                    throw new Error(data.error || 'API request failed.');
+                    if (data.error && (data.error.includes('Invalid') || data.error.includes('revoked') || data.error.includes('expired'))) {
+                        throw new Error('Your access has expired. <a href="/dashboard.html">Get a new access link</a>');
+                    }
+                    throw new Error('Something went wrong. Please try again.');
                 }
 
                 chapters = data.result;
@@ -2546,7 +2571,7 @@ Example format:
                 }
 
             } catch (error) {
-                showStatus(error.message || 'Failed to generate chapters', 'error');
+                showStatus(error.message || 'Something went wrong. Please try again.', 'error');
             } finally {
                 elements.loading.classList.remove('visible');
                 elements.generateBtn.disabled = false;
@@ -2573,7 +2598,7 @@ Example format:
                 await navigator.clipboard.writeText(text);
                 showCopiedFeedback();
             } catch (e) {
-                showStatus('Failed to copy to clipboard', 'error');
+                showStatus('Could not copy to clipboard. Try selecting and copying manually.', 'error');
             }
         }
 
@@ -2581,7 +2606,7 @@ Example format:
         async function handleQuickAction(action) {
             var currentOutput = elements.outputText.value;
             if (!currentOutput) {
-                showStatus('Generate chapters first', 'error');
+                showStatus('Generate chapters first, then use quick actions to refine them.', 'error');
                 return;
             }
 
@@ -2614,7 +2639,10 @@ Example format:
                 var data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Failed to refine chapters');
+                    if (data.error && (data.error.includes('Invalid') || data.error.includes('revoked') || data.error.includes('expired'))) {
+                        throw new Error('Your access has expired. <a href="/dashboard.html">Get a new access link</a>');
+                    }
+                    throw new Error('Something went wrong. Please try again.');
                 }
 
                 // Update output
@@ -2624,7 +2652,7 @@ Example format:
                 showStatus('Chapters refined!', 'success');
 
             } catch (error) {
-                showStatus(error.message || 'Failed to refine chapters', 'error');
+                showStatus(error.message || 'Something went wrong. Please try again.', 'error');
             } finally {
                 elements.loading.classList.remove('visible');
                 quickBtns.forEach(function(btn) { btn.disabled = false; });

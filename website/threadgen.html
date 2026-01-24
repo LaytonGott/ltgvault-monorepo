@@ -142,11 +142,12 @@
 
         /* Status Messages */
         .status {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             margin-bottom: 16px;
             display: none;
+            line-height: 1.5;
         }
 
         .status.visible {
@@ -154,9 +155,19 @@
         }
 
         .status.error {
-            background: rgba(255, 95, 87, 0.1);
-            border: 1px solid rgba(255, 95, 87, 0.3);
-            color: var(--error);
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            color: var(--gold);
+        }
+
+        .status.error a {
+            color: var(--white);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .status.error a:hover {
+            color: var(--gold-light);
         }
 
         .status.success {
@@ -983,16 +994,27 @@
 
         .error-message {
             margin-top: 12px;
-            padding: 12px 16px;
-            background: rgba(255, 95, 87, 0.1);
-            border: 1px solid rgba(255, 95, 87, 0.3);
-            border-radius: 8px;
-            color: var(--error);
-            font-size: 0.85rem;
+            padding: 14px 18px;
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 10px;
+            color: var(--gold);
+            font-size: 0.9rem;
             display: none;
+            line-height: 1.5;
         }
 
         .error-message.visible { display: block; }
+
+        .error-message a {
+            color: var(--white);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .error-message a:hover {
+            color: var(--gold-light);
+        }
 
         /* Quick Actions */
         .quick-actions {
@@ -3154,7 +3176,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             var apiKey = elements.apiKeyInput.value.trim();
 
             if (!apiKey) {
-                showStatus('Please enter an API key', 'error');
+                showStatus('Please enter your API key. <a href="/dashboard.html">Get your key from the dashboard</a>', 'error');
                 return;
             }
 
@@ -3165,7 +3187,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 checkSubscriptionStatus(apiKey);
                 updateFreeTrialUI();
             } else {
-                showStatus('Invalid API key format. Use ltgv_...', 'error');
+                showStatus('Invalid key format. Your key should start with ltgv_. <a href="/dashboard.html">Get a new key</a>', 'error');
                 return;
             }
 
@@ -3290,12 +3312,12 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             var text = elements.inputText.value.trim();
 
             if (!text) {
-                showStatus('Please paste some content first', 'error');
+                showStatus('Paste your content, article, or idea to transform into a Twitter thread.', 'error');
                 return;
             }
 
             if (text.length < 100) {
-                showStatus('Content is too short. Please provide at least 100 characters.', 'error');
+                showStatus('Content is too short (minimum 100 characters). Add more detail to generate a quality thread.', 'error');
                 return;
             }
 
@@ -3348,9 +3370,12 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
 
                 if (!response.ok) {
                     if (data.error === 'LIMIT_EXCEEDED') {
-                        throw new Error(data.message + ' <a href="/pricing.html">pricing</a>');
+                        throw new Error('Free trial ended. <a href="/pricing.html">Subscribe for unlimited access</a>');
                     }
-                    throw new Error(data.error || 'Failed to generate thread');
+                    if (data.error && (data.error.includes('Invalid') || data.error.includes('revoked') || data.error.includes('expired'))) {
+                        throw new Error('Your access has expired. <a href="/dashboard.html">Get a new access link</a>');
+                    }
+                    throw new Error('Something went wrong. Please try again.');
                 }
 
                 // Decrement free trial if applicable
@@ -3364,7 +3389,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 showStatus('Thread generated! Click Copy Thread to use it.', 'success');
 
             } catch (error) {
-                showStatus(error.message || 'Failed to generate thread', 'error');
+                showStatus(error.message || 'Something went wrong. Please try again.', 'error');
             } finally {
                 elements.loading.classList.remove('visible');
                 elements.generateBtn.disabled = false;
@@ -3420,7 +3445,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 if (jsonMatch) return JSON.parse(jsonMatch[0]);
                 throw new Error('Invalid format');
             } catch (e) {
-                throw new Error('Failed to parse response. Please try again.');
+                throw new Error('Something went wrong. Please try again.');
             }
         }
 
@@ -3465,7 +3490,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
         // Continue with hook (Step 2 -> Step 3 -> Step 4)
         async function continueWithHook() {
             if (state.selectedHookIndex === -1) {
-                showStatus('Please select a hook first', 'error');
+                showStatus('Select a hook option above to continue building your thread.', 'error');
                 return;
             }
 
@@ -3510,7 +3535,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 setStep(4);
             } catch (error) {
                 console.log('Body generation FAILED:', error.message);
-                showStatus(error.message || 'Failed to generate thread body', 'error');
+                showStatus(error.message || 'Something went wrong. Please try again.', 'error');
                 setStep(2);
             }
         }
@@ -3647,7 +3672,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             var cta = state.useCustomCta ? state.customCta : state.selectedCta;
 
             if (!cta) {
-                showStatus('Please select or write a CTA', 'error');
+                showStatus('Select or write a call-to-action to complete your thread.', 'error');
                 return;
             }
 
@@ -3693,9 +3718,9 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 } else if (response.status === 429) {
                     throw new Error('Rate limit exceeded. Please wait a moment and try again.');
                 } else if (response.status === 503) {
-                    throw new Error('OpenAI service is temporarily unavailable. Please try again later.');
+                    throw new Error('Service temporarily unavailable. Please try again in a moment.');
                 } else {
-                    throw new Error((errorData.error && errorData.error.message) || 'Failed to generate thread. Please try again.');
+                    throw new Error('Something went wrong. Please try again.');
                 }
             }
 
@@ -3716,7 +3741,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                     throw new Error('Invalid format');
                 }
             } catch (e) {
-                throw new Error('Failed to parse thread. Please try again.');
+                throw new Error('Something went wrong. Please try again.');
             }
 
             if (!Array.isArray(tweets) || tweets.length === 0) {
@@ -3778,7 +3803,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                     button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy';
                 }, 2000);
             }).catch(function() {
-                showStatus('Failed to copy to clipboard', 'error');
+                showStatus('Could not copy to clipboard. Try selecting and copying manually.', 'error');
             });
         }
 
@@ -3804,7 +3829,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                     elements.copyAllBtn.innerHTML = originalHTML;
                 }, 2000);
             }).catch(function() {
-                showStatus('Failed to copy to clipboard', 'error');
+                showStatus('Could not copy to clipboard. Try selecting and copying manually.', 'error');
             });
         }
 
@@ -3821,14 +3846,14 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                     elements.copyText.textContent = 'Copy Thread';
                 }, 2000);
             }).catch(function() {
-                showStatus('Failed to copy to clipboard', 'error');
+                showStatus('Could not copy to clipboard. Try selecting and copying manually.', 'error');
             });
         }
 
         // Quick action handler
         async function handleQuickAction(action) {
             if (!generatedThread) {
-                showStatus('Generate a thread first', 'error');
+                showStatus('Generate a thread first, then use quick actions to refine it.', 'error');
                 return;
             }
 
@@ -3866,7 +3891,10 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 var data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Failed to refine thread');
+                    if (data.error && (data.error.includes('Invalid') || data.error.includes('revoked') || data.error.includes('expired'))) {
+                        throw new Error('Your access has expired. <a href="/dashboard.html">Get a new access link</a>');
+                    }
+                    throw new Error('Something went wrong. Please try again.');
                 }
 
                 // Update output
@@ -3874,7 +3902,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 showStatus('Thread refined!', 'success');
 
             } catch (error) {
-                showStatus(error.message || 'Failed to refine thread', 'error');
+                showStatus(error.message || 'Something went wrong. Please try again.', 'error');
             } finally {
                 elements.loading.classList.remove('visible');
                 quickBtns.forEach(function(btn) { btn.disabled = false; });

@@ -64,24 +64,103 @@
         }
 
         .logo-img {
-            height: 201px;
+            height: 180px;
             width: auto;
             object-fit: contain;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
-        .back-link {
-            color: var(--gray-light);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
+        nav {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 32px;
+        }
+
+        nav a {
+            color: var(--gray-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
             transition: color 0.2s ease;
         }
 
-        .back-link:hover {
+        nav a:hover {
+            color: var(--white);
+        }
+
+        nav a.active {
+            color: var(--gold);
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 28px;
+            height: 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Mobile Nav Overlay */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
             color: var(--gold);
         }
 
@@ -1421,10 +1500,16 @@
                 padding: 0 16px;
             }
             .logo-img {
-                height: 120px;
+                height: 140px;
             }
-            .back-link {
-                font-size: 0.85rem;
+            nav {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .mobile-nav {
+                display: flex;
             }
             .container {
                 padding: 24px 16px 60px;
@@ -1472,7 +1557,7 @@
 
         @media (max-width: 480px) {
             .logo-img {
-                height: 108px;
+                height: 120px;
             }
             .page-title {
                 font-size: 1.3rem;
@@ -2394,14 +2479,31 @@
             <a href="index.html" class="logo">
                 <img src="logo.png" alt="LTG Vault" class="logo-img">
             </a>
-            <a href="index.html" class="back-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Back to Vault
-            </a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="postup.html">PostUp</a>
+                <a href="threadgen.html" class="active">ThreadGen</a>
+                <a href="chaptergen.html">ChapterGen</a>
+                <a href="pricing.html">Pricing</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="postup.html">PostUp</a>
+        <a href="threadgen.html" class="active">ThreadGen</a>
+        <a href="chaptergen.html">ChapterGen</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
 
     <main class="container">
         <h1 class="page-title">
@@ -2808,6 +2910,28 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
     </div>
 
     <script>
+        // Hamburger Menu Toggle
+        (function() {
+            var hamburger = document.getElementById('hamburger');
+            var mobileNav = document.getElementById('mobileNav');
+
+            if (hamburger && mobileNav) {
+                hamburger.addEventListener('click', function() {
+                    hamburger.classList.toggle('active');
+                    mobileNav.classList.toggle('active');
+                    document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+                });
+
+                mobileNav.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        hamburger.classList.remove('active');
+                        mobileNav.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                });
+            }
+        })();
+
         // Checkout Modal Functions
         function openCheckoutModal() {
             document.getElementById('checkoutModal').classList.add('visible');

@@ -369,22 +369,22 @@
         }
 
         .logo-img {
-            height: 236px;
+            height: 180px;
             width: auto;
             display: block;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         nav {
             display: flex;
             align-items: center;
-            gap: 36px;
+            gap: 32px;
         }
 
         nav a {
             color: #aaaaaa;
             text-decoration: none;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             transition: color 0.2s ease;
             display: inline-flex;
@@ -396,6 +396,10 @@
             color: var(--white);
         }
 
+        nav a.active {
+            color: var(--gold);
+        }
+
         .nav-badge {
             font-size: 0.65rem;
             font-weight: 700;
@@ -405,6 +409,78 @@
             border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.03em;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 28px;
+            height: 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Mobile Nav Overlay */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
+            color: var(--gold);
         }
 
         /* ============ CONTAINER ============ */
@@ -1376,10 +1452,10 @@
                 gap: 24px;
             }
             nav a {
-                font-size: 1rem;
+                font-size: 0.9rem;
             }
             .logo-img {
-                height: 70px;
+                height: 160px;
             }
         }
 
@@ -1408,23 +1484,23 @@
         @media (max-width: 768px) {
             header {
                 height: auto;
-                padding: 12px 0;
+                padding: 16px 0;
             }
             .header-inner {
-                flex-direction: column;
-                gap: 12px;
+                flex-direction: row;
+                justify-content: space-between;
             }
             .logo-img {
-                height: 180px;
+                height: 140px;
             }
             nav {
-                width: 100%;
-                justify-content: center;
-                gap: 20px;
-                flex-wrap: wrap;
+                display: none;
             }
-            nav a {
-                font-size: 0.9rem;
+            .hamburger {
+                display: flex;
+            }
+            .mobile-nav {
+                display: flex;
             }
             .hero {
                 min-height: calc(100vh - 120px);
@@ -1458,13 +1534,7 @@
 
         @media (max-width: 480px) {
             .logo-img {
-                height: 150px;
-            }
-            nav {
-                gap: 16px;
-            }
-            nav a {
-                font-size: 0.85rem;
+                height: 120px;
             }
             .nav-badge {
                 font-size: 0.55rem;
@@ -1535,16 +1605,32 @@
     <!-- Header -->
     <header id="header">
         <div class="header-inner">
-            <a href="/" class="logo"><img src="logo.png" alt="LTG Vault" class="logo-img"></a>
+            <a href="index.html" class="logo"><img src="logo.png" alt="LTG Vault" class="logo-img"></a>
             <nav>
+                <a href="index.html" class="active">Home</a>
                 <a href="postup.html">PostUp</a>
                 <a href="threadgen.html">ThreadGen</a>
                 <a href="chaptergen.html">ChapterGen</a>
                 <a href="pricing.html">Pricing</a>
                 <a href="dashboard.html">Dashboard</a>
             </nav>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html" class="active">Home</a>
+        <a href="postup.html">PostUp</a>
+        <a href="threadgen.html">ThreadGen</a>
+        <a href="chaptergen.html">ChapterGen</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
 
     <main>
         <!-- Hero -->
@@ -1794,6 +1880,29 @@
     </div>
 
     <script>
+        // Hamburger Menu Toggle
+        (function() {
+            var hamburger = document.getElementById('hamburger');
+            var mobileNav = document.getElementById('mobileNav');
+
+            if (hamburger && mobileNav) {
+                hamburger.addEventListener('click', function() {
+                    hamburger.classList.toggle('active');
+                    mobileNav.classList.toggle('active');
+                    document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+                });
+
+                // Close mobile nav when clicking a link
+                mobileNav.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        hamburger.classList.remove('active');
+                        mobileNav.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                });
+            }
+        })();
+
         // Email Modal Logic
         (function() {
             var modal = document.getElementById('emailModal');

@@ -88,6 +88,78 @@
             color: var(--gold);
         }
 
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 28px;
+            height: 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Mobile Nav Overlay */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
+            color: var(--gold);
+        }
+
         /* Main Container */
         .container {
             max-width: 900px;
@@ -607,8 +679,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .header-inner {
-                flex-direction: column;
-                gap: 16px;
+                padding: 0 16px;
             }
 
             .logo-img {
@@ -616,7 +687,15 @@
             }
 
             nav {
-                gap: 20px;
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .mobile-nav {
+                display: flex;
             }
 
             .container {
@@ -653,12 +732,6 @@
                 height: 120px;
             }
 
-            nav {
-                gap: 16px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
             nav a {
                 font-size: 0.85rem;
             }
@@ -677,11 +750,29 @@
             </a>
             <nav>
                 <a href="index.html">Home</a>
+                <a href="postup.html">PostUp</a>
+                <a href="threadgen.html">ThreadGen</a>
+                <a href="chaptergen.html">ChapterGen</a>
                 <a href="pricing.html">Pricing</a>
                 <a href="dashboard.html" class="active">Dashboard</a>
             </nav>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="postup.html">PostUp</a>
+        <a href="threadgen.html">ThreadGen</a>
+        <a href="chaptergen.html">ChapterGen</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="dashboard.html" class="active">Dashboard</a>
+    </div>
 
     <main class="container">
         <div class="page-header">
@@ -837,6 +928,28 @@
     </footer>
 
     <script>
+        // Hamburger Menu Toggle
+        (function() {
+            var hamburger = document.getElementById('hamburger');
+            var mobileNav = document.getElementById('mobileNav');
+
+            if (hamburger && mobileNav) {
+                hamburger.addEventListener('click', function() {
+                    hamburger.classList.toggle('active');
+                    mobileNav.classList.toggle('active');
+                    document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
+                });
+
+                mobileNav.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        hamburger.classList.remove('active');
+                        mobileNav.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                });
+            }
+        })();
+
         // Elements
         var loginSection = document.getElementById('loginSection');
         var loadingSection = document.getElementById('loadingSection');

@@ -691,45 +691,53 @@
             margin-bottom: 16px;
         }
 
-        .demo-container {
-            border-radius: 12px;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-            padding: 20px;
-        }
-
-        .demo-preview {
-            display: flex;
+        /* Demo matches real tool styling exactly */
+        .demo-tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 16px;
-            font-family: inherit;
         }
 
-        .demo-input-panel, .demo-output-panel {
-            flex: 1;
+        .demo-tool-panel {
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 12px;
-            min-height: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .demo-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
         .demo-panel-label {
             font-size: 0.7rem;
-            color: #666;
+            font-weight: 600;
+            color: #888;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 8px;
-            display: block;
+        }
+
+        .demo-char-count {
+            font-size: 0.65rem;
+            color: #555;
         }
 
         .demo-text-area {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 14px;
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
             font-size: 0.75rem;
-            color: #999;
-            line-height: 1.5;
-            min-height: 60px;
-            word-wrap: break-word;
+            line-height: 1.6;
             white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .demo-text-area .cursor {
@@ -737,9 +745,9 @@
             width: 2px;
             height: 12px;
             background: var(--gold);
-            margin-left: 2px;
+            margin-left: 1px;
             animation: blink 0.8s infinite;
-            vertical-align: middle;
+            vertical-align: text-bottom;
         }
 
         @keyframes blink {
@@ -747,42 +755,73 @@
             51%, 100% { opacity: 0; }
         }
 
-        .demo-button {
-            display: inline-block;
+        .demo-text-area.input-area {
+            color: #999;
+        }
+
+        .demo-text-area.output-area {
+            color: var(--white);
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.7rem;
+        }
+
+        .demo-button-row {
             margin-top: 12px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            color: #000;
-            font-size: 0.7rem;
-            font-weight: 600;
-            border-radius: 6px;
+        }
+
+        .demo-generate-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: default;
             transition: all 0.2s ease;
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
-        .demo-button.active {
+        .demo-generate-btn.ready {
             opacity: 1;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(201, 162, 39, 0.4);
         }
 
-        .demo-button.clicked {
-            transform: scale(0.95);
+        .demo-generate-btn.active {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(201, 162, 39, 0.3);
         }
 
-        .demo-output-panel .demo-text-area {
-            color: #ccc;
-            font-family: monospace;
-            font-size: 0.7rem;
+        .demo-generate-btn.clicked {
+            transform: scale(0.98);
+            box-shadow: none;
         }
 
-        .demo-output-panel .demo-text-area.generating {
-            color: var(--gold);
+        .demo-generate-btn .demo-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            border-top-color: var(--black);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .demo-generate-btn.loading .demo-spinner {
+            display: block;
+        }
+
+        .demo-generate-btn.loading .demo-btn-text {
+            display: none;
         }
 
         @media (max-width: 600px) {
-            .demo-preview {
-                flex-direction: column;
+            .demo-tool-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1687,17 +1726,28 @@
         <!-- Animated Demo Section -->
         <div class="demo-section">
             <p class="demo-title">Watch it in action</p>
-            <div class="demo-container">
-                <div class="demo-preview">
-                    <div class="demo-input-panel">
+            <div class="demo-tool-grid">
+                <!-- Input Panel -->
+                <div class="demo-tool-panel">
+                    <div class="demo-panel-header">
                         <span class="demo-panel-label">Transcript</span>
-                        <div class="demo-text-area" id="demoInput"></div>
-                        <div class="demo-button" id="demoButton">Generate Chapters</div>
+                        <span class="demo-char-count" id="demoInputCount">0 / 50,000</span>
                     </div>
-                    <div class="demo-output-panel">
-                        <span class="demo-panel-label">Chapters</span>
-                        <div class="demo-text-area" id="demoOutput"></div>
+                    <div class="demo-text-area input-area" id="demoInput"></div>
+                    <div class="demo-button-row">
+                        <button class="demo-generate-btn" id="demoButton">
+                            <span class="demo-spinner"></span>
+                            <span class="demo-btn-text">Generate Chapters</span>
+                        </button>
                     </div>
+                </div>
+                <!-- Output Panel -->
+                <div class="demo-tool-panel">
+                    <div class="demo-panel-header">
+                        <span class="demo-panel-label">Generated Chapters</span>
+                        <span class="demo-char-count" id="demoOutputCount">0 chars</span>
+                    </div>
+                    <div class="demo-text-area output-area" id="demoOutput"></div>
                 </div>
             </div>
         </div>
@@ -2083,17 +2133,21 @@ Example format:
             var demoInput = document.getElementById('demoInput');
             var demoOutput = document.getElementById('demoOutput');
             var demoButton = document.getElementById('demoButton');
+            var demoInputCount = document.getElementById('demoInputCount');
+            var demoOutputCount = document.getElementById('demoOutputCount');
 
             if (!demoInput || !demoOutput || !demoButton) return;
 
-            var inputText = "[0:00] Welcome back to the channel today we're looking at the top 5 plays...\n[0:45] Coming in at number 5 we have an incredible goal...\n[1:30] Number 4 is this amazing save...";
-            var outputText = "0:00 Intro\n0:45 #5 - Incredible Goal\n1:30 #4 - Amazing Save\n2:15 #3 - Hat Trick\n3:00 #2 - OT Winner\n3:45 #1 - Play of the Year";
+            var inputText = "[0:00] Welcome back to the channel! Today we're counting down the top 5 plays from last night.\n[0:45] At number 5, watch this incredible snipe from the blue line...\n[1:32] Number 4 brings us an unbelievable glove save...\n[2:18] Coming in at 3, a hat trick goal you won't believe...";
+            var outputText = "0:00 Intro\n0:45 #5 - Blue Line Snipe\n1:32 #4 - Glove Save\n2:18 #3 - Hat Trick Goal\n3:05 #2 - OT Winner\n3:52 #1 - Play of the Year";
 
             function runAnimation() {
                 // Reset
                 demoInput.innerHTML = '<span class="cursor"></span>';
                 demoOutput.innerHTML = '';
-                demoButton.classList.remove('active', 'clicked');
+                demoButton.classList.remove('ready', 'active', 'clicked', 'loading');
+                if (demoInputCount) demoInputCount.textContent = '0 / 50,000';
+                if (demoOutputCount) demoOutputCount.textContent = '0 chars';
 
                 var inputIndex = 0;
                 var outputIndex = 0;
@@ -2102,41 +2156,44 @@ Example format:
                 function typeInput() {
                     if (inputIndex < inputText.length) {
                         demoInput.innerHTML = inputText.substring(0, inputIndex + 1).replace(/\n/g, '<br>') + '<span class="cursor"></span>';
+                        if (demoInputCount) demoInputCount.textContent = (inputIndex + 1) + ' / 50,000';
                         inputIndex++;
-                        setTimeout(typeInput, 25);
+                        setTimeout(typeInput, 18);
                     } else {
                         demoInput.innerHTML = inputText.replace(/\n/g, '<br>');
-                        setTimeout(clickButton, 500);
+                        demoButton.classList.add('ready');
+                        setTimeout(clickButton, 400);
                     }
                 }
 
-                // Phase 2: Click button
+                // Phase 2: Click button with loading state
                 function clickButton() {
                     demoButton.classList.add('active');
                     setTimeout(function() {
                         demoButton.classList.add('clicked');
                         setTimeout(function() {
                             demoButton.classList.remove('clicked');
-                            demoOutput.classList.add('generating');
-                            setTimeout(typeOutput, 300);
-                        }, 150);
-                    }, 300);
+                            demoButton.classList.add('loading');
+                            setTimeout(typeOutput, 600);
+                        }, 100);
+                    }, 200);
                 }
 
                 // Phase 3: Type output
                 function typeOutput() {
+                    demoButton.classList.remove('loading');
                     if (outputIndex < outputText.length) {
                         demoOutput.innerHTML = outputText.substring(0, outputIndex + 1).replace(/\n/g, '<br>');
+                        if (demoOutputCount) demoOutputCount.textContent = (outputIndex + 1) + ' chars';
                         outputIndex++;
-                        setTimeout(typeOutput, 30);
+                        setTimeout(typeOutput, 25);
                     } else {
-                        demoOutput.classList.remove('generating');
                         // Pause then restart
-                        setTimeout(runAnimation, 3000);
+                        setTimeout(runAnimation, 3500);
                     }
                 }
 
-                setTimeout(typeInput, 500);
+                setTimeout(typeInput, 600);
             }
 
             runAnimation();

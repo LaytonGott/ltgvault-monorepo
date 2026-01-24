@@ -2696,16 +2696,19 @@
             elements.transcriptStatus.className = 'transcript-status';
 
             try {
-                var response = await fetch('/api/youtube-transcript', {
+                var response = await fetch('/api/tools/chaptergen', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-free-trial': 'true'
+                    },
+                    body: JSON.stringify({ youtubeUrl: url, fetchOnly: true })
                 });
 
                 var data = await response.json();
 
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Failed to fetch transcript');
+                    throw new Error(data.error || 'Failed to fetch transcript');
                 }
 
                 // Success - show transcript

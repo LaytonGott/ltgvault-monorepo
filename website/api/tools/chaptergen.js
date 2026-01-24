@@ -1,5 +1,104 @@
 const { authenticateRequest } = require('../../lib/auth');
 const { canUseTool, incrementUsage } = require('../../lib/usage');
+const { YoutubeTranscript } = require('youtube-transcript');
+
+// ============================================================================
+// YOUTUBE TRANSCRIPT FETCHING
+// ============================================================================
+
+// Extract video ID from various YouTube URL formats
+function extractVideoId(url) {
+  if (!url) return null;
+  url = url.trim();
+
+  // If it's already just an ID (11 characters, alphanumeric with - and _)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+    return url;
+  }
+
+  // Standard youtube.com/watch?v= format
+  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return watchMatch[1];
+
+  // youtu.be short format
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (shortMatch) return shortMatch[1];
+
+  // youtube.com/embed/ format
+  const embedMatch = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+  if (embedMatch) return embedMatch[1];
+
+  // youtube.com/v/ format
+  const vMatch = url.match(/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/);
+  if (vMatch) return vMatch[1];
+
+  // youtube.com/shorts/ format
+  const shortsMatch = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+  if (shortsMatch) return shortsMatch[1];
+
+  return null;
+}
+
+// Format transcript items into readable text with timestamps
+function formatTranscript(items) {
+  return items.map(item => {
+    const timestamp = formatTime(item.offset);
+    const text = item.text.replace(/\n/g, ' ').trim();
+    return `[${timestamp}] ${text}`;
+  }).join('\n');
+}
+
+// Convert milliseconds to MM:SS or HH:MM:SS format
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Fetch transcript from YouTube
+async function fetchYouTubeTranscript(url) {
+  const videoId = extractVideoId(url);
+
+  if (!videoId) {
+    return { error: 'Invalid YouTube URL or video ID' };
+  }
+
+  try {
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+
+    if (!transcriptItems || transcriptItems.length === 0) {
+      return { error: 'No transcript available for this video' };
+    }
+
+    const transcript = formatTranscript(transcriptItems);
+    const lastItem = transcriptItems[transcriptItems.length - 1];
+    const videoDuration = formatTime(lastItem.offset + lastItem.duration);
+
+    return {
+      success: true,
+      transcript,
+      videoDuration,
+      itemCount: transcriptItems.length
+    };
+  } catch (error) {
+    console.error('Transcript fetch error:', error);
+
+    if (error.message?.includes('Transcript is disabled')) {
+      return { error: 'Transcripts are disabled for this video. Try pasting the transcript manually.' };
+    }
+    if (error.message?.includes('Video unavailable') || error.message?.includes('not found')) {
+      return { error: 'Video not found. Check the URL and try again.' };
+    }
+
+    return { error: 'Could not fetch transcript. Try pasting it manually.' };
+  }
+}
 
 // ============================================================================
 // CHAPTERGEN PROMPTS
@@ -191,8 +290,34 @@ module.exports = async function handler(req, res) {
     }
     // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
 
-    // Get transcript and action from request
-    const { transcript, action, currentChapters } = req.body;
+    // Get parameters from request
+    const { transcript: providedTranscript, youtubeUrl, action, currentChapters, fetchOnly } = req.body;
+
+    let transcript = providedTranscript;
+
+    // If YouTube URL provided, fetch transcript first
+    if (youtubeUrl) {
+      const fetchResult = await fetchYouTubeTranscript(youtubeUrl);
+
+      if (fetchResult.error) {
+        return res.status(400).json({
+          error: fetchResult.error,
+          requiresManualEntry: true
+        });
+      }
+
+      // If fetchOnly mode, just return the transcript
+      if (fetchOnly) {
+        return res.status(200).json({
+          success: true,
+          transcript: fetchResult.transcript,
+          videoDuration: fetchResult.videoDuration,
+          itemCount: fetchResult.itemCount
+        });
+      }
+
+      transcript = fetchResult.transcript;
+    }
 
     // For quick actions, we need currentChapters
     if (action && !currentChapters) {

@@ -85,6 +85,13 @@ module.exports = async function handler(req, res) {
 
     // Call Anthropic Claude API
     const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+    // Debug: Log API key status
+    console.log('=== ANTHROPIC API DEBUG ===');
+    console.log('ANTHROPIC_API_KEY exists:', !!anthropicKey);
+    console.log('ANTHROPIC_API_KEY first 15 chars:', anthropicKey ? anthropicKey.substring(0, 15) + '...' : 'NOT SET');
+    console.log('ANTHROPIC_API_KEY length:', anthropicKey ? anthropicKey.length : 0);
+
     if (!anthropicKey) {
       return res.status(500).json({ error: 'Anthropic API not configured' });
     }
@@ -117,6 +124,11 @@ module.exports = async function handler(req, res) {
       ]
     };
 
+    console.log('Request payload model:', requestPayload.model);
+    console.log('Request payload max_tokens:', requestPayload.max_tokens);
+    console.log('System prompt length:', systemPrompt.length);
+    console.log('User prompt length:', userPrompt.length);
+
     // Anthropic Claude API
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -128,11 +140,32 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify(requestPayload)
     });
 
+    console.log('Anthropic response status:', response.status);
+    console.log('Anthropic response statusText:', response.statusText);
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Anthropic error:', errorData);
+      const errorText = await response.text();
+      console.error('=== ANTHROPIC API ERROR ===');
+      console.error('Status:', response.status);
+      console.error('StatusText:', response.statusText);
+      console.error('Raw error response:', errorText);
+
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+        console.error('Parsed error:', JSON.stringify(errorData, null, 2));
+      } catch (e) {
+        errorData = { rawError: errorText };
+      }
+
       return res.status(500).json({
-        error: errorData?.error?.message || 'Failed to generate content'
+        error: errorData?.error?.message || errorData?.message || 'Failed to generate content',
+        _debug: {
+          status: response.status,
+          statusText: response.statusText,
+          anthropicError: errorData,
+          apiKeyPrefix: anthropicKey ? anthropicKey.substring(0, 10) : 'NOT SET'
+        }
       });
     }
 

@@ -157,13 +157,15 @@ module.exports = async function handler(req, res) {
     // Create Stripe checkout session for tool subscription
     const siteUrl = (process.env.SITE_URL || 'https://ltgvault.vercel.app').trim().replace(/\/$/, '');
 
-    const successUrl = `${siteUrl}/dashboard.html?session_id={CHECKOUT_SESSION_ID}`;
+    // Redirect to the specific tool after successful payment
+    const toolPages = {
+      postup: '/postup.html',
+      chaptergen: '/chaptergen.html',
+      threadgen: '/threadgen.html'
+    };
+    const toolPage = toolPages[tool] || '/dashboard.html';
+    const successUrl = `${siteUrl}${toolPage}?subscribed=true&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteUrl}/pricing.html?canceled=true`;
-
-    // Debug logging - remove after fixing
-    console.log('SITE_URL:', siteUrl);
-    console.log('success_url:', successUrl);
-    console.log('cancel_url:', cancelUrl);
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,

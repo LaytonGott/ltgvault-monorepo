@@ -42,14 +42,27 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
+        /* ============ HEADER ============ */
         header {
-            padding: 24px 0;
-            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 76px;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid #4a3d2a;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(0, 0, 0, 0.98);
         }
 
         .header-inner {
-            max-width: 1000px;
+            max-width: 1100px;
+            height: 100%;
             margin: 0 auto;
             padding: 0 40px;
             display: flex;
@@ -64,24 +77,27 @@
         }
 
         .logo-img {
-            height: 180px;
+            height: 236px;
             width: auto;
-            object-fit: contain;
-            margin-top: 10px;
+            display: block;
+            margin-top: 15px;
         }
 
         nav {
             display: flex;
             align-items: center;
-            gap: 32px;
+            gap: 36px;
         }
 
         nav a {
-            color: var(--gray-light);
+            color: #aaaaaa;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             font-weight: 500;
             transition: color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         nav a:hover {
@@ -92,83 +108,70 @@
             color: var(--gold);
         }
 
-        /* Hamburger Menu */
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            gap: 5px;
-            width: 28px;
-            height: 28px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            z-index: 1001;
-        }
-
-        .hamburger span {
-            display: block;
-            width: 100%;
-            height: 2px;
-            background: var(--white);
-            transition: all 0.3s ease;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
-
-        /* Mobile Nav Overlay */
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-nav.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .mobile-nav a {
-            color: var(--white);
-            text-decoration: none;
-            font-size: 1.25rem;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-
-        .mobile-nav a:hover,
-        .mobile-nav a.active {
-            color: var(--gold);
-        }
-
         /* Main Container */
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 60px 40px;
+            padding-top: 100px;
+        }
+
+        /* Header Responsive */
+        @media (max-width: 1024px) {
+            .header-inner {
+                padding: 0 24px;
+            }
+            nav {
+                gap: 24px;
+            }
+            nav a {
+                font-size: 1rem;
+            }
+            .logo-img {
+                height: 70px;
+            }
+            .container {
+                padding: 0 24px;
+                padding-top: 100px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                height: auto;
+                padding: 12px 0;
+            }
+            .header-inner {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .logo-img {
+                height: 180px;
+            }
+            nav {
+                width: 100%;
+                justify-content: center;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+            nav a {
+                font-size: 0.9rem;
+            }
+            .container {
+                padding-top: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-img {
+                height: 150px;
+            }
+            nav {
+                gap: 16px;
+            }
+            nav a {
+                font-size: 0.85rem;
+            }
         }
 
         .page-title {
@@ -2551,36 +2554,18 @@
     </style>
 </head>
 <body>
-    <header>
+    <header id="header">
         <div class="header-inner">
-            <a href="index.html" class="logo">
-                <img src="logo.png" alt="LTG Vault" class="logo-img">
-            </a>
+            <a href="/" class="logo"><img src="logo.png" alt="LTG Vault" class="logo-img"></a>
             <nav>
-                <a href="index.html">Home</a>
                 <a href="postup.html">PostUp</a>
                 <a href="threadgen.html" class="active">ThreadGen</a>
                 <a href="chaptergen.html">ChapterGen</a>
                 <a href="pricing.html">Pricing</a>
                 <a href="dashboard.html">Dashboard</a>
             </nav>
-            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
         </div>
     </header>
-
-    <!-- Mobile Navigation -->
-    <div class="mobile-nav" id="mobileNav">
-        <a href="index.html">Home</a>
-        <a href="postup.html">PostUp</a>
-        <a href="threadgen.html" class="active">ThreadGen</a>
-        <a href="chaptergen.html">ChapterGen</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="dashboard.html">Dashboard</a>
-    </div>
 
     <main class="container">
         <h1 class="page-title">
@@ -2990,28 +2975,6 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
     </div>
 
     <script>
-        // Hamburger Menu Toggle
-        (function() {
-            var hamburger = document.getElementById('hamburger');
-            var mobileNav = document.getElementById('mobileNav');
-
-            if (hamburger && mobileNav) {
-                hamburger.addEventListener('click', function() {
-                    hamburger.classList.toggle('active');
-                    mobileNav.classList.toggle('active');
-                    document.body.style.overflow = mobileNav.classList.contains('active') ? 'hidden' : '';
-                });
-
-                mobileNav.querySelectorAll('a').forEach(function(link) {
-                    link.addEventListener('click', function() {
-                        hamburger.classList.remove('active');
-                        mobileNav.classList.remove('active');
-                        document.body.style.overflow = '';
-                    });
-                });
-            }
-        })();
-
         // Checkout Modal Functions
         function openCheckoutModal() {
             document.getElementById('checkoutModal').classList.add('visible');

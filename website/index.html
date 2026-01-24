@@ -336,25 +336,12 @@
 
         /* ============ HEADER ============ */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            height: 76px;
-            background: rgba(0, 0, 0, 0.95);
-            border-bottom: 2px solid #4a3d2a;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s ease;
-        }
-
-        header.scrolled {
-            background: rgba(0, 0, 0, 0.98);
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .header-inner {
-            max-width: 1100px;
-            height: 100%;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 0 40px;
             display: flex;
@@ -371,7 +358,7 @@
         .logo-img {
             height: 180px;
             width: auto;
-            display: block;
+            object-fit: contain;
             margin-top: 10px;
         }
 
@@ -382,14 +369,11 @@
         }
 
         nav a {
-            color: #aaaaaa;
+            color: var(--gray-light);
             text-decoration: none;
             font-size: 0.95rem;
             font-weight: 500;
             transition: color 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
 
         nav a:hover {
@@ -398,17 +382,6 @@
 
         nav a.active {
             color: var(--gold);
-        }
-
-        .nav-badge {
-            font-size: 0.65rem;
-            font-weight: 700;
-            background: var(--gold);
-            color: var(--black);
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
         }
 
         /* Hamburger Menu */
@@ -1440,25 +1413,6 @@
 
         /* ============ RESPONSIVE ============ */
 
-        /* Tablet */
-        @media (max-width: 1024px) {
-            .header-inner {
-                padding: 0 24px;
-            }
-            .container {
-                padding: 0 24px;
-            }
-            nav {
-                gap: 24px;
-            }
-            nav a {
-                font-size: 0.9rem;
-            }
-            .logo-img {
-                height: 160px;
-            }
-        }
-
         @media (max-width: 900px) {
             .tools-grid,
             .benefits-grid {
@@ -1483,12 +1437,10 @@
         /* Mobile */
         @media (max-width: 768px) {
             header {
-                height: auto;
                 padding: 16px 0;
             }
             .header-inner {
-                flex-direction: row;
-                justify-content: space-between;
+                padding: 0 16px;
             }
             .logo-img {
                 height: 140px;
@@ -1502,9 +1454,11 @@
             .mobile-nav {
                 display: flex;
             }
+            .container {
+                padding: 0 16px;
+            }
             .hero {
-                min-height: calc(100vh - 120px);
-                padding-top: 120px;
+                min-height: 80vh;
             }
             .hero h1 {
                 font-size: clamp(1.5rem, 7vw, 2.5rem);

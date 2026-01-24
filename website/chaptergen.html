@@ -1038,6 +1038,193 @@
             cursor: default;
         }
 
+        /* ============ URL INPUT SECTION ============ */
+        .url-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 4px 4px 4px 16px;
+            gap: 12px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .url-input-wrapper:focus-within {
+            border-color: rgba(201, 162, 39, 0.5);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+
+        .url-icon {
+            color: #ff0000;
+            flex-shrink: 0;
+            opacity: 0.8;
+        }
+
+        .url-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 0.9rem;
+            font-family: inherit;
+            padding: 12px 0;
+            outline: none;
+        }
+
+        .url-input::placeholder {
+            color: #666;
+        }
+
+        .fetch-btn {
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fetch-btn:hover:not(:disabled) {
+            background: var(--gold-light);
+        }
+
+        .fetch-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .fetch-btn .fetch-loading {
+            display: none;
+        }
+
+        .fetch-btn.loading .fetch-text {
+            display: none;
+        }
+
+        .fetch-btn.loading .fetch-loading {
+            display: flex;
+            align-items: center;
+        }
+
+        .fetch-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        .transcript-status {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .transcript-status.success {
+            color: var(--success);
+        }
+
+        .transcript-status.error {
+            color: var(--gold);
+        }
+
+        .transcript-status .fallback-link {
+            color: var(--white);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .transcript-status .fallback-link:hover {
+            color: var(--gold-light);
+        }
+
+        /* Manual transcript section */
+        .manual-section {
+            margin-top: 16px;
+        }
+
+        .manual-section.hidden {
+            display: none;
+        }
+
+        .manual-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--gray-light);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+        }
+
+        .manual-instructions {
+            background: rgba(201, 162, 39, 0.08);
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            color: var(--gray-light);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        /* Transcript preview */
+        .transcript-preview {
+            margin-top: 16px;
+        }
+
+        .transcript-preview.hidden {
+            display: none;
+        }
+
+        .transcript-preview .text-area {
+            min-height: 200px;
+        }
+
+        .edit-transcript-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 8px 0;
+            transition: color 0.2s ease;
+            font-family: inherit;
+        }
+
+        .edit-transcript-btn:hover {
+            color: var(--gold);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         .button-row {
             margin-top: 16px;
         }
@@ -2012,7 +2199,7 @@
             </svg>
             ChapterGen
         </h1>
-        <p class="page-subtitle">Paste a YouTube transcript to generate chapters automatically.</p>
+        <p class="page-subtitle">Paste a YouTube URL to generate chapters automatically.</p>
 
         <!-- Pricing Banner -->
         <div class="pricing-banner" id="pricingBanner">
@@ -2099,40 +2286,63 @@
 
         <!-- Main Content -->
         <div id="mainContent">
-            <!-- Instructions -->
-            <div class="instructions">
-                <div class="instructions-title">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 16v-4M12 8h.01"/>
-                    </svg>
-                    How to get the transcript
-                </div>
-                <ol>
-                    <li>Open your YouTube video</li>
-                    <li>Click <strong>"...more"</strong> below the video description</li>
-                    <li>Click <strong>"Show transcript"</strong></li>
-                    <li>Select all with <code>Ctrl+A</code> (or <code>Cmd+A</code> on Mac)</li>
-                    <li>Copy with <code>Ctrl+C</code> (or <code>Cmd+C</code>)</li>
-                    <li>Paste below</li>
-                </ol>
-            </div>
-
             <!-- Tool Grid: Two Columns -->
             <div class="tool-grid">
                 <!-- Left Panel: Input -->
                 <div class="tool-panel">
-                    <div class="panel-header">
-                        <span class="panel-label">Transcript</span>
-                        <span class="char-count" id="inputCount">0 / 50,000</span>
+                    <!-- YouTube URL Input -->
+                    <div id="urlInputSection">
+                        <div class="panel-header">
+                            <span class="panel-label">YouTube Video</span>
+                        </div>
+                        <div class="url-input-wrapper">
+                            <svg class="url-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                            <input type="text" id="youtubeUrl" class="url-input" placeholder="Paste YouTube URL (e.g., https://youtube.com/watch?v=xxx)">
+                            <button id="fetchTranscriptBtn" class="fetch-btn">
+                                <span class="fetch-text">Fetch</span>
+                                <span class="fetch-loading">
+                                    <svg class="fetch-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="transcript-status" id="transcriptStatus"></div>
                     </div>
-                    <textarea class="text-area" id="transcriptArea" placeholder="Paste your YouTube transcript here...
 
-Example format:
-0:00 Welcome to the video
-0:15 Today we're covering...
-1:30 First topic starts here
-2:45 Moving on to the next section"></textarea>
+                    <!-- Manual Transcript Fallback (hidden by default) -->
+                    <div id="manualTranscriptSection" class="manual-section hidden">
+                        <div class="manual-header">
+                            <span class="panel-label">Manual Transcript</span>
+                            <button id="backToUrlBtn" class="back-btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                                Back to URL
+                            </button>
+                        </div>
+                        <div class="manual-instructions">
+                            <span>Copy transcript from YouTube: Video → "...more" → "Show transcript" → Select all → Copy → Paste below</span>
+                        </div>
+                    </div>
+
+                    <!-- Transcript Preview/Edit Area -->
+                    <div id="transcriptPreview" class="transcript-preview hidden">
+                        <div class="panel-header">
+                            <span class="panel-label">Transcript Preview</span>
+                            <span class="char-count" id="inputCount">0 / 50,000</span>
+                        </div>
+                        <textarea class="text-area" id="transcriptArea" placeholder="Transcript will appear here..." readonly></textarea>
+                        <button id="editTranscriptBtn" class="edit-transcript-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Edit transcript
+                        </button>
+                    </div>
 
                     <!-- Usage Counter -->
                     <div id="usageCounter" class="usage-counter" style="margin-top: 16px;">
@@ -2430,7 +2640,16 @@ Example format:
             tipsList: document.getElementById('tipsList'),
             confidenceScore: document.getElementById('confidenceScore'),
             confidenceValue: document.getElementById('confidenceValue'),
-            errorMessage: document.getElementById('errorMessage')
+            errorMessage: document.getElementById('errorMessage'),
+            // URL input elements
+            youtubeUrl: document.getElementById('youtubeUrl'),
+            fetchTranscriptBtn: document.getElementById('fetchTranscriptBtn'),
+            transcriptStatus: document.getElementById('transcriptStatus'),
+            urlInputSection: document.getElementById('urlInputSection'),
+            manualTranscriptSection: document.getElementById('manualTranscriptSection'),
+            backToUrlBtn: document.getElementById('backToUrlBtn'),
+            transcriptPreview: document.getElementById('transcriptPreview'),
+            editTranscriptBtn: document.getElementById('editTranscriptBtn')
         };
 
         // State
@@ -2450,18 +2669,86 @@ Example format:
             startDemoAnimation();
         });
 
-        // Pre-fill example text for first-time users
+        // Pre-fill example text for first-time users (disabled for URL flow)
         function prefillExampleText() {
-            var EXAMPLE_KEY = 'chaptergen_has_generated';
-            if (localStorage.getItem(EXAMPLE_KEY)) return;
-
-            var exampleText = "[0:00] Hey everyone, welcome back to the channel! Today we're diving into the top 5 plays from last night's games.\n\n[0:15] Before we get started, make sure to hit that subscribe button if you haven't already.\n\n[0:32] Alright, let's jump right into it. Coming in at number 5...\n\n[1:15] That was absolutely insane! The crowd went wild. Moving on to number 4...\n\n[2:03] What a save! I've watched this replay about 50 times and I still can't believe it.\n\n[2:48] Number 3 on our list features a rookie who's been making waves all season.\n\n[3:35] The skill on display here is just unreal. Now for number 2...\n\n[4:22] That's going to be remembered for years to come. And finally, our number 1 play...\n\n[5:10] Absolutely incredible. That's a wrap for today's top 5!\n\n[5:45] Thanks for watching, drop a comment with your favorite play, and I'll see you in the next one.";
-
-            elements.transcriptArea.value = exampleText;
+            // No longer pre-fill since we use URL input now
+            // Keep function for backward compatibility
         }
 
         function markAsGenerated() {
             localStorage.setItem('chaptergen_has_generated', 'true');
+        }
+
+        // ============ TRANSCRIPT FETCHING ============
+        async function fetchTranscript() {
+            var url = elements.youtubeUrl.value.trim();
+
+            if (!url) {
+                elements.transcriptStatus.innerHTML = 'Please enter a YouTube URL';
+                elements.transcriptStatus.className = 'transcript-status error';
+                return;
+            }
+
+            // Show loading state
+            elements.fetchTranscriptBtn.classList.add('loading');
+            elements.fetchTranscriptBtn.disabled = true;
+            elements.transcriptStatus.innerHTML = '';
+            elements.transcriptStatus.className = 'transcript-status';
+
+            try {
+                var response = await fetch('/api/youtube-transcript', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to fetch transcript');
+                }
+
+                // Success - show transcript
+                elements.transcriptArea.value = data.transcript;
+                elements.transcriptArea.readOnly = true;
+                elements.transcriptPreview.classList.remove('hidden');
+                elements.transcriptStatus.innerHTML = '✓ Transcript fetched (' + data.itemCount + ' segments, ' + data.videoDuration + ' duration)';
+                elements.transcriptStatus.className = 'transcript-status success';
+                updateInputCounter();
+
+            } catch (error) {
+                console.error('Transcript fetch error:', error);
+                elements.transcriptStatus.innerHTML = error.message + ' <span class="fallback-link" onclick="showManualEntry()">Paste manually instead</span>';
+                elements.transcriptStatus.className = 'transcript-status error';
+            } finally {
+                elements.fetchTranscriptBtn.classList.remove('loading');
+                elements.fetchTranscriptBtn.disabled = false;
+            }
+        }
+
+        function showManualEntry() {
+            elements.urlInputSection.classList.add('hidden');
+            elements.manualTranscriptSection.classList.remove('hidden');
+            elements.transcriptPreview.classList.remove('hidden');
+            elements.transcriptArea.readOnly = false;
+            elements.transcriptArea.placeholder = 'Paste your transcript here...';
+            elements.transcriptArea.focus();
+        }
+
+        function showUrlEntry() {
+            elements.urlInputSection.classList.remove('hidden');
+            elements.manualTranscriptSection.classList.add('hidden');
+            elements.transcriptPreview.classList.add('hidden');
+            elements.transcriptArea.value = '';
+            elements.transcriptStatus.innerHTML = '';
+            elements.transcriptStatus.className = 'transcript-status';
+            elements.youtubeUrl.focus();
+        }
+
+        function enableTranscriptEdit() {
+            elements.transcriptArea.readOnly = false;
+            elements.transcriptArea.focus();
+            elements.editTranscriptBtn.style.display = 'none';
         }
 
         // Animated Demo
@@ -2543,6 +2830,18 @@ Example format:
             elements.copyBtn.addEventListener('click', copyChapters);
             elements.transcriptArea.addEventListener('input', updateInputCounter);
             elements.outputText.addEventListener('input', updateOutputCounter);
+
+            // URL input handlers
+            elements.fetchTranscriptBtn.addEventListener('click', fetchTranscript);
+            elements.youtubeUrl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') fetchTranscript();
+            });
+            elements.youtubeUrl.addEventListener('input', function() {
+                elements.transcriptStatus.innerHTML = '';
+                elements.transcriptStatus.className = 'transcript-status';
+            });
+            elements.backToUrlBtn.addEventListener('click', showUrlEntry);
+            elements.editTranscriptBtn.addEventListener('click', enableTranscriptEdit);
 
             // Quick action buttons
             var quickBtns = document.querySelectorAll('.quick-action-btn');
@@ -2805,7 +3104,7 @@ Example format:
             // Check for transcript
             var transcript = elements.transcriptArea.value.trim();
             if (!transcript) {
-                showStatus('Paste a YouTube transcript to generate chapters. Copy it from the video\'s description or transcript tab.', 'error');
+                showStatus('Enter a YouTube URL to fetch the transcript, or paste it manually.', 'error');
                 return;
             }
 

@@ -571,224 +571,168 @@
             color: #555;
         }
 
-        /* ============ DEMO SECTION ============ */
-        .demo-section {
+        /* ============ BEFORE/AFTER SECTION ============ */
+        .before-after {
             margin-bottom: 32px;
         }
 
-        .demo-title {
-            font-size: 0.85rem;
-            color: #888;
+        .before-after-title {
+            font-size: 0.8rem;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
-        .demo-window {
+        .before-after-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0;
+            align-items: stretch;
+        }
+
+        .before-box, .after-box {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border);
             border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .demo-titlebar {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .demo-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .demo-dot:first-child { background: #ff5f57; }
-        .demo-dot:nth-child(2) { background: #ffbd2e; }
-        .demo-dot:nth-child(3) { background: #28ca41; }
-
-        .demo-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: 300px;
-        }
-
-        .demo-left, .demo-right {
             padding: 16px;
         }
 
-        .demo-left {
-            border-right: 1px solid var(--border);
+        .before-box {
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
         }
 
-        .demo-label {
-            font-size: 0.65rem;
+        .after-box {
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-color: rgba(201, 162, 39, 0.3);
+            background: rgba(201, 162, 39, 0.03);
+        }
+
+        .box-label {
+            font-size: 0.6rem;
             color: #666;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        .demo-input {
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 12px;
-            min-height: 180px;
+        .after-box .box-label {
+            color: var(--gold);
+        }
+
+        .box-content {
             font-size: 0.8rem;
+            line-height: 1.5;
             color: #888;
-            line-height: 1.5;
-            margin-bottom: 10px;
         }
 
-        .demo-input.typing {
+        .after-box .box-content {
             color: #ccc;
         }
 
-        .demo-input .cursor {
-            display: inline-block;
-            width: 2px;
-            height: 1em;
-            background: var(--gold);
-            animation: cursorBlink 1s infinite;
-            vertical-align: text-bottom;
-            margin-left: 2px;
-        }
-
-        @keyframes cursorBlink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        .demo-generate-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: var(--gold);
-            color: var(--black);
-            border: none;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.4;
-        }
-
-        .demo-generate-btn.active {
-            opacity: 1;
-        }
-
-        .demo-generate-btn.loading {
-            opacity: 0.7;
-        }
-
-        .demo-generate-btn .spinner {
-            width: 10px;
-            height: 10px;
-            border: 2px solid transparent;
-            border-top-color: var(--black);
-            border-radius: 50%;
-            animation: demoSpin 0.8s linear infinite;
-            display: none;
-        }
-
-        .demo-generate-btn.loading .spinner {
-            display: block;
-        }
-
-        .demo-generate-btn.loading .btn-text {
-            display: none;
-        }
-
-        @keyframes demoSpin {
-            to { transform: rotate(360deg); }
-        }
-
-        .demo-output {
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 12px;
-            min-height: 180px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 0.8rem;
-            color: #ccc;
-            line-height: 1.5;
-            margin-bottom: 10px;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .demo-output.visible {
-            opacity: 1;
-        }
-
-        .demo-output .tweet {
+        .thread-tweet {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 6px;
-            padding: 10px;
+            padding: 8px 10px;
             margin-bottom: 6px;
+            font-size: 0.75rem;
         }
 
-        .demo-output .tweet:last-child {
+        .thread-tweet:last-child {
             margin-bottom: 0;
         }
 
-        .demo-output .tweet-num {
-            font-size: 0.65rem;
+        .thread-num {
+            font-size: 0.6rem;
             color: var(--gold);
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
-        .demo-output .tweet-text {
-            font-size: 0.75rem;
-            line-height: 1.4;
-        }
-
-        .demo-copy-btn {
-            display: inline-flex;
+        .before-after-arrow {
+            display: flex;
             align-items: center;
-            gap: 4px;
-            padding: 6px 12px;
-            background: transparent;
-            border: 1px solid rgba(201, 162, 39, 0.4);
+            justify-content: center;
+            padding: 0 4px;
             color: var(--gold);
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0;
-        }
-
-        .demo-copy-btn.visible {
-            opacity: 1;
-        }
-
-        .demo-copy-btn.copied {
-            background: rgba(40, 202, 65, 0.15);
-            border-color: var(--success);
-            color: var(--success);
+            font-size: 1.2rem;
+            background: linear-gradient(to right, rgba(255,255,255,0.02), rgba(201,162,39,0.03));
         }
 
         @media (max-width: 600px) {
-            .demo-content {
+            .before-after-grid {
                 grid-template-columns: 1fr;
+                gap: 0;
             }
-            .demo-left {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
+            .before-box {
+                border-radius: 12px 12px 0 0;
+                border-right: 1px solid var(--border);
+                border-bottom: none;
             }
+            .after-box {
+                border-radius: 0 0 12px 12px;
+                border-left: 1px solid rgba(201, 162, 39, 0.3);
+                border-top: none;
+            }
+            .before-after-arrow {
+                padding: 8px 0;
+                background: linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(201,162,39,0.03));
+            }
+        }
+
+        /* ============ DEMO VIDEO SECTION ============ */
+        .demo-video-section {
+            margin-bottom: 32px;
+        }
+
+        .demo-video-title {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .demo-video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+        }
+
+        .demo-video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .demo-video-placeholder {
+            aspect-ratio: 16 / 9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%);
+            color: #666;
+            font-size: 0.8rem;
+            gap: 12px;
+        }
+
+        .demo-video-placeholder svg {
+            opacity: 0.4;
+        }
+
+        .demo-video-placeholder span {
+            opacity: 0.6;
         }
 
         /* ============ RESPONSIVE ============ */
@@ -1829,35 +1773,40 @@
             </div>
         </div>
 
-        <!-- Demo Section -->
-        <div class="demo-section">
-            <p class="demo-title">See it in action</p>
-            <div class="demo-window" id="demoWindow">
-                <div class="demo-titlebar">
-                    <div class="demo-dot"></div>
-                    <div class="demo-dot"></div>
-                    <div class="demo-dot"></div>
+        <!-- Before/After Section -->
+        <div class="before-after">
+            <p class="before-after-title">See the difference</p>
+            <div class="before-after-grid">
+                <div class="before-box">
+                    <div class="box-label">Your content</div>
+                    <div class="box-content">I've been building in public for 6 months. Here's what I learned: consistency beats perfection, share your failures, engage with your audience daily, and don't be afraid to pivot when something isn't working.</div>
                 </div>
-                <div class="demo-content">
-                    <div class="demo-left">
-                        <div class="demo-label">Your content</div>
-                        <div class="demo-input" id="demoInput"></div>
-                        <button class="demo-generate-btn" id="demoGenerate">
-                            <span class="btn-text">Generate Thread</span>
-                            <div class="spinner"></div>
-                        </button>
+                <div class="before-after-arrow">→</div>
+                <div class="after-box">
+                    <div class="box-label">ThreadGen output</div>
+                    <div class="box-content">
+                        <div class="thread-tweet"><div class="thread-num">1/5</div>I've been building in public for 6 months. Here's what actually worked (and what didn't):</div>
+                        <div class="thread-tweet"><div class="thread-num">2/5</div>Consistency beats perfection. I shipped something every week, even when it wasn't perfect.</div>
+                        <div class="thread-tweet"><div class="thread-num">3/5</div>Share your failures. My biggest flops got 10x more engagement than wins.</div>
                     </div>
-                    <div class="demo-right">
-                        <div class="demo-label">Your Thread</div>
-                        <div class="demo-output" id="demoOutput"></div>
-                        <button class="demo-copy-btn" id="demoCopy">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            <span id="demoCopyText">Copy All</span>
-                        </button>
-                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Video Section -->
+        <div class="demo-video-section">
+            <p class="demo-video-title">Watch it in action</p>
+            <div class="demo-video-container">
+                <!-- Replace with your video:
+                     <video class="demo-video" autoplay muted loop playsinline>
+                         <source src="threadgen-demo.mp4" type="video/mp4">
+                     </video>
+                -->
+                <div class="demo-video-placeholder">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <span>Record a 10-15 second demo: paste content → select hook → thread generated</span>
                 </div>
             </div>
         </div>
@@ -3227,117 +3176,6 @@ The AI will find the most interesting hook and transform your content into an en
             }
         })();
 
-        // ============ DEMO ANIMATION ============
-        (function() {
-            var demoInputEl = document.getElementById('demoInput');
-            var demoOutputEl = document.getElementById('demoOutput');
-            var demoGenerateBtn = document.getElementById('demoGenerate');
-            var demoCopyBtn = document.getElementById('demoCopy');
-            var demoCopyTextEl = document.getElementById('demoCopyText');
-
-            var demoInputText = "I spent $400 on DoorDash last month. Not because I was busy or working late. I just kept convincing myself I deserved it after long days. Now I'm meal prepping on Sundays and actually saving money. The food isn't as good but my bank account looks a lot better.";
-
-            var demoTweets = [
-                "I spent $400 on doordash last month. not because i was busy. i just kept telling myself i deserved it after long days",
-                "the thing is, i wasn't even enjoying most of those meals. half the time the food arrived cold",
-                "so i started meal prepping on sundays. nothing fancy, just rice, protein, and veggies",
-                "the food isn't as exciting. but my bank account has an extra $300 in it now",
-                "sometimes the boring option is the right one"
-            ];
-
-            function formatThreadOutput(tweets) {
-                var html = '';
-                for (var i = 0; i < tweets.length; i++) {
-                    html += '<div class="tweet"><div class="tweet-num">' + (i + 1) + '/' + tweets.length + '</div><div class="tweet-text">' + escapeHtml(tweets[i]) + '</div></div>';
-                }
-                return html;
-            }
-
-            var demoPlayed = false;
-            var demoVisible = false;
-            var typeInterval = null;
-
-            function runPageDemo() {
-                if (demoPlayed || !demoVisible) return;
-                demoPlayed = true;
-
-                // Reset
-                demoInputEl.innerHTML = '';
-                demoInputEl.classList.remove('typing');
-                demoOutputEl.innerHTML = '';
-                demoOutputEl.classList.remove('visible');
-                demoGenerateBtn.classList.remove('active', 'loading');
-                demoCopyBtn.classList.remove('visible', 'copied');
-                demoCopyTextEl.textContent = 'Copy All';
-
-                // Type input
-                var charIndex = 0;
-                demoInputEl.classList.add('typing');
-                demoInputEl.innerHTML = '<span class="cursor"></span>';
-
-                typeInterval = setInterval(function() {
-                    if (charIndex < demoInputText.length) {
-                        demoInputEl.innerHTML = demoInputText.slice(0, charIndex + 1) + '<span class="cursor"></span>';
-                        charIndex++;
-                    } else {
-                        clearInterval(typeInterval);
-                        demoInputEl.innerHTML = demoInputText;
-                        demoGenerateBtn.classList.add('active');
-
-                        setTimeout(function() {
-                            demoGenerateBtn.classList.add('loading');
-                            demoGenerateBtn.classList.remove('active');
-
-                            setTimeout(function() {
-                                demoGenerateBtn.classList.remove('loading');
-                                demoGenerateBtn.classList.add('active');
-                                demoOutputEl.innerHTML = formatThreadOutput(demoTweets);
-                                demoOutputEl.classList.add('visible');
-
-                                setTimeout(function() {
-                                    demoCopyBtn.classList.add('visible');
-
-                                    setTimeout(function() {
-                                        demoCopyBtn.classList.add('copied');
-                                        demoCopyTextEl.textContent = 'Copied!';
-
-                                        setTimeout(function() {
-                                            demoPlayed = false;
-                                            if (demoVisible) runPageDemo();
-                                        }, 2500);
-                                    }, 1200);
-                                }, 600);
-                            }, 1500);
-                        }, 800);
-                    }
-                }, 25);
-            }
-
-            // Trigger demo when visible
-            var demoWindowEl = document.getElementById('demoWindow');
-            if (demoWindowEl && 'IntersectionObserver' in window) {
-                var demoObserver = new IntersectionObserver(function(entries) {
-                    for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i];
-                        if (entry.isIntersecting && !demoVisible) {
-                            demoVisible = true;
-                            setTimeout(runPageDemo, 500);
-                        } else if (!entry.isIntersecting) {
-                            demoVisible = false;
-                        }
-                    }
-                }, { threshold: 0.3 });
-                demoObserver.observe(demoWindowEl);
-            }
-
-            // Fallback: Auto-start demo after 1 second if not started
-            setTimeout(function() {
-                if (!demoPlayed && !demoVisible) {
-                    demoVisible = true;
-                    runPageDemo();
-                }
-            }, 1000);
-        })();
     </script>
 </body>
 </html>

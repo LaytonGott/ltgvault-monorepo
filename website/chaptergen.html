@@ -366,7 +366,22 @@
         }
 
         textarea:focus {
-            border-color: var(--gold);
+            border-color: rgba(201, 162, 39, 0.5);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+
+        textarea {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Output fade-in animation */
+        textarea.fade-in {
+            animation: fadeInContent 0.25s ease-out;
+        }
+
+        @keyframes fadeInContent {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
         }
 
         textarea::placeholder {
@@ -422,8 +437,29 @@
 
         .btn.primary:hover:not(:disabled) {
             background: var(--gold-light);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4), 0 0 0 1px rgba(201, 162, 39, 0.2);
+        }
+
+        .btn.primary:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+        }
+
+        .btn.primary .btn-text {
+            display: inline;
+        }
+
+        .btn.primary .btn-loading-text {
+            display: none;
+        }
+
+        .btn.primary.loading .btn-text {
+            display: none;
+        }
+
+        .btn.primary.loading .btn-loading-text {
+            display: inline;
         }
 
         .btn.secondary {
@@ -440,6 +476,22 @@
             background: rgba(40, 202, 65, 0.15);
             border-color: var(--success);
             color: var(--success);
+        }
+
+        .btn.secondary .copy-icon {
+            transition: opacity 0.15s ease;
+        }
+
+        .btn.secondary.copied .copy-icon {
+            display: none;
+        }
+
+        .btn.secondary .check-icon {
+            display: none;
+        }
+
+        .btn.secondary.copied .check-icon {
+            display: inline;
         }
 
         .icon-btn {
@@ -1007,8 +1059,13 @@
 
         .generate-btn:hover:not(:disabled) {
             background: var(--gold-light);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4), 0 0 0 1px rgba(201, 162, 39, 0.2);
+        }
+
+        .generate-btn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
         }
 
         .generate-btn:disabled {
@@ -1024,7 +1081,9 @@
             border-top-color: var(--black);
         }
 
+        .generate-btn .btn-loading-text { display: none; }
         .generate-btn.loading .btn-text { display: none; }
+        .generate-btn.loading .btn-loading-text { display: inline; }
         .generate-btn.loading .spinner { display: block; }
 
         .copy-btn {
@@ -1058,6 +1117,36 @@
             background: rgba(40, 202, 65, 0.15);
             border-color: var(--success);
             color: var(--success);
+        }
+
+        .copy-btn .copy-icon {
+            transition: opacity 0.15s ease;
+        }
+
+        .copy-btn.copied .copy-icon {
+            display: none;
+        }
+
+        .copy-btn .check-icon {
+            display: none;
+        }
+
+        .copy-btn.copied .check-icon {
+            display: inline;
+        }
+
+        /* Text area for output */
+        .text-area {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .text-area:focus {
+            border-color: rgba(201, 162, 39, 0.5);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+
+        .text-area.fade-in {
+            animation: fadeInContent 0.25s ease-out;
         }
 
         .error-message {
@@ -2071,6 +2160,7 @@ Example format:
                     <div class="button-row">
                         <button class="generate-btn" id="generateBtn">
                             <span class="btn-text">Generate Chapters</span>
+                            <span class="btn-loading-text">Generating...</span>
                             <div class="spinner"></div>
                         </button>
                     </div>
@@ -2087,9 +2177,12 @@ Example format:
 
                     <div class="button-row">
                         <button class="copy-btn" id="copyBtn" disabled>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                             <span id="copyText">Copy to Clipboard</span>
                         </button>
@@ -2510,6 +2603,13 @@ Example format:
             return key && key.indexOf('ltgv_') === 0;
         }
 
+        // Output fade-in animation
+        function animateOutput() {
+            elements.outputText.classList.remove('fade-in');
+            void elements.outputText.offsetWidth; // Trigger reflow
+            elements.outputText.classList.add('fade-in');
+        }
+
         function loadApiKey() {
             var ltgvKey = localStorage.getItem('ltgv_api_key');
 
@@ -2822,6 +2922,7 @@ Example format:
                 // Display results
                 generatedChapters = chapters;
                 elements.outputText.value = chapters;
+                animateOutput();
                 updateOutputCounter();
 
                 // Enable UI elements
@@ -2915,6 +3016,7 @@ Example format:
 
                 // Update output
                 elements.outputText.value = data.result;
+                animateOutput();
                 generatedChapters = data.result;
                 updateOutputCounter();
                 showStatus('Chapters refined!', 'success');

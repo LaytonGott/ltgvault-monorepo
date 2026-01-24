@@ -385,7 +385,27 @@
 
         .text-area:focus {
             outline: none;
-            border-color: rgba(201, 162, 39, 0.4);
+            border-color: rgba(201, 162, 39, 0.5);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .text-area {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Output fade-in animation */
+        .text-area.fade-in {
+            animation: fadeInContent 0.25s ease-out;
+        }
+
+        @keyframes fadeInContent {
+            from {
+                opacity: 0.5;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .text-area::placeholder {
@@ -423,7 +443,12 @@
 
         .generate-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(201, 162, 39, 0.3);
+            box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4), 0 0 0 1px rgba(201, 162, 39, 0.2);
+        }
+
+        .generate-btn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
         }
 
         .generate-btn:disabled {
@@ -446,6 +471,14 @@
         }
 
         .generate-btn.loading .btn-text {
+            display: none;
+        }
+
+        .generate-btn.loading .btn-loading-text {
+            display: inline;
+        }
+
+        .generate-btn .btn-loading-text {
             display: none;
         }
 
@@ -551,6 +584,22 @@
             background: rgba(40, 202, 65, 0.15);
             border-color: #28ca41;
             color: #28ca41;
+        }
+
+        .copy-btn .copy-icon {
+            transition: opacity 0.15s ease;
+        }
+
+        .copy-btn.copied .copy-icon {
+            display: none;
+        }
+
+        .copy-btn .check-icon {
+            display: none;
+        }
+
+        .copy-btn.copied .check-icon {
+            display: inline;
         }
 
         /* ============ BEFORE/AFTER SECTION ============ */
@@ -1985,6 +2034,7 @@
                 <div class="button-row">
                     <button class="generate-btn" id="generateBtn" disabled>
                         <span class="btn-text">Generate Post</span>
+                        <span class="btn-loading-text">Generating...</span>
                         <div class="spinner"></div>
                     </button>
                 </div>
@@ -2000,9 +2050,12 @@
                 <textarea class="text-area" id="outputText" placeholder="Your LinkedIn post will appear here..." readonly></textarea>
                 <div class="button-row">
                     <button class="copy-btn" id="copyBtn" disabled>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         <span id="copyText">Copy to Clipboard</span>
                     </button>
@@ -2699,6 +2752,7 @@
                         window.lastPostUpResult = result;
                         // Display first variation
                         outputText.value = result.variations[0].content;
+                        animateOutput();
                         // Show variation selector if multiple variations
                         showVariationSelector(result.variations);
                         // Show hook alternatives
@@ -2710,9 +2764,11 @@
                     } else if (typeof result === 'string') {
                         // Fallback for plain text response
                         outputText.value = result;
+                        animateOutput();
                         hideExtras();
                     } else {
                         outputText.value = JSON.stringify(result, null, 2);
+                        animateOutput();
                         hideExtras();
                     }
                     copyBtn.disabled = false;
@@ -2775,6 +2831,13 @@
             errorMessage.style.display = 'none';
         }
 
+        // Output fade-in animation
+        function animateOutput() {
+            outputText.classList.remove('fade-in');
+            void outputText.offsetWidth; // Trigger reflow
+            outputText.classList.add('fade-in');
+        }
+
         // ============ VARIATION SELECTOR ============
         function showVariationSelector(variations) {
             var selector = document.getElementById('variationSelector');
@@ -2807,6 +2870,7 @@
             if (!result || !result.variations || !result.variations[index]) return;
 
             outputText.value = result.variations[index].content;
+            animateOutput();
             updateCharCounts();
 
             // Update active tab
@@ -2982,6 +3046,7 @@
                 })
                 .then(function(data) {
                     outputText.value = data.result;
+                    animateOutput();
                     updateCharCounts();
                     updateLinkedInPreview(data.result);
                     if (data.usage) {

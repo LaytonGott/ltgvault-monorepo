@@ -1005,6 +1005,125 @@
             color: var(--gold-light);
         }
 
+        /* ============ TOOLTIP GUIDE ============ */
+        .tooltip-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+
+        .tooltip-overlay.visible {
+            display: block;
+        }
+
+        .tooltip-highlight {
+            position: relative;
+            z-index: 9999;
+            box-shadow: 0 0 0 4px var(--gold), 0 0 20px rgba(201, 162, 39, 0.4);
+            border-radius: 12px;
+        }
+
+        .tooltip-box {
+            display: none;
+            position: fixed;
+            background: rgba(20, 20, 20, 0.98);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 16px 20px;
+            max-width: 280px;
+            z-index: 10000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .tooltip-box.visible {
+            display: block;
+        }
+
+        .tooltip-box::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(20, 20, 20, 0.98);
+            border: 1px solid var(--gold);
+            border-right: none;
+            border-bottom: none;
+            transform: rotate(45deg);
+        }
+
+        .tooltip-box.arrow-top::before {
+            top: -7px;
+            left: 24px;
+        }
+
+        .tooltip-box.arrow-bottom::before {
+            bottom: -7px;
+            left: 24px;
+            transform: rotate(225deg);
+        }
+
+        .tooltip-box.arrow-left::before {
+            left: -7px;
+            top: 20px;
+            transform: rotate(-45deg);
+        }
+
+        .tooltip-step {
+            font-size: 0.7rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .tooltip-text {
+            font-size: 0.9rem;
+            color: var(--white);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .tooltip-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .tooltip-btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .tooltip-btn-primary {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        .tooltip-btn-primary:hover {
+            background: var(--gold-light);
+        }
+
+        .tooltip-btn-secondary {
+            background: transparent;
+            color: #888;
+            border: 1px solid #444;
+        }
+
+        .tooltip-btn-secondary:hover {
+            color: var(--white);
+            border-color: #666;
+        }
+
         /* Quick Actions */
         .quick-actions {
             display: none;
@@ -2708,6 +2827,108 @@ Example format:
                     });
                 });
             }
+        })();
+
+        // ============ TOOLTIP GUIDE ============
+        (function() {
+            var STORAGE_KEY = 'chaptergen_tour_complete';
+
+            // Skip if tour already completed
+            if (localStorage.getItem(STORAGE_KEY)) return;
+
+            var tooltips = [
+                {
+                    target: '#transcriptArea',
+                    text: 'Paste your YouTube transcript here',
+                    arrow: 'top'
+                },
+                {
+                    target: '#generateBtn',
+                    text: 'Hit generate to create chapters',
+                    arrow: 'top'
+                },
+                {
+                    target: '#outputText',
+                    text: 'Your chapters appear here, ready to copy!',
+                    arrow: 'top'
+                }
+            ];
+
+            var currentStep = 0;
+            var overlay, tooltipBox;
+
+            function createTooltipElements() {
+                overlay = document.createElement('div');
+                overlay.className = 'tooltip-overlay';
+                document.body.appendChild(overlay);
+
+                tooltipBox = document.createElement('div');
+                tooltipBox.className = 'tooltip-box';
+                tooltipBox.innerHTML = '<div class="tooltip-step"></div><div class="tooltip-text"></div><div class="tooltip-actions"><button class="tooltip-btn tooltip-btn-secondary" id="skipTour">Skip tour</button><button class="tooltip-btn tooltip-btn-primary" id="nextTip">Got it</button></div>';
+                document.body.appendChild(tooltipBox);
+
+                document.getElementById('skipTour').addEventListener('click', endTour);
+                document.getElementById('nextTip').addEventListener('click', nextStep);
+            }
+
+            function showStep(index) {
+                if (index >= tooltips.length) {
+                    endTour();
+                    return;
+                }
+
+                var tip = tooltips[index];
+                var target = document.querySelector(tip.target);
+                if (!target) {
+                    nextStep();
+                    return;
+                }
+
+                var prev = document.querySelector('.tooltip-highlight');
+                if (prev) prev.classList.remove('tooltip-highlight');
+
+                target.classList.add('tooltip-highlight');
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                setTimeout(function() {
+                    var rect = target.getBoundingClientRect();
+                    tooltipBox.className = 'tooltip-box visible arrow-' + tip.arrow;
+
+                    if (tip.arrow === 'top') {
+                        tooltipBox.style.top = (rect.bottom + 16) + 'px';
+                        tooltipBox.style.left = Math.max(20, rect.left) + 'px';
+                    } else if (tip.arrow === 'bottom') {
+                        tooltipBox.style.top = (rect.top - tooltipBox.offsetHeight - 16) + 'px';
+                        tooltipBox.style.left = Math.max(20, rect.left) + 'px';
+                    }
+
+                    tooltipBox.querySelector('.tooltip-step').textContent = 'Step ' + (index + 1) + ' of ' + tooltips.length;
+                    tooltipBox.querySelector('.tooltip-text').textContent = tip.text;
+
+                    var nextBtn = document.getElementById('nextTip');
+                    nextBtn.textContent = index === tooltips.length - 1 ? 'Start creating!' : 'Got it';
+                }, 300);
+
+                overlay.classList.add('visible');
+            }
+
+            function nextStep() {
+                currentStep++;
+                showStep(currentStep);
+            }
+
+            function endTour() {
+                localStorage.setItem(STORAGE_KEY, 'true');
+                overlay.classList.remove('visible');
+                tooltipBox.classList.remove('visible');
+                var highlighted = document.querySelector('.tooltip-highlight');
+                if (highlighted) highlighted.classList.remove('tooltip-highlight');
+            }
+
+            setTimeout(function() {
+                createTooltipElements();
+                showStep(0);
+            }, 800);
         })();
 
     </script>

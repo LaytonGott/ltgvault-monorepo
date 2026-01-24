@@ -115,7 +115,7 @@ module.exports = async function handler(req, res) {
 
     // Build the request payload
     const requestPayload = {
-      model: 'claude-3-5-haiku-20241022',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 2500,
       temperature: 0.3,
       system: systemPrompt,
@@ -277,7 +277,7 @@ module.exports = async function handler(req, res) {
       } : null,
       _debug: {
         version: 'v7-shared-prompts',
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-3-haiku-20240307',
         apiProvider: 'anthropic',
         systemPromptLength: systemPrompt.length,
         systemPromptStart: systemPrompt.substring(0, 800),

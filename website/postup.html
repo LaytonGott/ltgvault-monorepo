@@ -290,6 +290,19 @@
             color: #555;
         }
 
+        .example-label {
+            display: none;
+            font-size: 0.75rem;
+            color: var(--gold);
+            margin-bottom: 8px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .example-label.visible {
+            display: block;
+        }
+
         .text-area {
             width: 100%;
             min-height: 300px;
@@ -1870,6 +1883,7 @@
                     <span class="panel-label">Your Idea</span>
                     <span class="char-count" id="inputCount">0 chars</span>
                 </div>
+                <div class="example-label" id="exampleLabel">Example — edit or replace with your own</div>
                 <textarea class="text-area" id="inputText" placeholder="Paste your rough thoughts, notes, or ideas here..."></textarea>
                 <!-- Usage Counter -->
                 <div id="usageCounter" class="usage-counter">
@@ -2210,9 +2224,37 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadApiKey();
+            prefillExampleText();
             updateCharCounts();
             startDemoAnimation();
         });
+
+        // Pre-fill example text for first-time users
+        function prefillExampleText() {
+            var EXAMPLE_KEY = 'postup_has_generated';
+            if (localStorage.getItem(EXAMPLE_KEY)) return;
+
+            var exampleText = "I've been working 12 hour days but getting less done than when I worked 6. Starting to think hustle culture is a scam.";
+            inputText.value = exampleText;
+
+            var exampleLabel = document.getElementById('exampleLabel');
+            if (exampleLabel) {
+                exampleLabel.classList.add('visible');
+            }
+
+            // Hide label when user starts editing
+            inputText.addEventListener('input', function hideLabel() {
+                if (exampleLabel) exampleLabel.classList.remove('visible');
+                inputText.removeEventListener('input', hideLabel);
+            }, { once: true });
+        }
+
+        // Mark as generated (call after successful generation)
+        function markAsGenerated() {
+            localStorage.setItem('postup_has_generated', 'true');
+            var exampleLabel = document.getElementById('exampleLabel');
+            if (exampleLabel) exampleLabel.classList.remove('visible');
+        }
 
         // Animated Demo
         function startDemoAnimation() {
@@ -2569,6 +2611,7 @@
                     }
                     copyBtn.disabled = false;
                     updateCharCounts();
+                    markAsGenerated();
                     // Show quick actions and LinkedIn preview
                     showQuickActions();
                     updateLinkedInPreview(outputText.value);

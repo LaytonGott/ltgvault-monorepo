@@ -140,6 +140,19 @@
             color: var(--gray);
         }
 
+        .example-label {
+            display: none;
+            font-size: 0.75rem;
+            color: var(--gold);
+            margin-bottom: 8px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .example-label.visible {
+            display: block;
+        }
+
         /* Status Messages */
         .status {
             padding: 14px 18px;
@@ -2601,6 +2614,7 @@
                         <span class="panel-label">Your Content</span>
                         <span class="char-count" id="inputCount">0 chars</span>
                     </div>
+                    <div class="example-label" id="exampleLabel">Example — edit or replace with your own</div>
                     <textarea class="text-area" id="inputText" placeholder="Paste your blog post, article, or notes here...
 
 The AI will transform your content into an engaging Twitter thread."></textarea>
@@ -3008,8 +3022,37 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             loadFormattingSettings();
             setupEventListeners();
             updateFreeTrialUI();
+            prefillExampleText();
             startDemoAnimation();
         });
+
+        // Pre-fill example text for first-time users
+        function prefillExampleText() {
+            var EXAMPLE_KEY = 'threadgen_has_generated';
+            if (localStorage.getItem(EXAMPLE_KEY)) return;
+
+            var exampleText = "Hot take: Most productivity advice is written by people who've never actually built anything. They optimize for looking busy, not getting results. The best productivity system is the one you'll actually use, even if it's just a sticky note.";
+
+            elements.inputText.value = exampleText;
+
+            var exampleLabel = document.getElementById('exampleLabel');
+            if (exampleLabel) {
+                exampleLabel.classList.add('visible');
+            }
+
+            elements.inputText.addEventListener('input', function hideLabel() {
+                if (exampleLabel) exampleLabel.classList.remove('visible');
+                elements.inputText.removeEventListener('input', hideLabel);
+            }, { once: true });
+
+            updateInputCount();
+        }
+
+        function markAsGenerated() {
+            localStorage.setItem('threadgen_has_generated', 'true');
+            var exampleLabel = document.getElementById('exampleLabel');
+            if (exampleLabel) exampleLabel.classList.remove('visible');
+        }
 
         // Animated Demo
         function startDemoAnimation() {
@@ -3505,6 +3548,7 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
 
                 // Display the thread
                 displayThread(data.result);
+                markAsGenerated();
                 showStatus('Thread generated! Click Copy Thread to use it.', 'success');
 
             } catch (error) {

@@ -1047,8 +1047,8 @@
                         API access included
                     </li>
                 </ul>
-                <button class="subscribe-btn" data-tool="postup" data-name="PostUp" data-amount="$7/month">
-                    Start Creating Free
+                <button class="subscribe-btn" data-tool="postup" data-name="PostUp" data-amount="$7/month" onclick="window.location.href='/postup.html'; return false;">
+                    Try Free
                 </button>
             </div>
 
@@ -1086,8 +1086,8 @@
                         API access included
                     </li>
                 </ul>
-                <button class="subscribe-btn" data-tool="chaptergen" data-name="ChapterGen" data-amount="$7/month">
-                    Start Creating Free
+                <button class="subscribe-btn" data-tool="chaptergen" data-name="ChapterGen" data-amount="$7/month" onclick="window.location.href='/chaptergen.html'; return false;">
+                    Try Free
                 </button>
             </div>
 
@@ -1124,8 +1124,8 @@
                         API access included
                     </li>
                 </ul>
-                <button class="subscribe-btn" data-tool="threadgen" data-name="ThreadGen" data-amount="$7/month">
-                    Start Creating Free
+                <button class="subscribe-btn" data-tool="threadgen" data-name="ThreadGen" data-amount="$7/month" onclick="window.location.href='/threadgen.html'; return false;">
+                    Try Free
                 </button>
             </div>
 
@@ -1314,12 +1314,9 @@
             window.history.replaceState({}, '', window.location.pathname);
         }
 
-        // Free signup button
+        // Free signup button - go directly to PostUp (no email required for free trial)
         freeSignupBtn.addEventListener('click', function() {
-            selectedTool = 'free';
-            modalPlanName.textContent = 'Free Tier';
-            modalPlanPrice.textContent = 'No charge';
-            openModal();
+            window.location.href = '/postup.html';
         });
 
         // Subscribe button click handlers

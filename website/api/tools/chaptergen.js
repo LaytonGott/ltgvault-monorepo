@@ -293,56 +293,28 @@ KEY POINTS TO INCLUDE:
 CONCLUSION ANGLE: [one sentence on how to wrap it up]`
   },
 
-  // HIGHLIGHTS - bullet points of most important moments
+  // HIGHLIGHTS - simple list of important moments
   highlights: {
-    system: `You are a content analyst who extracts the most important and valuable moments from video transcripts.
+    system: `You extract the most important moments from video transcripts.
 
-Your job is to identify the KEY HIGHLIGHTS - the moments someone would want to know if they don't have time to watch the whole video.
-
-WHAT COUNTS AS A HIGHLIGHT:
-- Main arguments or thesis statements
-- Surprising facts or statistics
-- Actionable tips or advice
-- Important announcements or news
-- Memorable quotes or one-liners
-- Key decisions or turning points
-- Lessons learned or insights
-- Controversial opinions or hot takes
-
-FOR EACH HIGHLIGHT:
-1. Timestamp where it occurs
-2. The highlight itself (1-2 sentences max)
-3. Category tag (Insight, Tip, Quote, Fact, Story, Opinion)
-
-PRIORITIZE:
-- Quality over quantity (8-15 highlights max)
-- Most impactful moments first
-- Variety of highlight types
-- Actionable over abstract`,
-    user: (transcript, videoDuration) => `Extract the key highlights from this video transcript. Duration: ${videoDuration}
-
-Identify the 8-15 most important moments someone would want to know.
+List the key points someone would want to know if they don't have time to watch.
+No emojis. No labels. No verbose explanations.
+Just timestamp, dash, and one short sentence.`,
+    user: (transcript, videoDuration) => `Extract the key highlights from this transcript. Duration: ${videoDuration}
 
 Transcript:
 ${transcript}
 
-Return in this format:
+Return a simple list in this exact format:
 
-⭐ KEY HIGHLIGHTS
+KEY HIGHLIGHTS
 
-[0:00] 💡 INSIGHT: [The highlight in 1-2 sentences]
+0:00 — [One sentence describing the key point]
+1:23 — [One sentence describing the key point]
+3:45 — [One sentence describing the key point]
+5:12 — [One sentence describing the key point]
 
-[1:23] 🎯 TIP: [Actionable advice from the video]
-
-[3:45] 💬 QUOTE: "[Memorable quote word-for-word]"
-
-[5:12] 📊 FACT: [Surprising statistic or fact mentioned]
-
-[7:30] 📖 STORY: [Key story or example shared]
-
-[9:15] 🔥 OPINION: [Controversial or strong take]
-
-...`
+List 8-15 of the most important moments. Keep each point to one short sentence.`
   }
 };
 

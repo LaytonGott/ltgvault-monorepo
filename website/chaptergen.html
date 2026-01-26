@@ -1020,187 +1020,62 @@
             cursor: default;
         }
 
-        /* ============ URL INPUT SECTION ============ */
-        .url-input-wrapper {
-            display: flex;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 4px 4px 4px 16px;
-            gap: 12px;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .url-input-wrapper:focus-within {
-            border-color: rgba(201, 162, 39, 0.5);
-            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
-        }
-
-        .url-icon {
-            color: #ff0000;
-            flex-shrink: 0;
-            opacity: 0.8;
-        }
-
-        .url-input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--white);
-            font-size: 0.9rem;
-            font-family: inherit;
-            padding: 12px 0;
-            outline: none;
-        }
-
-        .url-input::placeholder {
-            color: #666;
-        }
-
-        .fetch-btn {
-            background: var(--gold);
-            color: var(--black);
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .fetch-btn:hover:not(:disabled) {
-            background: var(--gold-light);
-        }
-
-        .fetch-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .fetch-btn .fetch-loading {
-            display: none;
-        }
-
-        .fetch-btn.loading .fetch-text {
-            display: none;
-        }
-
-        .fetch-btn.loading .fetch-loading {
-            display: flex;
-            align-items: center;
-        }
-
-        .fetch-spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        .transcript-status {
+        /* ============ TRANSCRIPT HELP SECTION ============ */
+        .transcript-help {
             margin-top: 12px;
-            font-size: 0.85rem;
-            line-height: 1.5;
         }
 
-        .transcript-status.success {
-            color: var(--success);
+        .transcript-help summary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 8px 0;
+            list-style: none;
+            transition: color 0.2s ease;
         }
 
-        .transcript-status.error {
+        .transcript-help summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .transcript-help summary:hover {
             color: var(--gold);
         }
 
-        .transcript-status .fallback-link {
-            color: var(--white);
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .transcript-status .fallback-link:hover {
-            color: var(--gold-light);
-        }
-
-        /* Manual transcript section */
-        .manual-section {
-            margin-top: 16px;
-        }
-
-        .manual-section.hidden {
-            display: none;
-        }
-
-        .manual-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .transcript-help[open] summary {
+            color: var(--gold);
             margin-bottom: 12px;
         }
 
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            color: var(--gray-light);
-            font-size: 0.8rem;
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--white);
-        }
-
-        .manual-instructions {
+        .help-content {
             background: rgba(201, 162, 39, 0.08);
             border: 1px solid rgba(201, 162, 39, 0.2);
             border-radius: 8px;
-            padding: 12px 14px;
+            padding: 16px;
             font-size: 0.8rem;
             color: var(--gray-light);
-            line-height: 1.5;
-            margin-bottom: 12px;
+            line-height: 1.6;
         }
 
-        /* Transcript preview */
-        .transcript-preview {
-            margin-top: 16px;
+        .help-content p {
+            margin: 0 0 8px 0;
         }
 
-        .transcript-preview.hidden {
-            display: none;
+        .help-content p:last-child {
+            margin-top: 12px;
+            margin-bottom: 0;
         }
 
-        .transcript-preview .text-area {
-            min-height: 200px;
+        .help-content ol {
+            margin: 0;
+            padding-left: 20px;
         }
 
-        .edit-transcript-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-size: 0.8rem;
-            cursor: pointer;
-            padding: 8px 0;
-            transition: color 0.2s ease;
-            font-family: inherit;
-        }
-
-        .edit-transcript-btn:hover {
-            color: var(--gold);
+        .help-content li {
+            margin-bottom: 4px;
         }
 
         .hidden {
@@ -2237,7 +2112,7 @@
             </svg>
             ChapterGen
         </h1>
-        <p class="page-subtitle">Paste a YouTube URL to generate chapters automatically.</p>
+        <p class="page-subtitle">Paste your transcript to generate chapters, clips, or highlights.</p>
 
         <!-- Pricing Banner -->
         <div class="pricing-banner" id="pricingBanner">
@@ -2299,59 +2174,36 @@
             <div class="tool-grid">
                 <!-- Left Panel: Input -->
                 <div class="tool-panel">
-                    <!-- YouTube URL Input -->
-                    <div id="urlInputSection">
-                        <div class="panel-header">
-                            <span class="panel-label">YouTube Video</span>
-                        </div>
-                        <div class="url-input-wrapper">
-                            <svg class="url-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                            </svg>
-                            <input type="text" id="youtubeUrl" class="url-input" placeholder="Paste YouTube URL (e.g., https://youtube.com/watch?v=xxx)">
-                            <button id="fetchTranscriptBtn" class="fetch-btn">
-                                <span class="fetch-text">Fetch</span>
-                                <span class="fetch-loading">
-                                    <svg class="fetch-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/>
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
-                        <div class="transcript-status" id="transcriptStatus"></div>
+                    <!-- Transcript Input -->
+                    <div class="panel-header">
+                        <span class="panel-label">Transcript</span>
+                        <span class="char-count" id="inputCount">0 / 50,000</span>
                     </div>
+                    <textarea class="text-area" id="transcriptArea" placeholder="Paste your video transcript here..."></textarea>
 
-                    <!-- Manual Transcript Fallback (hidden by default) -->
-                    <div id="manualTranscriptSection" class="manual-section hidden">
-                        <div class="manual-header">
-                            <span class="panel-label">Manual Transcript</span>
-                            <button id="backToUrlBtn" class="back-btn">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                                </svg>
-                                Back to URL
-                            </button>
-                        </div>
-                        <div class="manual-instructions">
-                            <span>Copy transcript from YouTube: Video → "...more" → "Show transcript" → Select all → Copy → Paste below</span>
-                        </div>
-                    </div>
-
-                    <!-- Transcript Preview/Edit Area -->
-                    <div id="transcriptPreview" class="transcript-preview hidden">
-                        <div class="panel-header">
-                            <span class="panel-label">Transcript Preview</span>
-                            <span class="char-count" id="inputCount">0 / 50,000</span>
-                        </div>
-                        <textarea class="text-area" id="transcriptArea" placeholder="Transcript will appear here..." readonly></textarea>
-                        <button id="editTranscriptBtn" class="edit-transcript-btn">
+                    <!-- Collapsible Help Section -->
+                    <details class="transcript-help">
+                        <summary class="help-toggle">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
                             </svg>
-                            Edit transcript
-                        </button>
-                    </div>
+                            How to get your transcript
+                        </summary>
+                        <div class="help-content">
+                            <p><strong>YouTube:</strong></p>
+                            <ol>
+                                <li>Open your video on YouTube</li>
+                                <li>Click "...more" below the video</li>
+                                <li>Click "Show transcript"</li>
+                                <li>Click the three dots → "Toggle timestamps" (optional)</li>
+                                <li>Select all text (Ctrl+A) → Copy (Ctrl+C)</li>
+                                <li>Paste here</li>
+                            </ol>
+                            <p><strong>Other platforms:</strong> Most video platforms have a similar transcript option, or you can use a transcription service.</p>
+                        </div>
+                    </details>
 
                     <!-- Output Type Selector -->
                     <div class="output-type-selector" style="margin-top: 16px;">
@@ -2691,15 +2543,6 @@
             confidenceScore: document.getElementById('confidenceScore'),
             confidenceValue: document.getElementById('confidenceValue'),
             errorMessage: document.getElementById('errorMessage'),
-            // URL input elements
-            youtubeUrl: document.getElementById('youtubeUrl'),
-            fetchTranscriptBtn: document.getElementById('fetchTranscriptBtn'),
-            transcriptStatus: document.getElementById('transcriptStatus'),
-            urlInputSection: document.getElementById('urlInputSection'),
-            manualTranscriptSection: document.getElementById('manualTranscriptSection'),
-            backToUrlBtn: document.getElementById('backToUrlBtn'),
-            transcriptPreview: document.getElementById('transcriptPreview'),
-            editTranscriptBtn: document.getElementById('editTranscriptBtn'),
             outputTypeSelect: document.getElementById('outputTypeSelect'),
             outputPanelLabel: document.querySelector('.tool-panel .panel-label')
         };
@@ -2737,81 +2580,6 @@
 
         function markAsGenerated() {
             localStorage.setItem('chaptergen_has_generated', 'true');
-        }
-
-        // ============ TRANSCRIPT FETCHING ============
-        async function fetchTranscript() {
-            var url = elements.youtubeUrl.value.trim();
-
-            if (!url) {
-                elements.transcriptStatus.innerHTML = 'Please enter a YouTube URL';
-                elements.transcriptStatus.className = 'transcript-status error';
-                return;
-            }
-
-            // Show loading state
-            elements.fetchTranscriptBtn.classList.add('loading');
-            elements.fetchTranscriptBtn.disabled = true;
-            elements.transcriptStatus.innerHTML = '';
-            elements.transcriptStatus.className = 'transcript-status';
-
-            try {
-                var response = await fetch('/api/tools/chaptergen', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-free-trial': 'true'
-                    },
-                    body: JSON.stringify({ youtubeUrl: url, fetchOnly: true })
-                });
-
-                var data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Failed to fetch transcript');
-                }
-
-                // Success - show transcript
-                elements.transcriptArea.value = data.transcript;
-                elements.transcriptArea.readOnly = true;
-                elements.transcriptPreview.classList.remove('hidden');
-                elements.transcriptStatus.innerHTML = '✓ Transcript fetched (' + data.itemCount + ' segments, ' + data.videoDuration + ' duration)';
-                elements.transcriptStatus.className = 'transcript-status success';
-                updateInputCounter();
-
-            } catch (error) {
-                console.error('Transcript fetch error:', error);
-                elements.transcriptStatus.innerHTML = error.message + ' <span class="fallback-link" onclick="showManualEntry()">Paste manually instead</span>';
-                elements.transcriptStatus.className = 'transcript-status error';
-            } finally {
-                elements.fetchTranscriptBtn.classList.remove('loading');
-                elements.fetchTranscriptBtn.disabled = false;
-            }
-        }
-
-        function showManualEntry() {
-            elements.urlInputSection.classList.add('hidden');
-            elements.manualTranscriptSection.classList.remove('hidden');
-            elements.transcriptPreview.classList.remove('hidden');
-            elements.transcriptArea.readOnly = false;
-            elements.transcriptArea.placeholder = 'Paste your transcript here...';
-            elements.transcriptArea.focus();
-        }
-
-        function showUrlEntry() {
-            elements.urlInputSection.classList.remove('hidden');
-            elements.manualTranscriptSection.classList.add('hidden');
-            elements.transcriptPreview.classList.add('hidden');
-            elements.transcriptArea.value = '';
-            elements.transcriptStatus.innerHTML = '';
-            elements.transcriptStatus.className = 'transcript-status';
-            elements.youtubeUrl.focus();
-        }
-
-        function enableTranscriptEdit() {
-            elements.transcriptArea.readOnly = false;
-            elements.transcriptArea.focus();
-            elements.editTranscriptBtn.style.display = 'none';
         }
 
         // Animated Demo
@@ -2884,18 +2652,6 @@
             elements.copyBtn.addEventListener('click', copyChapters);
             elements.transcriptArea.addEventListener('input', updateInputCounter);
             elements.outputText.addEventListener('input', updateOutputCounter);
-
-            // URL input handlers
-            elements.fetchTranscriptBtn.addEventListener('click', fetchTranscript);
-            elements.youtubeUrl.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') fetchTranscript();
-            });
-            elements.youtubeUrl.addEventListener('input', function() {
-                elements.transcriptStatus.innerHTML = '';
-                elements.transcriptStatus.className = 'transcript-status';
-            });
-            elements.backToUrlBtn.addEventListener('click', showUrlEntry);
-            elements.editTranscriptBtn.addEventListener('click', enableTranscriptEdit);
 
             // Quick action buttons
             var quickBtns = document.querySelectorAll('.quick-action-btn');

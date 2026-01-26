@@ -1,6 +1,46 @@
 const { authenticateRequest } = require('../../lib/auth');
 const { canUseTool, incrementUsage } = require('../../lib/usage');
 
+// ============================================================================
+// THREAD TYPE PROMPTS - Different styles for different content types
+// ============================================================================
+const THREAD_TYPE_PROMPTS = {
+  viral_narrative: `THREAD TYPE: Viral Narrative
+- Build tension and curiosity throughout
+- Use cliffhangers between tweets
+- End with a surprising twist or powerful insight
+- Make readers NEED to see what happens next
+- Structure: Hook → Rising tension → Peak moment → Resolution/insight`,
+
+  story: `THREAD TYPE: Story Thread
+- Start in the middle of the action (in medias res)
+- Use specific details: dates, places, names, dialogue
+- Show emotions and stakes, don't just tell
+- Each tweet should advance the narrative
+- Structure: Scene-setting → Conflict → Journey → Turning point → Lesson`,
+
+  list: `THREAD TYPE: List Thread
+- Clear, numbered points (but don't include numbers in tweets - that's handled separately)
+- Each tweet = one distinct, actionable point
+- Front-load the most valuable insights
+- Make each point standalone but connected
+- Structure: Promise in hook → Point-by-point value → Summary/CTA`,
+
+  tutorial: `THREAD TYPE: Tutorial/How-to
+- Step-by-step progression
+- Be specific and actionable
+- Include concrete examples or commands
+- Anticipate and address common mistakes
+- Structure: Problem/Goal → Step 1 → Step 2 → ... → Result/Next steps`,
+
+  hot_take: `THREAD TYPE: Hot Take
+- Lead with your controversial opinion IMMEDIATELY
+- Challenge conventional wisdom directly
+- Back up with unexpected evidence or logic
+- Be willing to alienate some readers
+- Structure: Bold claim → "Here's why" → Evidence → Double down → Challenge to reader`
+};
+
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -70,7 +110,7 @@ module.exports = async function handler(req, res) {
       return await generateBody(req, res, user, used, limit, subscribed);
     } else if (action === 'full_thread') {
       return await generateFullThread(req, res, user, used, limit, subscribed);
-    } else if (action === 'stronger_hook' || action === 'add_tweet' || action === 'sharper_cta') {
+    } else if (action === 'stronger_hook' || action === 'add_tweet' || action === 'sharper_cta' || action === 'more_viral' || action === 'rewrite_hook') {
       return await refineThread(req, res, action);
     } else {
       return res.status(400).json({ error: 'Invalid action.' });
@@ -84,7 +124,7 @@ module.exports = async function handler(req, res) {
 
 // Generate hooks (step 1)
 async function generateHooks(req, res, user, used, limit, subscribed) {
-  const { content, emojiUsage, tone } = req.body;
+  const { content, emojiUsage, tone, threadType } = req.body;
 
   if (!content || content.trim().length === 0) {
     return res.status(400).json({ error: 'content is required' });
@@ -111,10 +151,13 @@ async function generateHooks(req, res, user, used, limit, subscribed) {
   };
 
   const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
+  const threadTypeInstruction = THREAD_TYPE_PROMPTS[threadType] || THREAD_TYPE_PROMPTS['viral_narrative'];
 
   const hookPrompt = `You generate Twitter thread hooks using ONLY the user's words and information.
 
 ${toneInstruction}
+
+${threadTypeInstruction}
 
 === GOLDEN RULE ===
 User's voice > AI smoothness. Amplify what's good. Don't sand down edges.
@@ -240,7 +283,7 @@ ${content}`;
 
 // Generate body (step 2)
 async function generateBody(req, res, user, used, limit, subscribed) {
-  const { content, hook, emojiUsage, tone } = req.body;
+  const { content, hook, emojiUsage, tone, threadType } = req.body;
 
   if (!content || content.trim().length === 0) {
     return res.status(400).json({ error: 'content is required' });
@@ -263,6 +306,7 @@ async function generateBody(req, res, user, used, limit, subscribed) {
   };
 
   const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
+  const threadTypeInstruction = THREAD_TYPE_PROMPTS[threadType] || THREAD_TYPE_PROMPTS['viral_narrative'];
 
   // Build the body prompt
   const bodyPrompt = `You write Twitter thread bodies using ONLY the user's words and information.
@@ -271,6 +315,8 @@ SELECTED HOOK (Tweet 1):
 ${hook}
 
 ${toneInstruction}
+
+${threadTypeInstruction}
 
 === GOLDEN RULE ===
 User's voice > AI smoothness. Amplify what's good. Don't polish into blandness.
@@ -543,7 +589,7 @@ Return JSON array with exactly 3 objects:
 
 // Generate complete thread at once (simplified flow)
 async function generateFullThread(req, res, user, used, limit, subscribed) {
-  const { content, tone, tweetNumbering, emojiUsage } = req.body;
+  const { content, tone, tweetNumbering, emojiUsage, threadType } = req.body;
 
   if (!content || content.trim().length === 0) {
     return res.status(400).json({ error: 'content is required' });
@@ -574,10 +620,13 @@ async function generateFullThread(req, res, user, used, limit, subscribed) {
   };
 
   const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
+  const threadTypeInstruction = THREAD_TYPE_PROMPTS[threadType] || THREAD_TYPE_PROMPTS['viral_narrative'];
 
   const systemPrompt = `You are a Twitter thread expert. Create engaging Twitter threads that capture attention and drive engagement.
 
 ${toneInstruction}
+
+${threadTypeInstruction}
 
 ${emojiInstruction}
 
@@ -715,7 +764,32 @@ Return the COMPLETE thread as a JSON array with the new tweet added.`,
 Current thread:
 ${currentThread}
 
-Return the COMPLETE thread as a JSON array with the improved CTA.`
+Return the COMPLETE thread as a JSON array with the improved CTA.`,
+
+    'more_viral': `Rewrite this ENTIRE thread for MAXIMUM virality and engagement:
+
+1. Make the hook impossible to scroll past - more controversial, pattern-interrupting, or calling the reader out
+2. Add tension and curiosity throughout - each tweet should make them NEED to see the next one
+3. Include at least one "screenshot-worthy" quotable line
+4. Make the ending shareable - something people want to retweet or argue about
+5. Increase emotional stakes - shock, recognition, "finally someone said it"
+6. Cut anything predictable or safe
+
+Current thread:
+${currentThread}
+
+Return the COMPLETE thread as a JSON array, rewritten for maximum viral potential.`,
+
+    'rewrite_hook': `Generate a completely NEW hook for this thread. The new hook should:
+- Take a different angle or approach than the current one
+- Be more attention-grabbing and scroll-stopping
+- Create curiosity or tension that pulls readers in
+- Feel fresh, not a slight variation of the original
+
+Current thread:
+${currentThread}
+
+Return the COMPLETE thread as a JSON array with the brand new hook.`
   };
 
   const userPrompt = actionPrompts[action];

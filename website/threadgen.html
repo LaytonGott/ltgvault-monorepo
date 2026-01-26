@@ -2996,6 +2996,68 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
         </div>
     </div>
 
+    <!-- Demo Animation Script (independent) -->
+    <script>
+    (function() {
+        var demoInput = document.getElementById('demoInput');
+        var demoOutput = document.getElementById('demoOutput');
+        var demoButton = document.getElementById('demoButton');
+
+        if (!demoInput || !demoOutput || !demoButton) return;
+
+        var inputText = "Strategic quitting is the productivity hack nobody talks about. Here's what I learned after burning out twice and completely changing my approach to work.";
+        var outputText = "Tweet 1 (Hook):\nThe best productivity advice I ever got had nothing to do with waking up at 5am or cold showers. It was learning when to quit.\n\nTweet 2:\nWe glorify hustle culture. We shame rest. But your brain works like a muscle, not a machine. Push too hard and you'll injure yourself.\n\nTweet 3:\nStrategic quitting isn't giving up. It's recognizing diminishing returns and understanding that tomorrow-you needs energy too.\n\nTweet 4 (CTA):\nIf this resonated with you, you probably needed to hear it today. Save this thread and go take that break.";
+
+        function runAnimation() {
+            demoInput.innerHTML = '<span class="cursor"></span>';
+            demoOutput.innerHTML = '';
+            demoButton.classList.remove('ready', 'active', 'clicked', 'loading');
+
+            var inputIndex = 0;
+            var outputIndex = 0;
+
+            function typeInput() {
+                if (inputIndex < inputText.length) {
+                    demoInput.innerHTML = inputText.substring(0, inputIndex + 1) + '<span class="cursor"></span>';
+                    inputIndex++;
+                    setTimeout(typeInput, 15);
+                } else {
+                    demoInput.innerHTML = inputText;
+                    demoButton.classList.add('ready');
+                    setTimeout(clickButton, 300);
+                }
+            }
+
+            function clickButton() {
+                demoButton.classList.add('active');
+                setTimeout(function() {
+                    demoButton.classList.add('clicked');
+                    setTimeout(function() {
+                        demoButton.classList.remove('clicked');
+                        demoButton.classList.add('loading');
+                        setTimeout(typeOutput, 400);
+                    }, 80);
+                }, 150);
+            }
+
+            function typeOutput() {
+                demoButton.classList.remove('loading');
+                if (outputIndex < outputText.length) {
+                    demoOutput.innerHTML = outputText.substring(0, outputIndex + 1).replace(/\n/g, '<br>');
+                    outputIndex++;
+                    setTimeout(typeOutput, 8);
+                } else {
+                    setTimeout(runAnimation, 3000);
+                }
+            }
+
+            setTimeout(typeInput, 400);
+        }
+
+        runAnimation();
+    })();
+    </script>
+
     <!-- Feedback Section -->
     <section class="feedback-section">
         <h2 class="feedback-title">Help me improve this tool</h2>
@@ -3257,7 +3319,6 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             setupEventListeners();
             updateFreeTrialUI();
             prefillExampleText();
-            startDemoAnimation();
         });
 
         // Pre-fill example text for first-time users
@@ -3273,69 +3334,6 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
 
         function markAsGenerated() {
             localStorage.setItem('threadgen_has_generated', 'true');
-        }
-
-        // Animated Demo
-        function startDemoAnimation() {
-            // Use setTimeout to ensure DOM is fully ready
-            setTimeout(function() {
-                var demoInput = document.getElementById('demoInput');
-                var demoOutput = document.getElementById('demoOutput');
-                var demoButton = document.getElementById('demoButton');
-
-                if (!demoInput || !demoOutput || !demoButton) return;
-
-                var inputText = "Strategic quitting is the productivity hack nobody talks about. Here's what I learned after burning out twice and completely changing my approach to work.";
-                var outputText = "Tweet 1 (Hook):\nThe best productivity advice I ever got had nothing to do with waking up at 5am or cold showers. It was learning when to quit.\n\nTweet 2:\nWe glorify hustle culture. We shame rest. But your brain works like a muscle, not a machine. Push too hard and you'll injure yourself.\n\nTweet 3:\nStrategic quitting isn't giving up. It's recognizing diminishing returns and understanding that tomorrow-you needs energy too.\n\nTweet 4 (CTA):\nIf this resonated with you, you probably needed to hear it today. Save this thread and go take that break.";
-
-                function runAnimation() {
-                    demoInput.innerHTML = '<span class="cursor"></span>';
-                    demoOutput.innerHTML = '';
-                    demoButton.classList.remove('ready', 'active', 'clicked', 'loading');
-
-                    var inputIndex = 0;
-                    var outputIndex = 0;
-
-                    function typeInput() {
-                        if (inputIndex < inputText.length) {
-                            demoInput.innerHTML = inputText.substring(0, inputIndex + 1) + '<span class="cursor"></span>';
-                            inputIndex++;
-                            setTimeout(typeInput, 15);
-                        } else {
-                            demoInput.innerHTML = inputText;
-                            demoButton.classList.add('ready');
-                            setTimeout(clickButton, 300);
-                        }
-                    }
-
-                    function clickButton() {
-                        demoButton.classList.add('active');
-                        setTimeout(function() {
-                            demoButton.classList.add('clicked');
-                            setTimeout(function() {
-                                demoButton.classList.remove('clicked');
-                                demoButton.classList.add('loading');
-                                setTimeout(typeOutput, 400);
-                            }, 80);
-                        }, 150);
-                    }
-
-                    function typeOutput() {
-                        demoButton.classList.remove('loading');
-                        if (outputIndex < outputText.length) {
-                            demoOutput.innerHTML = outputText.substring(0, outputIndex + 1).replace(/\n/g, '<br>');
-                            outputIndex++;
-                            setTimeout(typeOutput, 8);
-                        } else {
-                            setTimeout(runAnimation, 3000);
-                        }
-                    }
-
-                    setTimeout(typeInput, 400);
-                }
-
-                runAnimation();
-            }, 100);
         }
 
         function setupEventListeners() {

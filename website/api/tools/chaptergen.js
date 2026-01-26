@@ -180,11 +180,223 @@ async function fetchYouTubeTranscript(url) {
 }
 
 // ============================================================================
-// CHAPTERGEN PROMPTS
+// CHAPTERGEN PROMPTS - Different output types
 // ============================================================================
 
-// Main chapter generation system prompt
-const SYSTEM_PROMPT = `You are a YouTube chapter expert. Create chapters at the START of each segment, not where it's described.
+// Output type prompts
+const OUTPUT_TYPE_PROMPTS = {
+  // CHAPTERS - timestamps + chapter titles (default)
+  chapters: {
+    system: `You are a YouTube chapter expert. Create chapters at the START of each segment, not where it's described.
+
+CRITICAL - CHAPTER TIMING:
+Chapters mark where a viewer should SKIP TO to watch a segment FROM THE BEGINNING.
+
+The problem: Captions often describe what just happened. If a play happens from 0:02-0:19, the player's name appears in captions at 0:19 (after the play). But the chapter should be at 0:02 (where the play STARTS).
+
+How to find the correct timestamp:
+1. When you see a name/topic mentioned, look BACKWARDS to find where that segment STARTED
+2. For highlights: Each clip starts right after the previous clip ends. New clip = new chapter at its START
+3. For list videos: Chapter starts at "next up", "number X is", "moving on to" - NOT in the middle of discussion
+4. Look for gaps/transitions between segments - that's where the new chapter begins
+
+Think: "If someone clicks this chapter, where do they land to see the WHOLE segment?"
+
+OTHER RULES:
+- SHORT TITLES (3-5 words): "[Player Name]'s [Play Type]" or "[Item] - [Detail]"
+- Copy names EXACTLY as spelled in transcript
+- Capture EVERY distinct play/item - don't skip any
+- First chapter at 0:00: "Intro" or brief topic (2-3 words)`,
+    user: (transcript, videoDuration) => `Create YouTube chapters for this video. Duration: ${videoDuration}
+
+CRITICAL - READ CAREFULLY:
+The transcript shows timestamps where words are SPOKEN, but chapters should be where segments START.
+
+Example problem:
+- [0:02] (play begins - no caption yet)
+- [0:19] "What a goal by Caufield!" (caption appears AFTER the play)
+- WRONG: 0:19 Caufield's Goal (this is the END)
+- RIGHT: 0:02 Caufield's Goal (this is the START)
+
+For each chapter: Look at the context BEFORE the description to find where that segment actually began. Place the chapter at the START of the action, not where it's narrated.
+
+Transcript with context:
+${transcript}
+
+Return ONLY chapters in format (timestamps at segment STARTS):
+0:00 Intro
+0:02 Player's Goal`
+  },
+
+  // CLIPS - identify 3-5 viral moments for TikTok/Shorts
+  clips: {
+    system: `You are a viral content expert specializing in identifying short-form video moments from longer content.
+
+Your job is to find the 3-5 MOST VIRAL moments in a transcript that would make great TikTok/YouTube Shorts/Reels clips.
+
+WHAT MAKES A VIRAL CLIP:
+- Strong emotional moment (funny, shocking, inspiring, relatable)
+- Complete thought or story arc in 30-60 seconds
+- Clear hook at the start
+- Quotable or shareable line
+- Universal appeal or niche community appeal
+- Controversial or unexpected take
+- Tutorial/tip that delivers quick value
+
+FOR EACH CLIP IDENTIFY:
+1. Start timestamp (where to begin the clip)
+2. End timestamp (where to cut)
+3. Viral potential title (hook-style, what makes people click)
+4. Why it's viral (1 sentence explanation)
+5. Suggested hashtags (3-5 relevant tags)
+
+AVOID:
+- Rambling sections without clear payoff
+- Inside jokes without context
+- Technical explanations that need prior context
+- Moments that require watching more to understand`,
+    user: (transcript, videoDuration) => `Find the 3-5 most viral clip moments in this transcript. Duration: ${videoDuration}
+
+Look for moments that would work as standalone 30-60 second clips on TikTok, YouTube Shorts, or Reels.
+
+Transcript:
+${transcript}
+
+Return in this format:
+
+CLIP 1: [Viral Title]
+⏱️ Start: [timestamp] → End: [timestamp]
+🔥 Why it's viral: [1 sentence]
+#hashtag1 #hashtag2 #hashtag3
+
+CLIP 2: [Viral Title]
+...`
+  },
+
+  // BLOG - turn transcript into blog post structure
+  blog: {
+    system: `You are a content strategist who transforms video transcripts into well-structured blog post outlines.
+
+Your job is to extract the key content from a transcript and organize it into a scannable, SEO-friendly blog structure.
+
+BLOG STRUCTURE TO CREATE:
+1. Compelling headline (not the video title - write a better one)
+2. Meta description (150-160 chars for SEO)
+3. Introduction hook (2-3 sentences that pull readers in)
+4. Main sections with H2 headers (3-6 sections)
+5. Key points under each section (bullet points)
+6. Notable quotes from the transcript (word-for-word, with context)
+7. Conclusion/takeaway
+8. Suggested tags/categories
+
+WRITING STYLE:
+- Convert spoken language to written (remove "um", "like", filler words)
+- Keep the author's voice and personality
+- Make headers scannable and benefit-focused
+- Extract actionable insights
+- Include specific examples/numbers from the content`,
+    user: (transcript, videoDuration) => `Transform this video transcript into a blog post outline. Duration: ${videoDuration}
+
+Extract the key content, organize it logically, and create a structure that would work as a standalone blog post.
+
+Transcript:
+${transcript}
+
+Return in this format:
+
+📰 HEADLINE: [Compelling blog title]
+
+📝 META DESCRIPTION: [150-160 char SEO description]
+
+🎯 INTRODUCTION:
+[2-3 sentence hook]
+
+📌 SECTION 1: [H2 Header]
+• [Key point]
+• [Key point]
+• [Key point]
+
+📌 SECTION 2: [H2 Header]
+...
+
+💬 NOTABLE QUOTES:
+"[Exact quote]" - [context]
+
+🎬 CONCLUSION:
+[Key takeaway]
+
+🏷️ TAGS: [tag1], [tag2], [tag3]`
+  },
+
+  // HIGHLIGHTS - bullet points of most important moments
+  highlights: {
+    system: `You are a content analyst who extracts the most important and valuable moments from video transcripts.
+
+Your job is to identify the KEY HIGHLIGHTS - the moments someone would want to know if they don't have time to watch the whole video.
+
+WHAT COUNTS AS A HIGHLIGHT:
+- Main arguments or thesis statements
+- Surprising facts or statistics
+- Actionable tips or advice
+- Important announcements or news
+- Memorable quotes or one-liners
+- Key decisions or turning points
+- Lessons learned or insights
+- Controversial opinions or hot takes
+
+FOR EACH HIGHLIGHT:
+1. Timestamp where it occurs
+2. The highlight itself (1-2 sentences max)
+3. Category tag (Insight, Tip, Quote, Fact, Story, Opinion)
+
+PRIORITIZE:
+- Quality over quantity (8-15 highlights max)
+- Most impactful moments first
+- Variety of highlight types
+- Actionable over abstract`,
+    user: (transcript, videoDuration) => `Extract the key highlights from this video transcript. Duration: ${videoDuration}
+
+Identify the 8-15 most important moments someone would want to know.
+
+Transcript:
+${transcript}
+
+Return in this format:
+
+⭐ KEY HIGHLIGHTS
+
+[0:00] 💡 INSIGHT: [The highlight in 1-2 sentences]
+
+[1:23] 🎯 TIP: [Actionable advice from the video]
+
+[3:45] 💬 QUOTE: "[Memorable quote word-for-word]"
+
+[5:12] 📊 FACT: [Surprising statistic or fact mentioned]
+
+[7:30] 📖 STORY: [Key story or example shared]
+
+[9:15] 🔥 OPINION: [Controversial or strong take]
+
+...`
+  }
+};
+
+// Legacy: Main chapter generation system prompt (kept for backwards compatibility)
+const SYSTEM_PROMPT = OUTPUT_TYPE_PROMPTS.chapters.system;
+
+// Legacy: Build user prompt (kept for backwards compatibility)
+function buildUserPrompt(transcript, videoDuration = '10:00') {
+  return OUTPUT_TYPE_PROMPTS.chapters.user(transcript, videoDuration);
+}
+
+// Build prompt based on output type
+function buildOutputTypePrompt(outputType, transcript, videoDuration = '10:00') {
+  const prompts = OUTPUT_TYPE_PROMPTS[outputType] || OUTPUT_TYPE_PROMPTS.chapters;
+  return {
+    system: prompts.system,
+    user: prompts.user(transcript, videoDuration)
+  };
+}
 
 CRITICAL - CHAPTER TIMING:
 Chapters mark where a viewer should SKIP TO to watch a segment FROM THE BEGINNING.
@@ -370,7 +582,7 @@ module.exports = async function handler(req, res) {
     // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
 
     // Get parameters from request
-    const { transcript: providedTranscript, youtubeUrl, action, currentChapters, fetchOnly } = req.body;
+    const { transcript: providedTranscript, youtubeUrl, action, currentChapters, fetchOnly, outputType } = req.body;
 
     let transcript = providedTranscript;
 
@@ -424,9 +636,9 @@ module.exports = async function handler(req, res) {
     }
 
     let userPrompt;
-    let systemPrompt = SYSTEM_PROMPT;
+    let systemPrompt;
 
-    // Check if this is a quick action refinement
+    // Check if this is a quick action refinement (only for chapters output type)
     if (action && currentChapters) {
       userPrompt = buildRefinementPrompt(currentChapters, action, transcript || '');
       if (!userPrompt) {
@@ -440,7 +652,12 @@ module.exports = async function handler(req, res) {
       if (timestampMatches && timestampMatches.length > 0) {
         videoDuration = timestampMatches[timestampMatches.length - 1].replace(/[\[\]]/g, '');
       }
-      userPrompt = buildUserPrompt(transcript, videoDuration);
+
+      // Build prompts based on output type
+      const selectedOutputType = outputType || 'chapters';
+      const prompts = buildOutputTypePrompt(selectedOutputType, transcript, videoDuration);
+      systemPrompt = prompts.system;
+      userPrompt = prompts.user;
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -476,11 +693,12 @@ module.exports = async function handler(req, res) {
     }
 
     // Process the response
-    let chapters = rawResult.trim();
+    let result = rawResult.trim();
 
-    // Run second pass: Fix name spellings (skip for quick actions to save API calls)
-    if (!action) {
-      chapters = await fixNameSpellings(chapters, openaiKey);
+    // Run second pass: Fix name spellings (only for chapters output type, skip for quick actions)
+    const selectedOutputType = outputType || 'chapters';
+    if (!action && selectedOutputType === 'chapters') {
+      result = await fixNameSpellings(result, openaiKey);
     }
 
     // Increment usage after successful generation (only for new generations, not refinements)
@@ -491,7 +709,8 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      result: chapters,
+      result: result,
+      outputType: selectedOutputType,
       isFreeTrial: !user,
       usage: user ? {
         used: (await canUseTool(user.id, 'chaptergen', isSubscribed)).used,
@@ -501,6 +720,6 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('ChapterGen error:', error);
-    return res.status(500).json({ error: 'Failed to generate chapters' });
+    return res.status(500).json({ error: 'Failed to generate content' });
   }
 };

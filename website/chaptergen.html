@@ -1482,6 +1482,62 @@
             border-color: #666;
         }
 
+        /* Output Type Selector */
+        .output-type-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .output-type-selector .type-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .output-type-selector .type-label svg {
+            color: var(--gold);
+        }
+
+        .output-type-selector .type-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23C9A227' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .output-type-selector .type-select:hover {
+            border-color: var(--gold);
+        }
+
+        .output-type-selector .type-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
+        }
+
+        .output-type-selector .type-select option {
+            background: var(--bg-card);
+            color: var(--white);
+            padding: 8px;
+        }
+
         /* Quick Actions */
         .quick-actions {
             display: none;
@@ -2344,6 +2400,26 @@
                         </button>
                     </div>
 
+                    <!-- Output Type Selector -->
+                    <div class="output-type-selector" style="margin-top: 16px;">
+                        <label class="type-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            Output Type
+                        </label>
+                        <select class="type-select" id="outputTypeSelect">
+                            <option value="chapters">📑 Chapters — timestamps + titles</option>
+                            <option value="clips">🎬 Clip Suggestions — viral moments for Shorts</option>
+                            <option value="blog">📝 Blog Outline — structured blog post</option>
+                            <option value="highlights">⭐ Key Highlights — important bullet points</option>
+                        </select>
+                    </div>
+
                     <!-- Usage Counter -->
                     <div id="usageCounter" class="usage-counter" style="margin-top: 16px;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2649,7 +2725,17 @@
             manualTranscriptSection: document.getElementById('manualTranscriptSection'),
             backToUrlBtn: document.getElementById('backToUrlBtn'),
             transcriptPreview: document.getElementById('transcriptPreview'),
-            editTranscriptBtn: document.getElementById('editTranscriptBtn')
+            editTranscriptBtn: document.getElementById('editTranscriptBtn'),
+            outputTypeSelect: document.getElementById('outputTypeSelect'),
+            outputPanelLabel: document.querySelector('.tool-panel .panel-label')
+        };
+
+        // Output type labels for panel header
+        var outputTypeLabels = {
+            'chapters': 'Generated Chapters',
+            'clips': 'Clip Suggestions',
+            'blog': 'Blog Outline',
+            'highlights': 'Key Highlights'
         };
 
         // State
@@ -2853,6 +2939,20 @@
                     var action = btn.getAttribute('data-action');
                     handleQuickAction(action);
                 });
+            });
+
+            // Output type selector
+            elements.outputTypeSelect.addEventListener('change', function() {
+                var outputType = elements.outputTypeSelect.value;
+                if (elements.outputPanelLabel) {
+                    elements.outputPanelLabel.textContent = outputTypeLabels[outputType] || 'Generated Chapters';
+                }
+                // Show/hide quick actions based on output type (only show for chapters)
+                if (outputType !== 'chapters') {
+                    elements.quickActions.classList.remove('visible');
+                } else if (generatedChapters) {
+                    elements.quickActions.classList.add('visible');
+                }
             });
         }
 
@@ -3122,11 +3222,20 @@
                 return;
             }
 
+            // Get output type for loading message
+            var outputType = elements.outputTypeSelect.value;
+            var loadingMessages = {
+                'chapters': 'Generating chapters...',
+                'clips': 'Finding viral moments...',
+                'blog': 'Creating blog outline...',
+                'highlights': 'Extracting key highlights...'
+            };
+
             // Show loading
             elements.generateBtn.disabled = true;
             elements.generateBtn.classList.add('loading');
             elements.loading.classList.add('visible');
-            elements.loadingText.textContent = 'Analyzing transcript...';
+            elements.loadingText.textContent = loadingMessages[outputType] || 'Analyzing transcript...';
             elements.quickActions.classList.remove('visible');
             elements.variationSelector.classList.remove('visible');
             elements.alternativesSection.classList.remove('visible');
@@ -3144,11 +3253,19 @@
                     headers['x-free-trial'] = 'true';
                 }
 
+                // Get selected output type
+                var outputType = elements.outputTypeSelect.value;
+
+                // Update panel label based on output type
+                if (elements.outputPanelLabel) {
+                    elements.outputPanelLabel.textContent = outputTypeLabels[outputType] || 'Generated Chapters';
+                }
+
                 // Use LTG Vault API
                 var response = await fetch('/api/tools/chaptergen', {
                     method: 'POST',
                     headers: headers,
-                    body: JSON.stringify({ transcript: transcript })
+                    body: JSON.stringify({ transcript: transcript, outputType: outputType })
                 });
 
                 var data = await response.json();

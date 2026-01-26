@@ -1,9 +1,10 @@
 const { authenticateRequest } = require('../../lib/auth');
 const { canUseTool, incrementUsage } = require('../../lib/usage');
 const { YoutubeTranscript } = require('youtube-transcript');
+const { getSubtitles } = require('youtube-captions-scraper');
 
 // ============================================================================
-// YOUTUBE TRANSCRIPT FETCHING
+// YOUTUBE TRANSCRIPT FETCHING - Multiple library fallback
 // ============================================================================
 
 // Extract video ID from various YouTube URL formats
@@ -42,7 +43,16 @@ function extractVideoId(url) {
 // Format transcript items into readable text with timestamps
 function formatTranscript(items) {
   return items.map(item => {
-    const timestamp = formatTime(item.offset);
+    const timestamp = formatTime(item.offset || item.start * 1000);
+    const text = (item.text || item.text).replace(/\n/g, ' ').trim();
+    return `[${timestamp}] ${text}`;
+  }).join('\n');
+}
+
+// Format captions-scraper items (different structure)
+function formatCaptionsScraperTranscript(items) {
+  return items.map(item => {
+    const timestamp = formatTimeSeconds(parseFloat(item.start));
     const text = item.text.replace(/\n/g, ' ').trim();
     return `[${timestamp}] ${text}`;
   }).join('\n');
@@ -61,7 +71,76 @@ function formatTime(ms) {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// Fetch transcript from YouTube
+// Convert seconds to MM:SS or HH:MM:SS format
+function formatTimeSeconds(totalSeconds) {
+  totalSeconds = Math.floor(totalSeconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Method 1: youtube-transcript library
+async function tryYoutubeTranscript(videoId) {
+  console.log('Trying youtube-transcript library...');
+  const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+
+  if (!transcriptItems || transcriptItems.length === 0) {
+    throw new Error('No transcript returned');
+  }
+
+  const transcript = formatTranscript(transcriptItems);
+  const lastItem = transcriptItems[transcriptItems.length - 1];
+  const videoDuration = formatTime(lastItem.offset + lastItem.duration);
+
+  return {
+    success: true,
+    transcript,
+    videoDuration,
+    itemCount: transcriptItems.length,
+    method: 'youtube-transcript'
+  };
+}
+
+// Method 2: youtube-captions-scraper library
+async function tryCaptionsScraper(videoId) {
+  console.log('Trying youtube-captions-scraper library...');
+
+  // Try English first, then auto-generated
+  const languages = ['en', 'en-US', 'en-GB', 'a.en'];
+
+  for (const lang of languages) {
+    try {
+      const captions = await getSubtitles({ videoID: videoId, lang: lang });
+
+      if (captions && captions.length > 0) {
+        const transcript = formatCaptionsScraperTranscript(captions);
+        const lastItem = captions[captions.length - 1];
+        const videoDuration = formatTimeSeconds(parseFloat(lastItem.start) + parseFloat(lastItem.dur || 0));
+
+        return {
+          success: true,
+          transcript,
+          videoDuration,
+          itemCount: captions.length,
+          method: 'youtube-captions-scraper',
+          language: lang
+        };
+      }
+    } catch (e) {
+      console.log(`Language ${lang} failed:`, e.message);
+      continue;
+    }
+  }
+
+  throw new Error('No captions found in any language');
+}
+
+// Fetch transcript from YouTube - tries multiple methods
 async function fetchYouTubeTranscript(url) {
   const videoId = extractVideoId(url);
 
@@ -69,34 +148,34 @@ async function fetchYouTubeTranscript(url) {
     return { error: 'Invalid YouTube URL or video ID' };
   }
 
+  console.log('Fetching transcript for video:', videoId);
+
+  // Try Method 1: youtube-transcript
   try {
-    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+    const result = await tryYoutubeTranscript(videoId);
+    console.log('Success with youtube-transcript');
+    return result;
+  } catch (error1) {
+    console.log('youtube-transcript failed:', error1.message);
 
-    if (!transcriptItems || transcriptItems.length === 0) {
-      return { error: 'No transcript available for this video' };
+    // Try Method 2: youtube-captions-scraper
+    try {
+      const result = await tryCaptionsScraper(videoId);
+      console.log('Success with youtube-captions-scraper');
+      return result;
+    } catch (error2) {
+      console.log('youtube-captions-scraper failed:', error2.message);
+
+      // Both methods failed - return helpful error
+      if (error1.message?.includes('Transcript is disabled') || error2.message?.includes('disabled')) {
+        return { error: 'Transcripts are disabled for this video. Try pasting the transcript manually.' };
+      }
+      if (error1.message?.includes('Video unavailable') || error1.message?.includes('not found')) {
+        return { error: 'Video not found. Check the URL and try again.' };
+      }
+
+      return { error: 'Could not fetch transcript automatically. Try pasting it manually.' };
     }
-
-    const transcript = formatTranscript(transcriptItems);
-    const lastItem = transcriptItems[transcriptItems.length - 1];
-    const videoDuration = formatTime(lastItem.offset + lastItem.duration);
-
-    return {
-      success: true,
-      transcript,
-      videoDuration,
-      itemCount: transcriptItems.length
-    };
-  } catch (error) {
-    console.error('Transcript fetch error:', error);
-
-    if (error.message?.includes('Transcript is disabled')) {
-      return { error: 'Transcripts are disabled for this video. Try pasting the transcript manually.' };
-    }
-    if (error.message?.includes('Video unavailable') || error.message?.includes('not found')) {
-      return { error: 'Video not found. Check the URL and try again.' };
-    }
-
-    return { error: 'Could not fetch transcript. Try pasting it manually.' };
   }
 }
 

@@ -834,71 +834,56 @@
 
         /* ============ ANIMATED DEMO SECTION ============ */
         .demo-section {
-            margin-bottom: 32px;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.08) 0%, rgba(201, 162, 39, 0.02) 100%);
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            border-radius: 16px;
         }
 
         .demo-title {
-            font-size: 0.8rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 0.85rem;
+            color: var(--gold);
             text-align: center;
-            margin-bottom: 16px;
-        }
-
-        /* Demo matches real tool styling exactly */
-        .demo-tool-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .demo-tool-panel {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .demo-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .demo-panel-label {
-            font-size: 0.7rem;
+            margin-bottom: 20px;
             font-weight: 600;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .demo-char-count {
+        .demo-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .demo-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px 16px;
+            min-height: 60px;
+        }
+
+        .demo-box-label {
             font-size: 0.65rem;
-            color: #555;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
-        .demo-text-area {
-            width: 100%;
-            min-height: 160px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 14px;
-            color: var(--white);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.75rem;
+        .demo-box-content {
+            font-size: 0.85rem;
             line-height: 1.6;
+            color: #bbb;
             white-space: pre-wrap;
-            word-wrap: break-word;
         }
 
-        .demo-text-area .cursor {
+        .demo-box-content .cursor {
             display: inline-block;
             width: 2px;
-            height: 12px;
+            height: 14px;
             background: var(--gold);
             margin-left: 1px;
             animation: blink 0.8s infinite;
@@ -910,25 +895,23 @@
             51%, 100% { opacity: 0; }
         }
 
-        .demo-text-area.input-area {
-            color: #999;
-        }
-
-        .demo-text-area.output-area {
+        .demo-box.output .demo-box-content {
             color: var(--white);
         }
 
-        .demo-button-row {
-            margin-top: 12px;
+        .demo-arrow {
+            text-align: center;
+            color: var(--gold);
+            font-size: 1.2rem;
         }
 
         .demo-generate-btn {
-            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 12px 16px;
+            padding: 10px 20px;
+            margin: 8px auto 0 auto;
             background: var(--gold);
             color: var(--black);
             border: none;
@@ -973,23 +956,17 @@
         }
 
         .demo-tweet {
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 8px;
-            font-size: 0.7rem;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 2px solid var(--gold);
+            border-radius: 4px;
+            font-size: 0.75rem;
             line-height: 1.5;
         }
 
         .demo-tweet:last-child {
             margin-bottom: 0;
-        }
-
-        @media (max-width: 600px) {
-            .demo-tool-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* ============ TWO-COLUMN TOOL LAYOUT ============ */
@@ -3001,28 +2978,20 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
     <!-- Animated Demo Section -->
     <div class="demo-section">
         <p class="demo-title">Watch it in action</p>
-        <div class="demo-tool-grid">
-            <!-- Input Panel -->
-            <div class="demo-tool-panel">
-                <div class="demo-panel-header">
-                    <span class="demo-panel-label">Your Content</span>
-                    <span class="demo-char-count" id="demoInputCount">0 chars</span>
-                </div>
-                <div class="demo-text-area input-area" id="demoInput"></div>
-                <div class="demo-button-row">
-                    <button class="demo-generate-btn" id="demoButton">
-                        <span class="demo-spinner"></span>
-                        <span class="demo-btn-text">Generate Thread</span>
-                    </button>
-                </div>
+        <div class="demo-container">
+            <div class="demo-box input">
+                <div class="demo-box-label">Your Idea</div>
+                <div class="demo-box-content" id="demoInput"></div>
             </div>
-            <!-- Output Panel -->
-            <div class="demo-tool-panel">
-                <div class="demo-panel-header">
-                    <span class="demo-panel-label">Your Thread</span>
-                    <span class="demo-char-count" id="demoOutputCount">0 tweets</span>
-                </div>
-                <div class="demo-text-area output-area" id="demoOutput"></div>
+            <div class="demo-arrow">↓</div>
+            <button class="demo-generate-btn" id="demoButton">
+                <span class="demo-spinner"></span>
+                <span class="demo-btn-text">Generate Thread</span>
+            </button>
+            <div class="demo-arrow">↓</div>
+            <div class="demo-box output">
+                <div class="demo-box-label">Your Thread</div>
+                <div class="demo-box-content" id="demoOutput"></div>
             </div>
         </div>
     </div>
@@ -3311,17 +3280,15 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             var demoInput = document.getElementById('demoInput');
             var demoOutput = document.getElementById('demoOutput');
             var demoButton = document.getElementById('demoButton');
-            var demoInputCount = document.getElementById('demoInputCount');
-            var demoOutputCount = document.getElementById('demoOutputCount');
 
             if (!demoInput || !demoOutput || !demoButton) return;
 
-            var inputText = "The best productivity hack nobody talks about: strategic quitting. Here's what I learned after burning out twice.";
+            var inputText = "Strategic quitting is the productivity hack nobody talks about. Here's what I learned after burning out twice.";
             var outputTweets = [
-                "1/ The best productivity advice I ever got had nothing to do with waking up at 5am.\n\nIt was learning when to quit.\n\nHere's what burning out twice taught me:",
-                "2/ We glorify hustle.\nWe shame rest.\n\nBut your brain doesn't work like a machine.\nIt works like a muscle.\n\nPush too hard, too long = injury.",
-                "3/ Strategic quitting isn't giving up.\n\nIt's recognizing:\n→ Diminishing returns\n→ When rest beats grind\n→ That tomorrow-you needs energy too",
-                "4/ If this hit different, you probably needed to hear it.\n\nFollow for more no-BS productivity takes.\n\nNow go take that break."
+                "Tweet 1 (Hook):\nThe best productivity advice I ever got had nothing to do with waking up at 5am. It was learning when to quit.",
+                "Tweet 2:\nWe glorify hustle. We shame rest. But your brain works like a muscle, not a machine. Push too hard = injury.",
+                "Tweet 3:\nStrategic quitting isn't giving up. It's recognizing diminishing returns and that tomorrow-you needs energy too.",
+                "Tweet 4 (CTA):\nIf this hit different, you probably needed to hear it. Now go take that break."
             ];
 
             function runAnimation() {
@@ -3329,8 +3296,6 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 demoInput.innerHTML = '<span class="cursor"></span>';
                 demoOutput.innerHTML = '';
                 demoButton.classList.remove('ready', 'active', 'clicked', 'loading');
-                if (demoInputCount) demoInputCount.textContent = '0 chars';
-                if (demoOutputCount) demoOutputCount.textContent = '0 tweets';
 
                 var inputIndex = 0;
                 var tweetIndex = 0;
@@ -3340,7 +3305,6 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 function typeInput() {
                     if (inputIndex < inputText.length) {
                         demoInput.innerHTML = inputText.substring(0, inputIndex + 1) + '<span class="cursor"></span>';
-                        if (demoInputCount) demoInputCount.textContent = (inputIndex + 1) + ' chars';
                         inputIndex++;
                         setTimeout(typeInput, 25);
                     } else {
@@ -3376,13 +3340,12 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                             }
                             html += '<div class="demo-tweet">' + currentTweet.substring(0, charIndex + 1).replace(/\n/g, '<br>') + '</div>';
                             demoOutput.innerHTML = html;
-                            if (demoOutputCount) demoOutputCount.textContent = (tweetIndex + 1) + ' tweets';
                             charIndex++;
-                            setTimeout(typeThread, 10);
+                            setTimeout(typeThread, 12);
                         } else {
                             tweetIndex++;
                             charIndex = 0;
-                            setTimeout(typeThread, 150);
+                            setTimeout(typeThread, 200);
                         }
                     } else {
                         // Pause then restart

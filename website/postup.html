@@ -268,10 +268,26 @@
         /* Settings Panel */
         .settings-panel {
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
             padding: 20px 24px;
             margin-bottom: 32px;
+        }
+
+        .settings-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .settings-title svg {
+            color: var(--gold);
         }
 
         .settings-row {
@@ -280,9 +296,21 @@
             flex-wrap: wrap;
         }
 
+        .settings-row.style-row {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
         .setting-group {
             flex: 1;
             min-width: 150px;
+        }
+
+        .setting-group.style-group {
+            flex: none;
+            width: 100%;
+            max-width: 350px;
         }
 
         .setting-label {
@@ -293,6 +321,11 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 8px;
+        }
+
+        .setting-label.highlight {
+            color: var(--gold);
+            font-size: 0.8rem;
         }
 
         .setting-select {
@@ -309,11 +342,20 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .setting-select.style-select {
+            background: rgba(201, 162, 39, 0.08);
+            border-color: rgba(201, 162, 39, 0.3);
+            padding: 12px 16px;
+            font-size: 0.9rem;
         }
 
         .setting-select:focus {
             outline: none;
             border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.1);
         }
 
         .setting-select option {
@@ -1508,6 +1550,111 @@
             opacity: 0.7;
         }
 
+        .quick-action-btn.highlight {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: rgba(201, 162, 39, 0.4);
+            color: var(--gold);
+        }
+
+        .quick-action-btn.highlight:hover {
+            background: rgba(201, 162, 39, 0.25);
+            border-color: var(--gold);
+        }
+
+        /* History Section */
+        .history-section {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .history-section.visible {
+            display: block;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .history-title svg {
+            color: #555;
+        }
+
+        .history-clear {
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .history-clear:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #888;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(201, 162, 39, 0.3);
+        }
+
+        .history-item-number {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #555;
+            min-width: 20px;
+        }
+
+        .history-item-preview {
+            flex: 1;
+            font-size: 0.8rem;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item-time {
+            font-size: 0.65rem;
+            color: #555;
+        }
+
         .spinner-small {
             display: inline-block;
             width: 12px;
@@ -1943,14 +2090,34 @@
 
         <!-- Settings Panel -->
         <div class="settings-panel">
+            <div class="settings-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Customize Your Post
+            </div>
+            <!-- Post Style - Most Important -->
+            <div class="settings-row style-row">
+                <div class="setting-group style-group">
+                    <label class="setting-label highlight">Post Style</label>
+                    <select class="setting-select style-select" id="styleSelect">
+                        <option value="viral">🔥 Viral (maximum engagement)</option>
+                        <option value="story">📖 Story (narrative format)</option>
+                        <option value="contrarian">🎯 Contrarian (hot take)</option>
+                        <option value="lesson">💡 Lesson (here's what I learned)</option>
+                        <option value="authority">🏆 Authority (expert insight)</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Other Settings -->
             <div class="settings-row">
                 <div class="setting-group">
                     <label class="setting-label">Tone</label>
                     <select class="setting-select" id="toneSelect">
                         <option value="casual">Casual</option>
                         <option value="professional">Professional</option>
-                        <option value="storytelling">Storytelling</option>
-                        <option value="controversial">Controversial</option>
+                        <option value="bold">Bold</option>
+                        <option value="friendly">Friendly</option>
                     </select>
                 </div>
                 <div class="setting-group">
@@ -2023,24 +2190,48 @@
                 </div>
                 <!-- Quick Action Buttons -->
                 <div class="quick-actions" id="quickActions">
+                    <button class="quick-action-btn highlight" data-action="make_viral">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                        Make Viral
+                    </button>
+                    <button class="quick-action-btn" data-action="new_hook">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v8M8 12h8"/>
+                        </svg>
+                        New Hook
+                    </button>
                     <button class="quick-action-btn" data-action="shorter">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 4H3M21 8H9M21 12H3M21 16H9M21 20H3"/>
                         </svg>
                         Shorter
                     </button>
-                    <button class="quick-action-btn" data-action="punchier">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                        </svg>
-                        Punchier
-                    </button>
                     <button class="quick-action-btn" data-action="story_angle">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
                         </svg>
-                        Story Angle
+                        Add Story
                     </button>
+                </div>
+
+                <!-- Generation History -->
+                <div class="history-section" id="historySection">
+                    <div class="history-header">
+                        <span class="history-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            Recent Versions
+                        </span>
+                        <button class="history-clear" id="clearHistoryBtn">Clear</button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <!-- History items populated by JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -2593,6 +2784,7 @@
             hideExtras();
 
             // Get settings
+            var style = document.getElementById('styleSelect').value;
             var tone = document.getElementById('toneSelect').value;
             var inputType = document.getElementById('inputTypeSelect').value;
             var niche = document.getElementById('nicheSelect').value;
@@ -2614,6 +2806,7 @@
                 console.log('MODE: Free Trial');
                 console.log('Uses remaining:', freeTrialUses);
             }
+            console.log('Style:', style);
             console.log('Tone:', tone);
             console.log('Input Type:', inputType);
             console.log('Niche:', niche);
@@ -2624,6 +2817,7 @@
                 headers: headers,
                     body: JSON.stringify({
                         content: text,
+                        style: style,
                         tone: tone,
                         inputType: inputType,
                         niche: niche || undefined
@@ -2717,6 +2911,8 @@
                     // Show quick actions and LinkedIn preview
                     showQuickActions();
                     updateLinkedInPreview(outputText.value);
+                    // Save to history
+                    saveToHistory(outputText.value);
 
                     // Decrement free trial if applicable
                     if (isFreeTrial) {
@@ -2989,6 +3185,7 @@
                     animateOutput();
                     updateCharCounts();
                     updateLinkedInPreview(data.result);
+                    saveToHistory(data.result);
                     if (data.usage) {
                         updateUsageDisplay(data.usage);
                     }
@@ -3002,6 +3199,107 @@
                     document.querySelectorAll('.quick-action-btn').forEach(function(b) { b.disabled = false; });
                 });
             });
+        });
+
+        // ============ GENERATION HISTORY ============
+        var HISTORY_KEY = 'postup_history';
+        var MAX_HISTORY = 10;
+
+        function getHistory() {
+            try {
+                var history = localStorage.getItem(HISTORY_KEY);
+                return history ? JSON.parse(history) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveToHistory(content) {
+            if (!content || content.trim().length === 0) return;
+
+            var history = getHistory();
+
+            // Add new item at the beginning
+            history.unshift({
+                content: content,
+                timestamp: Date.now(),
+                preview: content.substring(0, 80).replace(/\n/g, ' ')
+            });
+
+            // Keep only last MAX_HISTORY items
+            if (history.length > MAX_HISTORY) {
+                history = history.slice(0, MAX_HISTORY);
+            }
+
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            var history = getHistory();
+            var historySection = document.getElementById('historySection');
+            var historyList = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                historySection.classList.remove('visible');
+                return;
+            }
+
+            historySection.classList.add('visible');
+            historyList.innerHTML = '';
+
+            history.forEach(function(item, index) {
+                var timeAgo = getTimeAgo(item.timestamp);
+                var div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = '<span class="history-item-number">#' + (index + 1) + '</span>' +
+                    '<span class="history-item-preview">' + escapeHtml(item.preview) + '...</span>' +
+                    '<span class="history-item-time">' + timeAgo + '</span>';
+                div.addEventListener('click', function() {
+                    restoreFromHistory(index);
+                });
+                historyList.appendChild(div);
+            });
+        }
+
+        function restoreFromHistory(index) {
+            var history = getHistory();
+            if (history[index]) {
+                outputText.value = history[index].content;
+                animateOutput();
+                updateCharCounts();
+                updateLinkedInPreview(history[index].content);
+                copyBtn.disabled = false;
+                showQuickActions();
+            }
+        }
+
+        function clearHistory() {
+            localStorage.removeItem(HISTORY_KEY);
+            renderHistory();
+        }
+
+        function getTimeAgo(timestamp) {
+            var seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'just now';
+            var minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            var hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            var days = Math.floor(hours / 24);
+            return days + 'd ago';
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize history on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderHistory();
+            document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
         });
 
         // ============ LINKEDIN PREVIEW ============

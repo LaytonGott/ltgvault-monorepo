@@ -97,10 +97,10 @@ module.exports = async function handler(req, res) {
     }
 
     // Get options from request body
-    const { tone, inputType, niche, action, currentPost } = req.body;
+    const { style, tone, inputType, niche, action, currentPost } = req.body;
 
     // Build system prompt from shared prompts module
-    const systemPrompt = buildSystemPrompt(tone, inputType, niche);
+    const systemPrompt = buildSystemPrompt(tone, inputType, niche, style);
 
     // Build user prompt - either generation or refinement
     let userPrompt;

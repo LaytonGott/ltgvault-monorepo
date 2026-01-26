@@ -242,19 +242,100 @@ const NICHE_PROMPTS = {
   founder: 'Specific founder moments: exact revenue numbers, funding amounts, team conflicts, near-death experiences.'
 };
 
+// Post style prompts - the main creative direction
+const STYLE_PROMPTS = {
+  viral: `
+POST STYLE: Maximum Engagement / Viral
+- Optimize EVERYTHING for stopping the scroll
+- Hook must be controversial or pattern-interrupting
+- Use short, punchy sentences that build tension
+- Include at least one "screenshot-worthy" quotable line
+- End with something people want to share or argue about
+- Aim for strong emotions: shock, recognition, "finally someone said it"
+`,
+
+  story: `
+POST STYLE: Narrative / Story Format
+- Start in the middle of the action (in medias res)
+- Use specific details: dates, places, numbers, dialogue
+- Build tension before the reveal or lesson
+- Show vulnerability but end with strength
+- Make the reader feel like they were there
+- The story IS the lesson - don't explain it to death
+`,
+
+  contrarian: `
+POST STYLE: Hot Take / Contrarian
+- Challenge a widely-held belief directly
+- State your contrarian position in the first line
+- Back it up with unexpected logic or evidence
+- Anticipate and dismiss the obvious objection
+- Be willing to alienate some readers to connect deeply with others
+- End with your most provocative, defensible claim
+`,
+
+  lesson: `
+POST STYLE: Here's What I Learned
+- Lead with the hard-won insight, not the backstory
+- Be specific about what changed and why
+- Include the "before" state briefly, focus on the "after"
+- Share the actual tactic or framework, not vague advice
+- Make it immediately actionable for the reader
+- End with a clear takeaway they can use today
+`,
+
+  authority: `
+POST STYLE: Expert Insight / Authority
+- Speak with certainty - you've seen this pattern repeatedly
+- Reference specific experience without humble-bragging
+- Share insider knowledge others don't have access to
+- Call out mistakes you see people making
+- Provide a clear framework or mental model
+- Position yourself as the person who's already solved this
+`
+};
+
 // Quick action prompts
 const QUICK_ACTION_PROMPTS = {
   shorter: 'Cut 30% of this post. Remove hedge words (I think, in my experience, might). Remove any sentence that doesn\'t add new information. Keep the hook attacking and the ending quotable.',
   punchier: 'Make this post hurt more. Remove all hedge language. Turn observations into attacks ("X is bad" → "X is actively hurting you"). Add one screenshot-worthy quotable line. State opinions as facts.',
-  story_angle: 'Rewrite with a specific story that makes the reader uncomfortable. Include: exact time/place, specific numbers, conflict or failure. End with a quotable line that reframes everything. No soft lessons - hard truths only.'
+  story_angle: 'Rewrite with a specific story. Include: exact time/place, specific numbers, conflict or tension. End with a line that reframes everything.',
+  make_viral: `Rewrite this post for MAXIMUM engagement and shareability:
+1. Make the hook impossible to scroll past - controversial, pattern-interrupting, or calling the reader out
+2. Add a "screenshot-worthy" quotable line that people will want to steal
+3. Increase the emotional stakes - make them feel something strongly
+4. End with something people will want to argue about or share
+5. Remove anything that feels safe or predictable
+Keep the core message but make every line work harder.`,
+  new_hook: `Generate 4 alternative opening hooks for this post. Each should be a different style:
+1. A controversial statement that challenges conventional wisdom
+2. A specific statistic or result that stops the scroll
+3. A "you" statement that calls the reader out directly
+4. A bold prediction or declaration
+
+Return as JSON: {"hooks": ["hook1", "hook2", "hook3", "hook4"]}
+
+The post to generate hooks for:`
 };
 
 // Build the complete system prompt
-function buildSystemPrompt(tone, inputType, niche) {
+function buildSystemPrompt(tone, inputType, niche, style) {
   let prompt = VIRAL_PATTERNS_BASE;
+
+  // Add style prompt first (most important creative direction)
+  if (style && STYLE_PROMPTS[style]) {
+    prompt += STYLE_PROMPTS[style];
+  } else {
+    prompt += STYLE_PROMPTS.viral; // Default to viral style
+  }
+
+  // Add tone
   prompt += TONE_PROMPTS[tone] || TONE_PROMPTS.casual;
+
+  // Add input type context
   prompt += `\nINPUT CONTEXT:\n${INPUT_TYPE_PROMPTS[inputType] || INPUT_TYPE_PROMPTS.rough_idea}`;
 
+  // Add niche context if specified
   if (niche && NICHE_PROMPTS[niche]) {
     prompt += `\n\nAUDIENCE CONTEXT:\n${NICHE_PROMPTS[niche]}`;
   }
@@ -368,6 +449,7 @@ module.exports = {
   TONE_PROMPTS,
   INPUT_TYPE_PROMPTS,
   NICHE_PROMPTS,
+  STYLE_PROMPTS,
   QUICK_ACTION_PROMPTS,
   buildSystemPrompt,
   buildGenerationPrompt,

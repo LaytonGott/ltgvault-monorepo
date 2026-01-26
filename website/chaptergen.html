@@ -2828,12 +2828,13 @@
             var usageCounter = document.getElementById('usageCounter');
             var usageText = document.getElementById('usageText');
             var settingsPanel = document.getElementById('settingsPanel');
+            var bottomCta = document.getElementById('bottomCta');
 
             console.log('=== UPDATE FREE TRIAL UI ===');
             console.log('isSubscribed:', isSubscribed);
             console.log('ltgvKey:', ltgvKey ? 'exists' : 'null');
 
-            // If user is subscribed, show unlimited and hide settings panel
+            // If user is subscribed, show unlimited and hide settings panel + CTA
             if (isSubscribed) {
                 if (usageCounter) {
                     usageCounter.className = 'usage-counter unlimited';
@@ -2845,13 +2846,19 @@
                 if (settingsPanel) {
                     settingsPanel.style.display = 'none';
                 }
+                if (bottomCta) {
+                    bottomCta.style.display = 'none';
+                }
                 elements.generateBtn.disabled = false;
                 return;
             }
 
-            // Show settings panel for non-subscribed users
+            // Show settings panel and CTA for non-subscribed users
             if (settingsPanel) {
                 settingsPanel.style.display = 'block';
+            }
+            if (bottomCta) {
+                bottomCta.style.display = 'block';
             }
 
             // If user has API key but not subscribed, hide counter (they use API limits)

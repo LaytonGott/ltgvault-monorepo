@@ -2455,8 +2455,9 @@
             var usageCounter = document.getElementById('usageCounter');
             var usageText = document.getElementById('usageText');
             var apiSection = document.getElementById('apiSection');
+            var bottomCta = document.getElementById('bottomCta');
 
-            // If user is subscribed, show unlimited and hide API section
+            // If user is subscribed, show unlimited and hide API section + CTA
             if (isSubscribed) {
                 if (usageCounter) {
                     usageCounter.className = 'usage-counter unlimited';
@@ -2465,13 +2466,19 @@
                 if (apiSection) {
                     apiSection.style.display = 'none';
                 }
+                if (bottomCta) {
+                    bottomCta.style.display = 'none';
+                }
                 generateBtn.disabled = false;
                 return;
             }
 
-            // Show API section for non-subscribed users
+            // Show API section and CTA for non-subscribed users
             if (apiSection) {
                 apiSection.style.display = 'block';
+            }
+            if (bottomCta) {
+                bottomCta.style.display = 'block';
             }
 
             var uses = getFreeTrialUses();

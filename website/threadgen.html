@@ -3216,8 +3216,9 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
             var usageText = document.getElementById('usageText');
             var generateBtn = document.getElementById('generateBtn');
             var settingsPanel = document.getElementById('settingsPanel');
+            var bottomCta = document.getElementById('bottomCta');
 
-            // If user is subscribed, show unlimited and hide settings panel
+            // If user is subscribed, show unlimited and hide settings panel + CTA
             if (isSubscribed) {
                 if (usageCounter) {
                     usageCounter.className = 'usage-counter unlimited';
@@ -3225,12 +3226,14 @@ The AI will transform your content into an engaging Twitter thread."></textarea>
                 }
                 if (freeUsesText) freeUsesText.style.display = 'none';
                 if (settingsPanel) settingsPanel.style.display = 'none';
+                if (bottomCta) bottomCta.style.display = 'none';
                 if (generateBtn) generateBtn.disabled = false;
                 return;
             }
 
-            // Show settings panel for non-subscribed users
+            // Show settings panel and CTA for non-subscribed users
             if (settingsPanel) settingsPanel.style.display = 'block';
+            if (bottomCta) bottomCta.style.display = 'block';
 
             // If user has API key but not subscribed
             if (ltgvKey) {

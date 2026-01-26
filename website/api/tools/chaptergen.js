@@ -228,49 +228,36 @@ Return ONLY chapters in format (timestamps at segment STARTS):
 0:02 Player's Goal`
   },
 
-  // CLIPS - identify 3-5 viral moments for TikTok/Shorts
+  // CLIPS - identify 3-5 interesting moments for short-form content
   clips: {
-    system: `You are a viral content expert specializing in identifying short-form video moments from longer content.
+    system: `You are a video editor identifying clip-worthy moments from longer content.
 
-Your job is to find the 3-5 MOST VIRAL moments in a transcript that would make great TikTok/YouTube Shorts/Reels clips.
+Find 3-5 moments that would work as standalone short clips (30-60 seconds).
 
-WHAT MAKES A VIRAL CLIP:
-- Strong emotional moment (funny, shocking, inspiring, relatable)
-- Complete thought or story arc in 30-60 seconds
-- Clear hook at the start
-- Quotable or shareable line
-- Universal appeal or niche community appeal
-- Controversial or unexpected take
-- Tutorial/tip that delivers quick value
-
-FOR EACH CLIP IDENTIFY:
-1. Start timestamp (where to begin the clip)
-2. End timestamp (where to cut)
-3. Viral potential title (hook-style, what makes people click)
-4. Why it's viral (1 sentence explanation)
-5. Suggested hashtags (3-5 relevant tags)
+GOOD CLIPS HAVE:
+- A complete thought or moment (doesn't need context)
+- Something interesting happens (story, tip, reaction, insight)
+- Clear start and end points
 
 AVOID:
-- Rambling sections without clear payoff
-- Inside jokes without context
-- Technical explanations that need prior context
-- Moments that require watching more to understand`,
-    user: (transcript, videoDuration) => `Find the 3-5 most viral clip moments in this transcript. Duration: ${videoDuration}
-
-Look for moments that would work as standalone 30-60 second clips on TikTok, YouTube Shorts, or Reels.
+- Rambling without payoff
+- Moments that need prior context
+- Incomplete thoughts`,
+    user: (transcript, videoDuration) => `Find the 3-5 most interesting moments to clip from this video. Duration: ${videoDuration}
 
 Transcript:
 ${transcript}
 
-Return in this format:
+Return in this simple format:
 
-CLIP 1: [Viral Title]
-⏱️ Start: [timestamp] → End: [timestamp]
-🔥 Why it's viral: [1 sentence]
-#hashtag1 #hashtag2 #hashtag3
+CLIP 1: [start] - [end]
+Hook: [One sentence describing what happens in this moment]
 
-CLIP 2: [Viral Title]
-...`
+CLIP 2: [start] - [end]
+Hook: [One sentence describing what happens in this moment]
+
+CLIP 3: [start] - [end]
+Hook: [One sentence describing what happens in this moment]`
   },
 
   // BLOG - turn transcript into blog post structure

@@ -398,25 +398,6 @@ function buildOutputTypePrompt(outputType, transcript, videoDuration = '10:00') 
   };
 }
 
-CRITICAL - CHAPTER TIMING:
-Chapters mark where a viewer should SKIP TO to watch a segment FROM THE BEGINNING.
-
-The problem: Captions often describe what just happened. If a play happens from 0:02-0:19, the player's name appears in captions at 0:19 (after the play). But the chapter should be at 0:02 (where the play STARTS).
-
-How to find the correct timestamp:
-1. When you see a name/topic mentioned, look BACKWARDS to find where that segment STARTED
-2. For highlights: Each clip starts right after the previous clip ends. New clip = new chapter at its START
-3. For list videos: Chapter starts at "next up", "number X is", "moving on to" - NOT in the middle of discussion
-4. Look for gaps/transitions between segments - that's where the new chapter begins
-
-Think: "If someone clicks this chapter, where do they land to see the WHOLE segment?"
-
-OTHER RULES:
-- SHORT TITLES (3-5 words): "[Player Name]'s [Play Type]" or "[Item] - [Detail]"
-- Copy names EXACTLY as spelled in transcript
-- Capture EVERY distinct play/item - don't skip any
-- First chapter at 0:00: "Intro" or brief topic (2-3 words)`;
-
 // Spelling correction system prompt
 const SPELLING_PROMPT = `You are a spelling correction expert for sports players, celebrities, YouTubers, and brand names.
 
@@ -434,29 +415,6 @@ Rules:
 - Do NOT change chapter structure or wording (except the misspelled name)
 - If unsure, leave the name as-is
 - Keep everything else exactly the same`;
-
-// Build user prompt
-function buildUserPrompt(transcript, videoDuration = '10:00') {
-  return `Create YouTube chapters for this video. Duration: ${videoDuration}
-
-CRITICAL - READ CAREFULLY:
-The transcript shows timestamps where words are SPOKEN, but chapters should be where segments START.
-
-Example problem:
-- [0:02] (play begins - no caption yet)
-- [0:19] "What a goal by Caufield!" (caption appears AFTER the play)
-- WRONG: 0:19 Caufield's Goal (this is the END)
-- RIGHT: 0:02 Caufield's Goal (this is the START)
-
-For each chapter: Look at the context BEFORE the description to find where that segment actually began. Place the chapter at the START of the action, not where it's narrated.
-
-Transcript with context:
-${transcript}
-
-Return ONLY chapters in format (timestamps at segment STARTS):
-0:00 Intro
-0:02 Player's Goal`;
-}
 
 // Build refinement prompt for quick actions
 function buildRefinementPrompt(currentChapters, action, transcript) {

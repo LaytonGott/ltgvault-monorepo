@@ -2523,68 +2523,64 @@
 
         // Animated Demo
         function startDemoAnimation() {
-            var demoInput = document.getElementById('demoInput');
-            var demoOutput = document.getElementById('demoOutput');
-            var demoButton = document.getElementById('demoButton');
+            setTimeout(function() {
+                var demoInput = document.getElementById('demoInput');
+                var demoOutput = document.getElementById('demoOutput');
+                var demoButton = document.getElementById('demoButton');
 
-            if (!demoInput || !demoOutput || !demoButton) return;
+                if (!demoInput || !demoOutput || !demoButton) return;
 
-            var inputText = "I used to work 14 hour days thinking that's what it took to succeed. Then I burned out hard. Now I take real breaks and somehow get more done. The hustle culture lied to us. Rest isn't the opposite of productivity, it's the foundation of it.";
-            var outputText = "I worked 14-hour days for years.\n\nI thought that's what success required.\n\nThen I burned out. Hard.\n\nHere's what nobody tells you:\n\nThe hustle culture lied.\n\nRest isn't the opposite of productivity.\n\nIt's the foundation of it.\n\nNow I take real breaks.\nAnd somehow get more done.\n\nYour brain needs downtime to do its best work.";
+                var inputText = "I used to work 14 hour days thinking that's what it took to succeed. Then I burned out hard. Now I take real breaks and somehow get more done. The hustle culture lied to us. Rest isn't the opposite of productivity, it's the foundation of it.";
+                var outputText = "I worked 14-hour days for years.\n\nI thought that's what success required.\n\nThen I burned out. Hard.\n\nHere's what nobody tells you:\n\nThe hustle culture lied.\n\nRest isn't the opposite of productivity.\n\nIt's the foundation of it.\n\nNow I take real breaks.\nAnd somehow get more done.\n\nYour brain needs downtime to do its best work.";
 
-            function runAnimation() {
-                // Reset
-                demoInput.innerHTML = '<span class="cursor"></span>';
-                demoOutput.innerHTML = '';
-                demoButton.classList.remove('ready', 'active', 'clicked', 'loading');
+                function runAnimation() {
+                    demoInput.innerHTML = '<span class="cursor"></span>';
+                    demoOutput.innerHTML = '';
+                    demoButton.classList.remove('ready', 'active', 'clicked', 'loading');
 
-                var inputIndex = 0;
-                var outputIndex = 0;
+                    var inputIndex = 0;
+                    var outputIndex = 0;
 
-                // Phase 1: Type input
-                function typeInput() {
-                    if (inputIndex < inputText.length) {
-                        demoInput.innerHTML = inputText.substring(0, inputIndex + 1) + '<span class="cursor"></span>';
-                        inputIndex++;
-                        setTimeout(typeInput, 30);
-                    } else {
-                        demoInput.innerHTML = inputText;
-                        demoButton.classList.add('ready');
-                        setTimeout(clickButton, 400);
+                    function typeInput() {
+                        if (inputIndex < inputText.length) {
+                            demoInput.innerHTML = inputText.substring(0, inputIndex + 1) + '<span class="cursor"></span>';
+                            inputIndex++;
+                            setTimeout(typeInput, 15);
+                        } else {
+                            demoInput.innerHTML = inputText;
+                            demoButton.classList.add('ready');
+                            setTimeout(clickButton, 300);
+                        }
                     }
-                }
 
-                // Phase 2: Click button with loading state
-                function clickButton() {
-                    demoButton.classList.add('active');
-                    setTimeout(function() {
-                        demoButton.classList.add('clicked');
+                    function clickButton() {
+                        demoButton.classList.add('active');
                         setTimeout(function() {
-                            demoButton.classList.remove('clicked');
-                            demoButton.classList.add('loading');
-                            setTimeout(typeOutput, 600);
-                        }, 100);
-                    }, 200);
-                }
-
-                // Phase 3: Type output
-                function typeOutput() {
-                    demoButton.classList.remove('loading');
-                    if (outputIndex < outputText.length) {
-                        var currentText = outputText.substring(0, outputIndex + 1);
-                        demoOutput.innerHTML = currentText.replace(/\n/g, '<br>');
-                        outputIndex++;
-                        setTimeout(typeOutput, 20);
-                    } else {
-                        // Pause then restart
-                        setTimeout(runAnimation, 3500);
+                            demoButton.classList.add('clicked');
+                            setTimeout(function() {
+                                demoButton.classList.remove('clicked');
+                                demoButton.classList.add('loading');
+                                setTimeout(typeOutput, 400);
+                            }, 80);
+                        }, 150);
                     }
+
+                    function typeOutput() {
+                        demoButton.classList.remove('loading');
+                        if (outputIndex < outputText.length) {
+                            demoOutput.innerHTML = outputText.substring(0, outputIndex + 1).replace(/\n/g, '<br>');
+                            outputIndex++;
+                            setTimeout(typeOutput, 12);
+                        } else {
+                            setTimeout(runAnimation, 3000);
+                        }
+                    }
+
+                    setTimeout(typeInput, 400);
                 }
 
-                setTimeout(typeInput, 600);
-            }
-
-            runAnimation();
+                runAnimation();
+            }, 100);
         }
 
         // Load API Key from localStorage (check both storage keys)

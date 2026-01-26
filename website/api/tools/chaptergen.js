@@ -260,59 +260,37 @@ CLIP 3: [start] - [end]
 Hook: [One sentence describing what happens in this moment]`
   },
 
-  // BLOG - turn transcript into blog post structure
+  // BLOG - turn transcript into blog post outline
   blog: {
-    system: `You are a content strategist who transforms video transcripts into well-structured blog post outlines.
+    system: `You are turning a video transcript into a simple blog outline.
 
-Your job is to extract the key content from a transcript and organize it into a scannable, SEO-friendly blog structure.
-
-BLOG STRUCTURE TO CREATE:
-1. Compelling headline (not the video title - write a better one)
-2. Meta description (150-160 chars for SEO)
-3. Introduction hook (2-3 sentences that pull readers in)
-4. Main sections with H2 headers (3-6 sections)
-5. Key points under each section (bullet points)
-6. Notable quotes from the transcript (word-for-word, with context)
-7. Conclusion/takeaway
-8. Suggested tags/categories
-
-WRITING STYLE:
-- Convert spoken language to written (remove "um", "like", filler words)
-- Keep the author's voice and personality
-- Make headers scannable and benefit-focused
-- Extract actionable insights
-- Include specific examples/numbers from the content`,
-    user: (transcript, videoDuration) => `Transform this video transcript into a blog post outline. Duration: ${videoDuration}
-
-Extract the key content, organize it logically, and create a structure that would work as a standalone blog post.
+Create a clean, useful outline that someone could actually write from.
+Use specific details from the transcript, not generic filler.
+No emojis. No marketing fluff. No "let's dive in" phrases.`,
+    user: (transcript, videoDuration) => `Create a blog outline from this transcript. Duration: ${videoDuration}
 
 Transcript:
 ${transcript}
 
-Return in this format:
+Return in this simple format:
 
-📰 HEADLINE: [Compelling blog title]
+HEADLINE: [Clear, simple title based on the content]
 
-📝 META DESCRIPTION: [150-160 char SEO description]
+INTRO: [2-3 sentences setting up the topic - based on how the video starts]
 
-🎯 INTRODUCTION:
-[2-3 sentence hook]
+SECTIONS:
+1. [Section title] — [one sentence summary of what to cover]
+2. [Section title] — [one sentence summary]
+3. [Section title] — [one sentence summary]
+4. [Section title] — [one sentence summary]
 
-📌 SECTION 1: [H2 Header]
-• [Key point]
-• [Key point]
-• [Key point]
+KEY POINTS TO INCLUDE:
+- [specific detail or quote from the transcript]
+- [specific detail or quote from the transcript]
+- [specific detail or quote from the transcript]
+- [specific detail or quote from the transcript]
 
-📌 SECTION 2: [H2 Header]
-...
-
-💬 NOTABLE QUOTES:
-"[Exact quote]" - [context]
-
-🎬 CONCLUSION:
-[Key takeaway]
-
-🏷️ TAGS: [tag1], [tag2], [tag3]`
+CONCLUSION ANGLE: [one sentence on how to wrap it up]`
   },
 
   // HIGHLIGHTS - bullet points of most important moments

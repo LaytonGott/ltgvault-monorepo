@@ -2555,6 +2555,14 @@
             'highlights': 'Key Highlights'
         };
 
+        // Button text based on output type
+        var outputTypeButtonText = {
+            'chapters': 'Generate Chapters',
+            'clips': 'Generate Clips',
+            'blog': 'Generate Outline',
+            'highlights': 'Generate Highlights'
+        };
+
         // State
         var generatedChapters = '';
         var currentVariations = [];
@@ -2667,6 +2675,11 @@
                 var outputType = elements.outputTypeSelect.value;
                 if (elements.outputPanelLabel) {
                     elements.outputPanelLabel.textContent = outputTypeLabels[outputType] || 'Generated Chapters';
+                }
+                // Update button text based on output type
+                var btnText = elements.generateBtn.querySelector('.btn-text');
+                if (btnText) {
+                    btnText.textContent = outputTypeButtonText[outputType] || 'Generate Chapters';
                 }
                 // Show/hide quick actions based on output type (only show for chapters)
                 if (outputType !== 'chapters') {

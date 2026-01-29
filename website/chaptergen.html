@@ -1021,6 +1021,23 @@
             cursor: default;
         }
 
+        /* ============ EXTENSION HINT ============ */
+        .extension-hint {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+
+        .extension-link {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .extension-link:hover {
+            text-decoration: underline;
+        }
+
         /* ============ TRANSCRIPT HELP SECTION ============ */
         .transcript-help {
             margin-top: 12px;
@@ -2182,6 +2199,11 @@
                     </div>
                     <textarea class="text-area" id="transcriptArea" placeholder="Paste your video transcript here..."></textarea>
 
+                    <!-- Extension Link -->
+                    <p class="extension-hint">
+                        Paste transcript below — or <a href="/chaptergen-extension/" target="_blank" class="extension-link">get the Chrome extension</a> to auto-grab from YouTube
+                    </p>
+
                     <!-- Collapsible Help Section -->
                     <details class="transcript-help">
                         <summary class="help-toggle">
@@ -2579,7 +2601,47 @@
             prefillExampleText();
             updateInputCounter();
             startDemoAnimation();
+            checkForExtensionData();
         });
+
+        // Check if transcript was sent from Chrome extension
+        function checkForExtensionData() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('from_extension') === 'true') {
+                // Function to load transcript from localStorage
+                function loadExtensionTranscript() {
+                    var storedTranscript = localStorage.getItem('chaptergen_extension_transcript');
+                    if (storedTranscript) {
+                        elements.transcriptArea.value = storedTranscript;
+                        updateInputCounter();
+                        localStorage.removeItem('chaptergen_extension_transcript');
+                        showStatus('Transcript received from extension!', 'success');
+                        return true;
+                    }
+                    return false;
+                }
+
+                // Try immediately
+                if (!loadExtensionTranscript()) {
+                    // Listen for event from extension
+                    window.addEventListener('chaptergen_transcript_ready', function() {
+                        loadExtensionTranscript();
+                    });
+
+                    // Also poll for a few seconds in case timing is off
+                    var attempts = 0;
+                    var pollInterval = setInterval(function() {
+                        if (loadExtensionTranscript() || attempts > 10) {
+                            clearInterval(pollInterval);
+                        }
+                        attempts++;
+                    }, 500);
+                }
+
+                // Clean up URL
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+        }
 
         // Pre-fill example text for first-time users (disabled for URL flow)
         function prefillExampleText() {

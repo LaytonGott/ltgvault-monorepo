@@ -156,6 +156,69 @@
         .note strong {
             color: var(--gold);
         }
+
+        .coming-soon {
+            text-align: center;
+            padding: 48px 32px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .chrome-icon {
+            margin-bottom: 24px;
+            color: var(--gold);
+        }
+
+        .coming-soon h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .coming-soon p {
+            font-size: 0.95rem;
+            color: var(--gray-light);
+            line-height: 1.6;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+        }
+
+        .features h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--gold);
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            font-size: 0.9rem;
+            color: var(--gray-light);
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -170,61 +233,31 @@
         <h1>ChapterGen Chrome Extension</h1>
         <p class="subtitle">Automatically grab transcripts from any YouTube video with one click.</p>
 
-        <div class="steps">
-            <h2>Installation (Developer Mode)</h2>
-
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <h3>Download the extension</h3>
-                    <p>Click the button below to download the extension files as a ZIP.</p>
-                </div>
+        <div class="coming-soon">
+            <div class="chrome-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <line x1="21.17" y1="8" x2="12" y2="8"/>
+                    <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+                    <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
+                </svg>
             </div>
-
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <h3>Unzip the folder</h3>
-                    <p>Extract the ZIP file to a location on your computer.</p>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <h3>Open Chrome Extensions</h3>
-                    <p>Go to <code>chrome://extensions</code> in your browser.</p>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-number">4</div>
-                <div class="step-content">
-                    <h3>Enable Developer Mode</h3>
-                    <p>Toggle "Developer mode" in the top right corner.</p>
-                </div>
-            </div>
-
-            <div class="step">
-                <div class="step-number">5</div>
-                <div class="step-content">
-                    <h3>Load the extension</h3>
-                    <p>Click "Load unpacked" and select the unzipped folder.</p>
-                </div>
-            </div>
+            <h2>Coming Soon to Chrome Web Store</h2>
+            <p>We're preparing to submit the ChapterGen extension for review. Once approved, you'll be able to install it directly from the Chrome Web Store with one click.</p>
         </div>
 
-        <a href="chaptergen-extension.zip" class="download-btn" download>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Download Extension
-        </a>
+        <div class="features">
+            <h3>What it does</h3>
+            <ul>
+                <li>Grab transcripts from any YouTube video with one click</li>
+                <li>Send transcripts directly to ChapterGen</li>
+                <li>No copy-pasting required</li>
+            </ul>
+        </div>
 
         <div class="note">
-            <strong>How to use:</strong> Navigate to any YouTube video, click the ChapterGen extension icon, then click "Grab Transcript". The transcript will be extracted and you can send it directly to ChapterGen with one click.
+            <strong>Want to be notified?</strong> Check back soon or bookmark this page. We'll update it as soon as the extension is available.
         </div>
     </div>
 </body>

@@ -2,6 +2,7 @@
 const { supabase } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
 const { checkResumeAIUsage, getResumeAIUsageStats } = require('../../lib/resume-ai-usage');
+const { getResumeProStatus, canCreateResume, canCreateJob, canUseTemplate } = require('../../lib/resume-pro');
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];
@@ -35,6 +36,11 @@ module.exports = async function handler(req, res) {
       if (segment === 'ai-usage') {
         const stats = await getResumeAIUsageStats(user.id);
         return res.status(200).json({ used: stats.used, limit: stats.limit, isPro: stats.isPro, remaining: stats.limit - stats.used });
+      }
+
+      if (segment === 'pro-status') {
+        const status = await getResumeProStatus(user.id);
+        return res.status(200).json(status);
       }
 
       if (segment === 'cover-letters' && !id) {
@@ -83,6 +89,18 @@ module.exports = async function handler(req, res) {
       const body = req.body || {};
 
       if (segment === 'create') {
+        // Check if user can create more resumes
+        const resumeCheck = await canCreateResume(user.id);
+        if (!resumeCheck.allowed) {
+          return res.status(403).json({
+            error: 'RESUME_LIMIT',
+            message: 'Upgrade to Pro to create unlimited resumes',
+            current: resumeCheck.current,
+            limit: resumeCheck.limit,
+            isPro: resumeCheck.isPro
+          });
+        }
+
         const { title = 'Untitled Resume', template = 'clean' } = body;
         const { data } = await supabase.from('resumes').insert({ user_id: user.id, title, template }).select().single();
         return res.status(200).json({ resume: data });
@@ -94,6 +112,18 @@ module.exports = async function handler(req, res) {
       }
 
       if (segment === 'jobs' && !id) {
+        // Check if user can create more jobs
+        const jobCheck = await canCreateJob(user.id);
+        if (!jobCheck.allowed) {
+          return res.status(403).json({
+            error: 'JOB_LIMIT',
+            message: 'Upgrade to Pro to track unlimited job applications',
+            current: jobCheck.current,
+            limit: jobCheck.limit,
+            isPro: jobCheck.isPro
+          });
+        }
+
         const { data } = await supabase.from('job_applications').insert({ user_id: user.id, status: 'saved', ...body }).select().single();
         return res.status(200).json({ job: data });
       }
@@ -210,6 +240,17 @@ module.exports = async function handler(req, res) {
         const { section, data } = body;
 
         if (!section) {
+          // Check template restrictions if template is being changed
+          if (data && data.template) {
+            const templateAllowed = await canUseTemplate(user.id, data.template);
+            if (!templateAllowed) {
+              return res.status(403).json({
+                error: 'TEMPLATE_LOCKED',
+                message: 'Upgrade to Pro to unlock all templates',
+                template: data.template
+              });
+            }
+          }
           await supabase.from('resumes').update({ ...data, updated_at: new Date().toISOString() }).eq('id', resumeId).eq('user_id', user.id);
           return res.status(200).json({ success: true });
         }

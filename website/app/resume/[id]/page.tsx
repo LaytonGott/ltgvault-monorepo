@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { pdf } from '@react-pdf/renderer';
 import { getResume, updateResume, updateSection, deleteFromSection } from '@/lib/resume-api';
 import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
+import UpgradeModal from '@/components/UpgradeModal';
 import styles from './editor.module.css';
 
 // Guest mode storage helpers
@@ -116,6 +117,11 @@ export default function ResumeEditorPage() {
   // AI Usage State
   const [aiUsage, setAiUsage] = useState<{ used: number; limit: number; isPro: boolean; remaining: number } | null>(null);
 
+  // Pro Status State
+  const [isPro, setIsPro] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState('');
+
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sectionSaveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
 
@@ -174,6 +180,7 @@ export default function ResumeEditorPage() {
       if (response.ok) {
         const data = await response.json();
         setAiUsage(data);
+        setIsPro(data.isPro || false);
       }
     } catch (err) {
       console.error('Failed to load AI usage:', err);
@@ -272,6 +279,15 @@ export default function ResumeEditorPage() {
 
   async function handleUpdateTemplate(template: string) {
     if (!resume) return;
+
+    // Check if template is locked for free users
+    const freeTemplates = ['clean'];
+    if (!isPro && !freeTemplates.includes(template)) {
+      setUpgradeMessage('Unlock all premium templates with Resume Builder Pro.');
+      setShowUpgradeModal(true);
+      return;
+    }
+
     const updatedResume = { ...resume, template };
     setResume(updatedResume);
     if (isGuest) {
@@ -282,7 +298,14 @@ export default function ResumeEditorPage() {
     try {
       await updateResume(resumeId, { template });
       showSavedStatus();
-    } catch (err) {
+    } catch (err: any) {
+      // Handle template lock error from API
+      if (err.message?.includes('TEMPLATE_LOCKED')) {
+        setUpgradeMessage('Unlock all premium templates with Resume Builder Pro.');
+        setShowUpgradeModal(true);
+        setResume({ ...resume, template: 'clean' }); // Revert to clean
+        return;
+      }
       console.error('Template update error:', err);
       showErrorStatus();
     }
@@ -696,6 +719,64 @@ export default function ResumeEditorPage() {
     );
   }
 
+  // Check if AI features are available
+  const canUseAI = !isGuest && aiUsage && aiUsage.remaining > 0;
+  const aiLimitReached = !isGuest && aiUsage && aiUsage.remaining <= 0;
+
+  // Handle upgrade button click
+  async function handleUpgradeClick() {
+    try {
+      const apiKey = localStorage.getItem('ltgv_api_key');
+      if (!apiKey) {
+        window.location.href = '/pricing.html';
+        return;
+      }
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey
+        },
+        body: JSON.stringify({ tool: 'resumebuilder' })
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      window.location.href = '/pricing.html';
+    }
+  }
+
+  // Handle locked nav tab click
+  function handleLockedTabClick(tab: string) {
+    setUpgradeMessage(`Unlock ${tab} with Resume Builder Pro.`);
+    setShowUpgradeModal(true);
+  }
+
+  // Handle AI button click with Pro check
+  function handleAIButtonClick(type: 'bullets' | 'summary', targetType?: 'experience' | 'project', targetId?: string) {
+    if (isGuest) {
+      window.location.href = '/pricing.html';
+      return;
+    }
+
+    if (aiLimitReached) {
+      setUpgradeMessage('You\'ve used all 5 free AI generations. Upgrade to Pro for 100 generations per month.');
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    if (type === 'summary') {
+      openSummaryModal();
+    } else if (targetType && targetId) {
+      openAiModal(targetType, targetId);
+    }
+  }
+
   return (
     <div className={styles.container}>
       {/* Guest Banner */}
@@ -751,14 +832,30 @@ export default function ResumeEditorPage() {
           )}
         </div>
         <div className={styles.topBarRight}>
-          <select
-            className={styles.templateSelect}
-            value={resume.template}
-            onChange={(e) => handleUpdateTemplate(e.target.value)}
-          >
-            <option value="clean">Clean Template</option>
-            <option value="modern">Modern Template</option>
-          </select>
+          {/* AI Usage Indicator */}
+          {!isGuest && aiUsage && (
+            <div className={styles.aiUsageIndicator}>
+              <span className={styles.sparkleSmall}>✨</span>
+              <span>{aiUsage.remaining}/{aiUsage.limit} AI</span>
+            </div>
+          )}
+
+          {/* Template Selector */}
+          <div className={styles.templateSelector}>
+            <button
+              className={`${styles.templateOption} ${resume.template === 'clean' ? styles.activeTemplate : ''}`}
+              onClick={() => handleUpdateTemplate('clean')}
+            >
+              Clean
+            </button>
+            <button
+              className={`${styles.templateOption} ${resume.template === 'modern' ? styles.activeTemplate : ''} ${!isPro ? styles.lockedTemplate : ''}`}
+              onClick={() => handleUpdateTemplate('modern')}
+            >
+              Modern {!isPro && <span className={styles.lockIcon}>🔒</span>}
+            </button>
+          </div>
+
           <button
             className={styles.downloadButton}
             onClick={handleDownloadPDF}
@@ -778,12 +875,53 @@ export default function ResumeEditorPage() {
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                Download PDF
+                PDF
               </>
             )}
           </button>
+
+          {/* Upgrade Button - only show for non-Pro users */}
+          {!isGuest && !isPro && (
+            <button className={styles.upgradeButton} onClick={handleUpgradeClick}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+              Upgrade - $19
+            </button>
+          )}
         </div>
       </header>
+
+      {/* Sub-navigation Tabs */}
+      <nav className={styles.subNav}>
+        <Link href="/resume" className={styles.subNavTab}>
+          My Resumes
+        </Link>
+        {isPro ? (
+          <Link href="/resume/cover-letter" className={styles.subNavTab}>
+            Cover Letters
+          </Link>
+        ) : (
+          <button
+            className={`${styles.subNavTab} ${styles.lockedTab}`}
+            onClick={() => handleLockedTabClick('Cover Letters')}
+          >
+            Cover Letters <span className={styles.lockIcon}>🔒</span>
+          </button>
+        )}
+        {isPro ? (
+          <Link href="/resume/jobs" className={styles.subNavTab}>
+            Job Tracker
+          </Link>
+        ) : (
+          <button
+            className={`${styles.subNavTab} ${styles.lockedTab}`}
+            onClick={() => handleLockedTabClick('Job Tracker')}
+          >
+            Job Tracker <span className={styles.lockIcon}>🔒</span>
+          </button>
+        )}
+      </nav>
 
       <div className={styles.mainLayout}>
         {/* Left Panel - Form */}
@@ -845,12 +983,13 @@ export default function ResumeEditorPage() {
                   {!isGuest && (
                     <button
                       type="button"
-                      onClick={openSummaryModal}
-                      className={styles.aiButton}
-                      title="Generate summary with AI"
+                      onClick={() => handleAIButtonClick('summary')}
+                      className={`${styles.aiButton} ${aiLimitReached ? styles.aiButtonLocked : ''}`}
+                      title={aiLimitReached ? 'Upgrade to Pro for more AI generations' : 'Generate summary with AI'}
                     >
                       <span className={styles.sparkle}>✨</span>
                       <span>AI Summary</span>
+                      {!isPro && <span className={styles.proBadge}>Pro</span>}
                     </button>
                   )}
                 </div>
@@ -1007,12 +1146,13 @@ export default function ResumeEditorPage() {
                       {!isGuest && (
                         <button
                           type="button"
-                          onClick={() => openAiModal('experience', exp.id)}
-                          className={styles.aiButton}
-                          title="Generate bullet points with AI"
+                          onClick={() => handleAIButtonClick('bullets', 'experience', exp.id)}
+                          className={`${styles.aiButton} ${aiLimitReached ? styles.aiButtonLocked : ''}`}
+                          title={aiLimitReached ? 'Upgrade to Pro for more AI generations' : 'Generate bullet points with AI'}
                         >
                           <span className={styles.sparkle}>✨</span>
                           <span>AI Bullets</span>
+                          {!isPro && <span className={styles.proBadge}>Pro</span>}
                         </button>
                       )}
                     </div>
@@ -1126,12 +1266,13 @@ export default function ResumeEditorPage() {
                       {!isGuest && (
                         <button
                           type="button"
-                          onClick={() => openAiModal('project', project.id)}
-                          className={styles.aiButton}
-                          title="Generate bullet points with AI"
+                          onClick={() => handleAIButtonClick('bullets', 'project', project.id)}
+                          className={`${styles.aiButton} ${aiLimitReached ? styles.aiButtonLocked : ''}`}
+                          title={aiLimitReached ? 'Upgrade to Pro for more AI generations' : 'Generate bullet points with AI'}
                         >
                           <span className={styles.sparkle}>✨</span>
                           <span>AI Bullets</span>
+                          {!isPro && <span className={styles.proBadge}>Pro</span>}
                         </button>
                       )}
                     </div>
@@ -1359,6 +1500,14 @@ export default function ResumeEditorPage() {
           )}
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title="Upgrade to Pro"
+        message={upgradeMessage}
+      />
 
       {/* AI Modal (Bullets or Summary) */}
       {aiModalOpen && (

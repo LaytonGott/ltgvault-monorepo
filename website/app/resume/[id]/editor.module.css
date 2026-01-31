@@ -155,6 +155,165 @@
   color: #1a1a1a;
 }
 
+/* ============ SUB-NAVIGATION TABS ============ */
+.subNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--border);
+}
+
+.subNavTab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gray-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.subNavTab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.lockedTab {
+  color: var(--gray);
+}
+
+.lockedTab:hover {
+  color: var(--gold-light);
+}
+
+.lockIcon {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* ============ TEMPLATE SELECTOR ============ */
+.templateSelector {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.templateOption {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--gray-light);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.templateOption:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.templateOption:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+}
+
+.activeTemplate {
+  background: rgba(201, 162, 39, 0.15) !important;
+  color: var(--gold) !important;
+}
+
+.lockedTemplate {
+  color: var(--gray);
+}
+
+.lockedTemplate:hover {
+  background: rgba(201, 162, 39, 0.1);
+  color: var(--gold-light);
+}
+
+/* ============ AI USAGE INDICATOR ============ */
+.aiUsageIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #c4b5fd;
+}
+
+.sparkleSmall {
+  font-size: 0.8rem;
+}
+
+/* ============ UPGRADE BUTTON ============ */
+.upgradeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, var(--gold), #d4af37);
+  border: none;
+  border-radius: 6px;
+  color: var(--black);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.upgradeButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
+}
+
+.upgradeButton svg {
+  color: var(--black);
+}
+
+/* ============ PRO BADGE ON AI BUTTONS ============ */
+.proBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  background: rgba(201, 162, 39, 0.2);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #c9a227;
+  margin-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.aiButtonLocked {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.aiButtonLocked:hover {
+  opacity: 0.8;
+}
+
 .downloadButton {
   display: flex;
   align-items: center;
@@ -1019,6 +1178,14 @@
     width: 360px;
     min-width: 360px;
   }
+
+  .templateSelector {
+    display: none;
+  }
+
+  .aiUsageIndicator {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1044,6 +1211,27 @@
   }
 
   .topBarRight {
-    display: none;
+    gap: 8px;
+  }
+
+  .downloadButton {
+    padding: 8px 12px;
+  }
+
+  .upgradeButton {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+
+  .subNav {
+    overflow-x: auto;
+    gap: 2px;
+    padding: 0 12px;
+  }
+
+  .subNavTab {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
   }
 }

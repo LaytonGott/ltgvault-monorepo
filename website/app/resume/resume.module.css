@@ -1,6 +1,7 @@
 .container {
   min-height: 100vh;
   background: var(--black);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .loading {
@@ -11,96 +12,68 @@
   color: var(--gray-light);
 }
 
+/* ============ HEADER - matches PostUp/ThreadGen/ChapterGen ============ */
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: rgba(0, 0, 0, 0.95);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
   z-index: 100;
+  height: 76px;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 2px solid #4a3d2a;
+  backdrop-filter: blur(12px);
 }
 
-.headerLeft {
+.headerInner {
+  max-width: 1100px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--white);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
 }
 
-.logo span {
-  color: var(--gold);
+.logoImg {
+  height: 236px;
+  width: auto;
+  display: block;
+  margin-top: 15px;
 }
 
 .nav {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  gap: 36px;
 }
 
 .nav a {
-  color: var(--gray-light);
-  font-size: 0.9rem;
+  color: #aaaaaa;
+  text-decoration: none;
+  font-size: 1.1rem;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
 .nav a:hover {
   color: var(--white);
 }
 
-.nav a.active {
-  color: var(--gold);
-}
-
-/* Sub-navigation for resume section */
-.subNav {
-  position: fixed;
-  top: 60px;
-  left: 0;
-  right: 0;
-  height: 44px;
-  background: rgba(20, 20, 20, 0.95);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  z-index: 99;
-}
-
-.subNav a {
-  color: var(--gray-light);
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.subNav a:hover {
-  color: var(--white);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.subNavActive {
+.active {
   color: var(--gold) !important;
-  background: rgba(201, 162, 39, 0.1) !important;
 }
 
 .main {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 130px 24px 60px;
+  padding: 100px 40px 60px;
 }
 
 .guestBanner {
@@ -259,18 +232,582 @@
   color: var(--error);
 }
 
-@media (max-width: 768px) {
+/* ============ HERO SECTION ============ */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding: 60px 0 80px;
+}
+
+.heroContent {
+  max-width: 500px;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem;
+  color: var(--gray-light);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.heroButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.heroButton:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4);
+}
+
+.heroPreview {
+  display: flex;
+  justify-content: center;
+}
+
+/* Realistic Resume Mockup */
+.resumeMockup {
+  width: 320px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: #1a1a1a;
+  transform: perspective(1000px) rotateY(-5deg);
+  transition: transform 0.3s ease;
+}
+
+.resumeMockup:hover {
+  transform: perspective(1000px) rotateY(0deg);
+}
+
+.mockupHeader {
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #1a1a1a;
+  margin-bottom: 16px;
+}
+
+.mockupName {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.mockupContact {
+  font-size: 0.65rem;
+  color: #555;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.mockupSection {
+  margin-bottom: 14px;
+}
+
+.mockupSectionTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ddd;
+  font-family: 'Inter', sans-serif;
+}
+
+.mockupJob {
+  margin-bottom: 10px;
+}
+
+.mockupJobHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+  font-size: 0.7rem;
+}
+
+.mockupJobHeader strong {
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+}
+
+.mockupJobHeader span {
+  color: #666;
+  font-size: 0.6rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.mockupBullets {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 0.58rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.mockupBullets li {
+  margin-bottom: 3px;
+}
+
+.mockupEducation {
+  font-size: 0.7rem;
+}
+
+.mockupEducation strong {
+  display: block;
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 2px;
+}
+
+.mockupEducation span {
+  color: #666;
+  font-size: 0.6rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.mockupSkills {
+  font-size: 0.6rem;
+  color: #444;
+  margin: 0;
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ============ FEATURES SECTION ============ */
+.features {
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.featureCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  transition: all 0.3s ease;
+}
+
+.featureCard:hover {
+  border-color: rgba(201, 162, 39, 0.3);
+  transform: translateY(-4px);
+}
+
+.featureIcon {
+  width: 48px;
+  height: 48px;
+  background: rgba(201, 162, 39, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.featureIcon svg {
+  color: var(--gold);
+}
+
+.featureCard h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.featureCard p {
+  font-size: 0.9rem;
+  color: var(--gray-light);
+  line-height: 1.5;
+}
+
+/* ============ HOW IT WORKS ============ */
+.howItWorks {
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  position: relative;
+}
+
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.3), transparent);
+}
+
+.step {
+  text-align: center;
+  position: relative;
+  max-width: 200px;
+}
+
+.stepNumber {
+  width: 56px;
+  height: 56px;
+  background: var(--black);
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  transition: all 0.3s ease;
+}
+
+.step:hover .stepNumber {
+  background: var(--gold);
+  color: var(--black);
+  box-shadow: 0 0 20px rgba(201, 162, 39, 0.4);
+}
+
+.step h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.step p {
+  font-size: 0.85rem;
+  color: var(--gray-light);
+  line-height: 1.5;
+}
+
+/* ============ PRICING CALLOUT ============ */
+.pricingCallout {
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+}
+
+.pricingCard {
+  background: rgba(201, 162, 39, 0.03);
+  border: 2px solid rgba(201, 162, 39, 0.3);
+  border-radius: 20px;
+  padding: 48px;
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+}
+
+.pricingBadge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: var(--black);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pricingMain {
+  margin: 24px 0 8px;
+}
+
+.pricingAmount {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--white);
+}
+
+.pricingPeriod {
+  font-size: 1.1rem;
+  color: var(--gray-light);
+  margin-left: 8px;
+}
+
+.pricingFeatures {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.pricingFeatures li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: var(--gray-light);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pricingFeatures li:last-child {
+  border-bottom: none;
+}
+
+.pricingFeatures svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.pricingButton {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pricingButton:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4);
+}
+
+/* ============ MY RESUMES SECTION ============ */
+.resumesSection {
+  padding: 60px 0;
+  border-top: 1px solid var(--border);
+}
+
+.titleRow h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.empty h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Header Responsive */
+@media (max-width: 1024px) {
+  .headerInner {
+    padding: 0 24px;
+  }
   .nav {
+    gap: 24px;
+  }
+  .nav a {
+    font-size: 1rem;
+  }
+  .logoImg {
+    height: 70px;
+    margin-top: 0;
+  }
+  .main {
+    padding: 100px 24px 60px;
+  }
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 40px;
+  }
+  .heroContent {
+    max-width: 100%;
+  }
+  .heroTitle {
+    font-size: 2rem;
+  }
+  .steps {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .steps::before {
     display: none;
   }
+  .step {
+    max-width: 100%;
+  }
+}
 
+@media (max-width: 768px) {
+  .header {
+    height: auto;
+    padding: 12px 0;
+  }
+  .headerInner {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .logoImg {
+    height: 180px;
+  }
+  .nav {
+    width: 100%;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .nav a {
+    font-size: 0.9rem;
+  }
+  .main {
+    padding: 20px 20px 60px;
+  }
   .titleRow {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
   }
-
   .grid {
     grid-template-columns: 1fr;
+  }
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+  .pricingCard {
+    padding: 36px 24px;
+  }
+  .pricingAmount {
+    font-size: 2.5rem;
+  }
+  .resumeMockup {
+    width: 280px;
+    padding: 20px 18px;
+  }
+  .mockupName {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoImg {
+    height: 150px;
+  }
+  .nav {
+    gap: 16px;
+  }
+  .nav a {
+    font-size: 0.85rem;
+  }
+  .heroTitle {
+    font-size: 1.5rem;
+  }
+  .heroButton {
+    width: 100%;
+    justify-content: center;
+  }
+  .resumeMockup {
+    width: 260px;
+    padding: 18px 14px;
+    transform: none;
+  }
+  .resumeMockup:hover {
+    transform: none;
+  }
+  .mockupName {
+    font-size: 1.1rem;
+  }
+  .mockupBullets {
+    font-size: 0.55rem;
+  }
+}
+
+/* ============ USAGE INDICATOR ============ */
+.usageIndicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+
+.usageText {
+  font-size: 0.8rem;
+  color: var(--gray-light);
+}
+
+.upgradeLink {
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: text-decoration 0.2s;
+}
+
+.upgradeLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .usageIndicator {
+    display: none;
   }
 }

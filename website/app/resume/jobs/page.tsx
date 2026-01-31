@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import UpgradeModal from '@/components/UpgradeModal';
 import styles from './jobs.module.css';
 
 interface Job {
@@ -29,6 +30,8 @@ export default function JobTrackerPage() {
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isPro, setIsPro] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,7 +49,20 @@ export default function JobTrackerPage() {
 
   useEffect(() => {
     loadJobs();
+    loadProStatus();
   }, []);
+
+  async function loadProStatus() {
+    try {
+      const response = await fetch('/api/resume/pro-status', { headers: getHeaders() });
+      if (response.ok) {
+        const data = await response.json();
+        setIsPro(data.isPro || false);
+      }
+    } catch (err) {
+      console.error('Failed to load pro status:', err);
+    }
+  }
 
   function getHeaders(): Record<string, string> {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -76,6 +92,12 @@ export default function JobTrackerPage() {
   }
 
   function openAddModal() {
+    // Check if free user has reached job limit (3 jobs)
+    if (!isPro && jobs.length >= 3) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setEditingJob(null);
     setFormCompany('');
     setFormTitle('');
@@ -147,6 +169,16 @@ export default function JobTrackerPage() {
         });
 
         const data = await response.json();
+
+        if (!response.ok) {
+          if (data.error === 'JOB_LIMIT') {
+            setShowUpgradeModal(true);
+            closeModal();
+            return;
+          }
+          throw new Error(data.error || 'Failed to save job');
+        }
+
         if (data.job) {
           setJobs(prev => [data.job, ...prev]);
         }
@@ -215,23 +247,37 @@ export default function JobTrackerPage() {
 
   return (
     <div className={styles.container}>
-      {/* Top Bar */}
-      <header className={styles.topBar}>
-        <div className={styles.topBarLeft}>
+      {/* Main Header - matches other LTG Vault pages */}
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link href="/" className={styles.logo}>
+            <img src="/logo.png" alt="LTG Vault" className={styles.logoImg} />
+          </Link>
+          <nav className={styles.nav}>
+            <Link href="/postup.html">PostUp</Link>
+            <Link href="/threadgen.html">ThreadGen</Link>
+            <Link href="/chaptergen.html">ChapterGen</Link>
+            <Link href="/resume" className={styles.active}>Resume</Link>
+            <Link href="/pricing.html">Pricing</Link>
+            <Link href="/dashboard.html">Dashboard</Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Page Toolbar */}
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarLeft}>
           <Link href="/resume" className={styles.backButton}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
           </Link>
           <h1>Job Tracker</h1>
-          <span className={styles.jobCount}>{jobs.length} jobs</span>
+          <span className={styles.jobCount}>
+            {isPro ? `${jobs.length} jobs` : `${jobs.length}/3 jobs`}
+          </span>
         </div>
-        <nav className={styles.subNav}>
-          <Link href="/resume">Resumes</Link>
-          <Link href="/resume/cover-letter">Cover Letters</Link>
-          <Link href="/resume/jobs" className={styles.subNavActive}>Job Tracker</Link>
-        </nav>
-        <div className={styles.topBarRight}>
+        <div className={styles.toolbarRight}>
           <button onClick={openAddModal} className={styles.addButton}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -239,7 +285,7 @@ export default function JobTrackerPage() {
             Add Job
           </button>
         </div>
-      </header>
+      </div>
 
       <div className={styles.content}>
         {jobs.length === 0 ? (
@@ -426,6 +472,14 @@ export default function JobTrackerPage() {
           </div>
         </div>
       )}
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title="Upgrade to Track More Jobs"
+        message="Free users can track up to 3 job applications. Upgrade to Pro for unlimited job tracking."
+      />
     </div>
   );
 }

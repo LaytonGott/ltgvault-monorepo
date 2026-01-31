@@ -25,7 +25,11 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'API error');
+    // Include the error code for special handling (RESUME_LIMIT, JOB_LIMIT, etc.)
+    const errorMessage = error.message || error.error || 'API error';
+    const err = new Error(errorMessage);
+    (err as any).code = error.error;
+    throw err;
   }
 
   return response.json();

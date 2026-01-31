@@ -16,29 +16,90 @@
   display: flex;
   flex-direction: column;
   background: #0a0a0a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Top Bar */
-.topBar {
-  height: 56px;
+/* ============ HEADER - matches other LTG Vault pages ============ */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 76px;
   background: rgba(0, 0, 0, 0.95);
+  border-bottom: 2px solid #4a3d2a;
+  backdrop-filter: blur(12px);
+}
+
+.headerInner {
+  max-width: 1100px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logoImg {
+  height: 236px;
+  width: auto;
+  display: block;
+  margin-top: 15px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.nav a {
+  color: #aaaaaa;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav a:hover {
+  color: #fff;
+}
+
+.active {
+  color: #c9a227 !important;
+}
+
+/* Page Toolbar */
+.toolbar {
+  position: fixed;
+  top: 76px;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: rgba(10, 10, 10, 0.95);
   border-bottom: 1px solid #222;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  padding: 0 24px;
+  z-index: 99;
 }
 
-.topBarLeft {
+.toolbarLeft {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.topBarLeft h1 {
+.toolbarLeft h1 {
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
@@ -69,31 +130,7 @@
   border-radius: 4px;
 }
 
-.subNav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.subNav a {
-  color: #888;
-  font-size: 0.8rem;
-  padding: 6px 12px;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.subNav a:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.subNavActive {
-  color: #c9a227 !important;
-  background: rgba(201, 162, 39, 0.1) !important;
-}
-
-.topBarRight {
+.toolbarRight {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -143,6 +180,7 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  margin-top: 132px; /* header (76px) + toolbar (56px) */
 }
 
 /* Form Panel */
@@ -391,6 +429,19 @@
   color: #666;
 }
 
+.previewBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #c9a227;
+}
+
 .letterEditor {
   width: 100%;
   min-height: 600px;
@@ -441,7 +492,23 @@
   line-height: 1.5;
 }
 
-/* Responsive */
+/* Header Responsive */
+@media (max-width: 1024px) {
+  .headerInner {
+    padding: 0 24px;
+  }
+  .nav {
+    gap: 24px;
+  }
+  .nav a {
+    font-size: 1rem;
+  }
+  .logoImg {
+    height: 70px;
+    margin-top: 0;
+  }
+}
+
 @media (max-width: 900px) {
   .mainLayout {
     flex-direction: column;
@@ -462,5 +529,35 @@
   .letterEditor {
     padding: 24px;
     min-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    height: auto;
+    padding: 12px 0;
+  }
+  .headerInner {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .logoImg {
+    height: 120px;
+  }
+  .nav {
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .nav a {
+    font-size: 0.85rem;
+  }
+  .toolbar {
+    position: relative;
+    top: 0;
+  }
+  .mainLayout {
+    margin-top: 0;
   }
 }

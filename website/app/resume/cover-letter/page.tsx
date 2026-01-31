@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import UpgradeModal from '@/components/UpgradeModal';
 import styles from './cover-letter.module.css';
 
 interface Resume {
@@ -86,6 +87,8 @@ export default function CoverLetterPage() {
 
   // AI Usage State
   const [aiUsage, setAiUsage] = useState<{ used: number; limit: number; isPro: boolean; remaining: number } | null>(null);
+  const [isPro, setIsPro] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Form state
   const [selectedResumeId, setSelectedResumeId] = useState<string>('');
@@ -108,6 +111,7 @@ export default function CoverLetterPage() {
       if (response.ok) {
         const data = await response.json();
         setAiUsage(data);
+        setIsPro(data.isPro || false);
       }
     } catch (err) {
       console.error('Failed to load AI usage:', err);
@@ -290,6 +294,12 @@ export default function CoverLetterPage() {
       return;
     }
 
+    // Check if user is Pro
+    if (!isPro) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setDownloading(true);
     try {
       const blob = await pdf(
@@ -362,9 +372,26 @@ export default function CoverLetterPage() {
 
   return (
     <div className={styles.container}>
-      {/* Top Bar */}
-      <header className={styles.topBar}>
-        <div className={styles.topBarLeft}>
+      {/* Main Header - matches other LTG Vault pages */}
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link href="/" className={styles.logo}>
+            <img src="/logo.png" alt="LTG Vault" className={styles.logoImg} />
+          </Link>
+          <nav className={styles.nav}>
+            <Link href="/postup.html">PostUp</Link>
+            <Link href="/threadgen.html">ThreadGen</Link>
+            <Link href="/chaptergen.html">ChapterGen</Link>
+            <Link href="/resume" className={styles.active}>Resume</Link>
+            <Link href="/pricing.html">Pricing</Link>
+            <Link href="/dashboard.html">Dashboard</Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Page Toolbar */}
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarLeft}>
           <Link href="/resume" className={styles.backButton}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -373,12 +400,7 @@ export default function CoverLetterPage() {
           <h1>Cover Letter Generator</h1>
           {saving && <span className={styles.savingBadge}>Saving...</span>}
         </div>
-        <nav className={styles.subNav}>
-          <Link href="/resume">Resumes</Link>
-          <Link href="/resume/cover-letter" className={styles.subNavActive}>Cover Letters</Link>
-          <Link href="/resume/jobs">Job Tracker</Link>
-        </nav>
-        <div className={styles.topBarRight}>
+        <div className={styles.toolbarRight}>
           <button onClick={handleNewLetter} className={styles.newButton}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -389,11 +411,22 @@ export default function CoverLetterPage() {
             onClick={handleDownloadPDF}
             disabled={downloading || !content.trim()}
             className={styles.downloadButton}
+            title={!isPro ? 'Pro feature - Upgrade to download' : ''}
           >
-            {downloading ? 'Generating...' : 'Download PDF'}
+            {downloading ? 'Generating...' : (
+              <>
+                {!isPro && (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                )}
+                Download PDF {!isPro && '(Pro)'}
+              </>
+            )}
           </button>
         </div>
-      </header>
+      </div>
 
       <div className={styles.mainLayout}>
         {/* Left Panel - Form */}
@@ -526,6 +559,15 @@ export default function CoverLetterPage() {
             <div className={styles.letterContainer}>
               <div className={styles.letterHeader}>
                 <span>Edit your cover letter below</span>
+                {!isPro && (
+                  <span className={styles.previewBadge}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Preview Only - Upgrade to Download
+                  </span>
+                )}
               </div>
               <textarea
                 className={styles.letterEditor}
@@ -543,6 +585,14 @@ export default function CoverLetterPage() {
           )}
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title="Upgrade to Download"
+        message="Download and copy cover letters with Resume Builder Pro."
+      />
     </div>
   );
 }

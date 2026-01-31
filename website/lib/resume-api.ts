@@ -33,12 +33,12 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
 
 // List all resumes
 export async function listResumes() {
-  return apiCall('/list');
+  return apiCall('');
 }
 
 // Create new resume
 export async function createResume(title?: string) {
-  return apiCall('/create', {
+  return apiCall('', {
     method: 'POST',
     body: JSON.stringify({ title }),
   });

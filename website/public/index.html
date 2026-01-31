@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if(localStorage.getItem('ltgv_is_admin')==='true'){window.va=function(){};window.vaq=[];}</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LTG Vault</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #000000;
+            --gold: #C9A227;
+            --gold-light: #D4AF37;
+            --gold-glow: rgba(201, 162, 39, 0.6);
+            --white: #FFFFFF;
+            --gray: #666666;
+            --gray-light: #999999;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ BACKGROUND LAYERS ============ */
+
+        /* Radial gradient behind hero - dark bronze center */
+        .bg-radial {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 50% at 50% 45%, rgba(92, 74, 50, 0.15) 0%, rgba(92, 74, 50, 0.05) 40%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Grid lines - disabled */
+        .bg-grid {
+            display: none;
+        }
+
+        /* Noise texture overlay - film grain */
+        .bg-noise {
+            position: fixed;
+            inset: 0;
+            opacity: 0.045;
+            pointer-events: none;
+            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Glowing orbs in corners */
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.12;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .bg-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 115, 85, 0.6) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(92, 74, 50, 0.5) 0%, transparent 70%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -7s;
+        }
+
+        .bg-orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.3) 0%, transparent 70%);
+            top: 40%;
+            right: -100px;
+            animation-delay: -14s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -15px) scale(1.05); }
+            50% { transform: translate(-10px, 10px) scale(0.95); }
+            75% { transform: translate(15px, 20px) scale(1.02); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        .particle-drift {
+            animation: particleDrift 25s linear infinite;
+        }
+
+        .particle-float {
+            animation: particleFloat 30s ease-in-out infinite;
+        }
+
+        @keyframes particleDrift {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(0);
+            }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) translateX(80px);
+            }
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 0.2;
+                transform: translate(0, 0);
+            }
+            25% {
+                opacity: 0.5;
+                transform: translate(50px, -30px);
+            }
+            50% {
+                opacity: 0.3;
+                transform: translate(-20px, 20px);
+            }
+            75% {
+                opacity: 0.5;
+                transform: translate(30px, 40px);
+            }
+            100% {
+                opacity: 0.2;
+                transform: translate(0, 0);
+            }
+        }
+
+        /* Gold Stars */
+        .stars-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: var(--gold);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            opacity: 0;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: var(--max-opacity); transform: scale(1); }
+        }
+
+        /* ============ LTG BACKGROUND TEXT ============ */
+        .ltg-bg {
+            position: fixed;
+            top: 50%;
+            left: 52%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(155px, 23vw, 420px);
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: transparent;
+            -webkit-text-stroke: 2px #5C4A32;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+            white-space: nowrap;
+            -webkit-animation: ltgBreathe 4s ease-in-out infinite;
+            animation: ltgBreathe 4s ease-in-out infinite;
+        }
+
+        @-webkit-keyframes ltgBreathe {
+            0% {
+                opacity: 0.15;
+                -webkit-text-stroke: 2px #5C4A32;
+                text-shadow: none;
+                filter: drop-shadow(0 0 0 transparent);
+            }
+            50% {
+                opacity: 0.50;
+                -webkit-text-stroke: 2px #8B7355;
+                text-shadow:
+                    inset 0 0 20px rgba(201, 162, 39, 0.3),
+                    0 0 30px rgba(201, 162, 39, 0.15),
+                    0 0 60px rgba(201, 162, 39, 0.1);
+                filter: drop-shadow(0 0 40px rgba(201, 162, 39, 0.2));
+            }
+            100% {
+                opacity: 0.15;
+                -webkit-text-stroke: 2px #5C4A32;
+                text-shadow: none;
+                filter: drop-shadow(0 0 0 transparent);
+            }
+        }
+
+        @keyframes ltgBreathe {
+            0% {
+                opacity: 0.06;
+                -webkit-text-stroke: 2px #5C4A32;
+                text-shadow: none;
+                filter: drop-shadow(0 0 0 transparent);
+            }
+            50% {
+                opacity: 0.35;
+                -webkit-text-stroke: 2px #8B7355;
+                text-shadow:
+                    0 0 30px rgba(201, 162, 39, 0.12),
+                    0 0 60px rgba(201, 162, 39, 0.08);
+                filter: drop-shadow(0 0 40px rgba(201, 162, 39, 0.15));
+            }
+            100% {
+                opacity: 0.06;
+                -webkit-text-stroke: 2px #5C4A32;
+                text-shadow: none;
+                filter: drop-shadow(0 0 0 transparent);
+            }
+        }
+
+        /* LTG Shimmer overlay */
+        .ltg-shimmer {
+            position: fixed;
+            top: 50%;
+            left: 52%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(155px, 23vw, 420px);
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: transparent;
+            -webkit-text-stroke: 1px transparent;
+            background: linear-gradient(
+                105deg,
+                transparent 20%,
+                rgba(201, 162, 39, 0.1) 35%,
+                rgba(201, 162, 39, 0.25) 50%,
+                rgba(201, 162, 39, 0.1) 65%,
+                transparent 80%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+            white-space: nowrap;
+            animation: ltgShimmer 6s ease-in-out infinite;
+        }
+
+        @keyframes ltgShimmer {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        /* LTG Sparkles */
+        .ltg-sparkles {
+            position: fixed;
+            top: 50%;
+            left: 52%;
+            transform: translate(-50%, -50%);
+            width: clamp(400px, 60vw, 900px);
+            height: clamp(150px, 25vw, 400px);
+            pointer-events: none;
+            z-index: 0;
+            overflow: visible;
+        }
+
+        .ltg-sparkle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #C9A227;
+            border-radius: 50%;
+            opacity: 0;
+            animation: sparkleFloat 4s ease-out infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            10% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(0);
+            }
+        }
+
+        /* ============ HEADER ============ */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 76px;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 2px solid #4a3d2a;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(0, 0, 0, 0.98);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 236px;
+            width: auto;
+            display: block;
+            margin-top: 15px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        nav a {
+            color: #aaaaaa;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav a:hover {
+            color: var(--white);
+        }
+
+        .nav-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: var(--gold);
+            color: var(--black);
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* ============ CONTAINER ============ */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding: 0 40px;
+            width: 100%;
+        }
+
+        .hero-content {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: var(--white);
+            text-shadow:
+                0 0 1px rgba(201, 162, 39, 0.8),
+                0 0 2px rgba(201, 162, 39, 0.6),
+                0 0 10px rgba(201, 162, 39, 0.3);
+            text-align: center;
+            width: 100%;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #D4D4D4;
+            margin-bottom: 40px;
+            letter-spacing: -0.01em;
+            text-align: center;
+            width: 100%;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 18px 36px;
+            background: var(--gold-light);
+            color: var(--black);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            animation: btnFloat 3s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+        }
+
+        @keyframes btnFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .hero-btn:hover {
+            animation-play-state: paused;
+            transform: scale(1.05);
+            box-shadow:
+                0 10px 30px rgba(201, 162, 39, 0.4),
+                0 0 20px rgba(201, 162, 39, 0.3);
+        }
+
+        /* ============ DEMO CAROUSEL SECTION ============ */
+        .demo-carousel {
+            padding: 100px 0 150px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .demo-carousel-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .demo-caption {
+            font-size: 0.9rem;
+            color: #A8A8A8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Carousel Indicators */
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .carousel-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-indicator:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(201, 162, 39, 0.3);
+        }
+
+        .carousel-indicator.active {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: var(--gold);
+        }
+
+        .carousel-indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .carousel-indicator.active .carousel-indicator-dot {
+            background: var(--gold);
+            box-shadow: 0 0 8px rgba(201, 162, 39, 0.5);
+        }
+
+        .carousel-indicator-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #888;
+            transition: color 0.3s ease;
+        }
+
+        .carousel-indicator.active .carousel-indicator-label {
+            color: var(--gold);
+        }
+
+        /* Demo Sections - Each is completely independent */
+        .demo-section {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .demo-section.active {
+            display: block;
+        }
+
+        .demo-window {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .demo-titlebar {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .demo-dot:first-child { background: #ff5f57; }
+        .demo-dot:nth-child(2) { background: #ffbd2e; }
+        .demo-dot:nth-child(3) { background: #28ca41; }
+
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 320px;
+            overflow: hidden;
+        }
+
+        .demo-left, .demo-right {
+            padding: 24px;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .demo-left {
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .demo-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+
+        .demo-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 180px;
+            width: 100%;
+            font-size: 0.85rem;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .demo-input.typing {
+            color: #ccc;
+        }
+
+        .demo-input .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--gold);
+            animation: cursorBlink 1s infinite;
+            vertical-align: text-bottom;
+            margin-left: 2px;
+        }
+
+        @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .demo-generate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.4;
+        }
+
+        .demo-generate-btn.active {
+            opacity: 1;
+        }
+
+        .demo-generate-btn.active:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+        }
+
+        .demo-generate-btn.loading {
+            opacity: 0.7;
+        }
+
+        .demo-generate-btn .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            border-top-color: var(--black);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .demo-generate-btn.loading .spinner {
+            display: block;
+        }
+
+        .demo-generate-btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .demo-output {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 180px;
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .demo-output.visible {
+            opacity: 1;
+        }
+
+        .demo-output strong {
+            color: #fff;
+        }
+
+        /* Chapter demo specific styles */
+        .demo-output .chapter-line {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .demo-output .chapter-time {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* Thread demo specific styles */
+        .demo-output .tweet {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .demo-output .tweet:last-child {
+            margin-bottom: 0;
+        }
+
+        .demo-output .tweet-num {
+            font-size: 0.7rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .demo-output .tweet-text {
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .demo-copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid rgba(201, 162, 39, 0.4);
+            color: var(--gold);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .demo-copy-btn.visible {
+            opacity: 1;
+        }
+
+        .demo-copy-btn:hover {
+            background: rgba(201, 162, 39, 0.1);
+            border-color: var(--gold);
+        }
+
+        .demo-copy-btn.copied {
+            background: rgba(40, 202, 65, 0.15);
+            border-color: #28ca41;
+            color: #28ca41;
+        }
+
+        @media (max-width: 900px) {
+            .carousel-indicators {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .carousel-indicator {
+                padding: 8px 14px;
+            }
+            .carousel-indicator-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+            .demo-left {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            .carousel-indicator {
+                padding: 8px 12px;
+            }
+        }
+
+        /* ============ TOOLS SECTION ============ */
+        .tools {
+            padding: 150px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 40px 32px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(201, 162, 39, 0.25);
+            transform: translateY(-4px);
+        }
+
+        .tool-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .tool-desc {
+            font-size: 1rem;
+            color: #A8A8A8;
+            line-height: 1.6;
+            margin-bottom: 28px;
+            flex-grow: 1;
+        }
+
+        .tool-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: gap 0.3s;
+        }
+
+        .tool-link:hover { gap: 10px; }
+
+        .tool-pricing {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .tool-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+
+        .tool-price span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-light);
+        }
+
+        .tool-free-text {
+            font-size: 0.85rem;
+            color: var(--gray-light);
+            margin-bottom: 16px;
+        }
+
+        .tool-try-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .tool-try-btn:hover {
+            background: rgba(201, 162, 39, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.2);
+        }
+
+        /* Email Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 0.9rem;
+            color: var(--gray-light);
+            margin-bottom: 24px;
+        }
+
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .modal-input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .modal-input-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .modal-input-group input::placeholder {
+            color: #555;
+        }
+
+        .modal-status {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .modal-status.visible {
+            display: block;
+        }
+
+        .modal-status.error {
+            background: rgba(255, 95, 87, 0.1);
+            border: 1px solid rgba(255, 95, 87, 0.3);
+            color: #ff5f57;
+        }
+
+        .modal-status.success {
+            background: rgba(40, 202, 65, 0.1);
+            border: 1px solid rgba(40, 202, 65, 0.3);
+            color: #28ca41;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn.cancel {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray-light);
+        }
+
+        .modal-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-btn.confirm {
+            background: var(--gold);
+            border: none;
+            color: var(--black);
+        }
+
+        .modal-btn.confirm:hover {
+            background: var(--gold-light);
+        }
+
+        .modal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* API Key Display */
+        .api-key-display {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .api-key-display.visible {
+            display: block;
+        }
+
+        .api-key-box {
+            background: rgba(40, 202, 65, 0.1);
+            border: 1px solid rgba(40, 202, 65, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .api-key-label {
+            font-size: 0.8rem;
+            color: #28ca41;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .api-key-value {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--white);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .api-key-warning {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .api-key-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .copy-key-btn {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(201, 162, 39, 0.15);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            color: var(--gold);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .copy-key-btn:hover {
+            background: rgba(201, 162, 39, 0.25);
+        }
+
+        .copy-key-btn.copied {
+            background: rgba(40, 202, 65, 0.15);
+            border-color: #28ca41;
+            color: #28ca41;
+        }
+
+        .dashboard-link {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--gold);
+            color: var(--black);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .dashboard-link:hover {
+            background: var(--gold-light);
+        }
+
+        @media (max-width: 480px) {
+            .modal-buttons,
+            .api-key-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* ============ BENEFITS ============ */
+        .benefits {
+            padding: 150px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+            text-align: center;
+        }
+
+        .benefit h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+        }
+
+        .benefit p {
+            font-size: 1rem;
+            color: #A8A8A8;
+            line-height: 1.6;
+        }
+
+        /* ============ HOW IT WORKS ============ */
+        .how {
+            padding: 150px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: 25%;
+            right: 25%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.3), transparent);
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-num {
+            width: 56px;
+            height: 56px;
+            background: var(--black);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover .step-num {
+            background: var(--gold);
+            color: var(--black);
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.4);
+        }
+
+        .step h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* ============ CTA ============ */
+        .cta {
+            padding: 150px 0;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 60px 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-card h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            margin-bottom: 28px;
+            letter-spacing: -0.02em;
+        }
+
+        .cta-card .hero-btn {
+            animation: none;
+        }
+
+        .cta-card .hero-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ============ FOOTER ============ */
+        footer {
+            padding: 60px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-links a {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            border-color: var(--gold);
+            background: rgba(201, 162, 39, 0.15);
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .social-links svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--gold);
+        }
+
+        .copyright {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* ============ ANIMATIONS ============ */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============ RESPONSIVE ============ */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .header-inner {
+                padding: 0 24px;
+            }
+            .container {
+                padding: 0 24px;
+            }
+            nav {
+                gap: 24px;
+            }
+            nav a {
+                font-size: 1rem;
+            }
+            .logo-img {
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .tools-grid,
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            .steps {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .steps::before { display: none; }
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+            .demo-left {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            header {
+                height: auto;
+                padding: 12px 0;
+            }
+            .header-inner {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .logo-img {
+                height: 180px;
+            }
+            nav {
+                width: 100%;
+                justify-content: center;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+            nav a {
+                font-size: 0.9rem;
+            }
+            .hero {
+                min-height: calc(100vh - 120px);
+                padding-top: 120px;
+            }
+            .hero h1 {
+                font-size: clamp(1.5rem, 7vw, 2.5rem);
+                white-space: normal;
+            }
+            .hero p {
+                font-size: 1rem;
+                padding: 0 16px;
+            }
+            .hero-btn {
+                padding: 14px 28px;
+                font-size: 0.9rem;
+            }
+            .section-title {
+                font-size: clamp(1.5rem, 6vw, 2rem);
+            }
+            .tool-card {
+                padding: 28px 24px;
+            }
+            .cta-card {
+                padding: 40px 24px;
+            }
+            .cta-card h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-img {
+                height: 150px;
+            }
+            nav {
+                gap: 16px;
+            }
+            nav a {
+                font-size: 0.85rem;
+            }
+            .nav-badge {
+                font-size: 0.55rem;
+                padding: 2px 5px;
+            }
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+            .hero p {
+                font-size: 0.9rem;
+            }
+            .demo-window {
+                border-radius: 12px;
+            }
+            .demo-input,
+            .demo-output {
+                min-height: 140px;
+                font-size: 0.8rem;
+            }
+            .ltg-bg, .ltg-shimmer {
+                font-size: 28vw;
+                letter-spacing: 0.04em;
+            }
+            .ltg-sparkles {
+                width: 85vw;
+                height: 25vw;
+            }
+            .tool-name {
+                font-size: 1.3rem;
+            }
+            .tool-desc {
+                font-size: 0.9rem;
+            }
+            .benefit h3 {
+                font-size: 2rem;
+            }
+            .benefit p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ============ SCROLLBAR ============ */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--black); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+        ::selection { background: var(--gold); color: var(--black); }
+    </style>
+</head>
+<body>
+
+    <!-- Background layers -->
+    <div class="bg-radial"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-orbs">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+    <div class="bg-noise"></div>
+    <div class="particles" id="particles"></div>
+    <div class="stars-container" id="starsContainer"></div>
+
+    <!-- LTG Background Text -->
+    <div class="ltg-bg">LTG</div>
+    <div class="ltg-shimmer">LTG</div>
+    <div class="ltg-sparkles" id="ltgSparkles"></div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-inner">
+            <a href="/" class="logo"><img src="logo.png" alt="LTG Vault" class="logo-img"></a>
+            <nav>
+                <a href="postup.html">PostUp</a>
+                <a href="threadgen.html">ThreadGen</a>
+                <a href="chaptergen.html">ChapterGen</a>
+                <a href="pricing.html">Pricing</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Your vault of AI-powered tools</h1>
+                <p>A growing collection of tools to create, automate, and optimize anything.</p>
+                <a href="#tools" class="hero-btn">Get Started</a>
+            </div>
+        </section>
+
+        <!-- Demo Carousel Section -->
+        <section class="demo-carousel" id="demoCarousel">
+            <div class="container">
+                <div class="demo-carousel-header">
+                    <p class="demo-caption fade-up" id="demo-caption">PostUp in action</p>
+                    <div class="carousel-indicators fade-up">
+                        <div class="carousel-indicator active" id="indicator-postup" data-demo="postup">
+                            <div class="carousel-indicator-dot"></div>
+                            <span class="carousel-indicator-label">PostUp</span>
+                        </div>
+                        <div class="carousel-indicator" id="indicator-chaptergen" data-demo="chaptergen">
+                            <div class="carousel-indicator-dot"></div>
+                            <span class="carousel-indicator-label">ChapterGen</span>
+                        </div>
+                        <div class="carousel-indicator" id="indicator-threadgen" data-demo="threadgen">
+                            <div class="carousel-indicator-dot"></div>
+                            <span class="carousel-indicator-label">ThreadGen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PostUp Demo - Completely Separate -->
+                <div class="demo-section active" id="demo-postup">
+                    <div class="demo-window">
+                        <div class="demo-titlebar">
+                            <div class="demo-dot"></div>
+                            <div class="demo-dot"></div>
+                            <div class="demo-dot"></div>
+                        </div>
+                        <div class="demo-content">
+                            <div class="demo-left">
+                                <div class="demo-label">Your idea</div>
+                                <div class="demo-input" id="postup-input"></div>
+                                <button class="demo-generate-btn" id="postup-btn">
+                                    <span class="btn-text">Generate</span>
+                                    <div class="spinner"></div>
+                                </button>
+                            </div>
+                            <div class="demo-right">
+                                <div class="demo-label">Ready to post</div>
+                                <div class="demo-output" id="postup-output"></div>
+                                <button class="demo-copy-btn" id="postup-copy">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    <span>Copy to clipboard</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ChapterGen Demo - Completely Separate -->
+                <div class="demo-section" id="demo-chaptergen">
+                    <div class="demo-window">
+                        <div class="demo-titlebar">
+                            <div class="demo-dot"></div>
+                            <div class="demo-dot"></div>
+                            <div class="demo-dot"></div>
+                        </div>
+                        <div class="demo-content">
+                            <div class="demo-left">
+                                <div class="demo-label">Transcript</div>
+                                <div class="demo-input" id="chaptergen-input"></div>
+                                <button class="demo-generate-btn" id="chaptergen-btn">
+                                    <span class="btn-text">Generate Chapters</span>
+                                    <div class="spinner"></div>
+                                </button>
+                            </div>
+                            <div class="demo-right">
+                                <div class="demo-label">Generated Chapters</div>
+                                <div class="demo-output" id="chaptergen-output"></div>
+                                <button class="demo-copy-btn" id="chaptergen-copy">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    <span>Copy to clipboard</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ThreadGen Demo - Completely Separate -->
+                <div class="demo-section" id="demo-threadgen">
+                    <div class="demo-window">
+                        <div class="demo-titlebar">
+                            <div class="demo-dot"></div>
+                            <div class="demo-dot"></div>
+                            <div class="demo-dot"></div>
+                        </div>
+                        <div class="demo-content">
+                            <div class="demo-left">
+                                <div class="demo-label">Your content</div>
+                                <div class="demo-input" id="threadgen-input"></div>
+                                <button class="demo-generate-btn" id="threadgen-btn">
+                                    <span class="btn-text">Generate Thread</span>
+                                    <div class="spinner"></div>
+                                </button>
+                            </div>
+                            <div class="demo-right">
+                                <div class="demo-label">Your Thread</div>
+                                <div class="demo-output" id="threadgen-output"></div>
+                                <button class="demo-copy-btn" id="threadgen-copy">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    <span>Copy to clipboard</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools -->
+        <section class="tools" id="tools">
+            <div class="container">
+                <h2 class="section-title fade-up">The Toolkit</h2>
+                <div class="tools-grid">
+                    <div class="tool-card fade-up">
+                        <h3 class="tool-name">PostUp</h3>
+                        <p class="tool-desc">Turn rough ideas into polished LinkedIn posts that actually get engagement.</p>
+                        <a href="postup.html" class="tool-link">
+                            Launch
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        <div class="tool-pricing">
+                            <div class="tool-price">$7<span>/month</span></div>
+                            <p class="tool-free-text">3 free uses to start</p>
+                            <button class="tool-try-btn" data-tool="free">Try Free</button>
+                        </div>
+                    </div>
+                    <div class="tool-card fade-up" style="transition-delay: 0.1s">
+                        <h3 class="tool-name">ThreadGen</h3>
+                        <p class="tool-desc">Create Twitter threads that hook readers from the very first word.</p>
+                        <a href="threadgen.html" class="tool-link">
+                            Launch
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        <div class="tool-pricing">
+                            <div class="tool-price">$7<span>/month</span></div>
+                            <p class="tool-free-text">3 free uses to start</p>
+                            <button class="tool-try-btn" data-tool="free">Try Free</button>
+                        </div>
+                    </div>
+                    <div class="tool-card fade-up" style="transition-delay: 0.2s">
+                        <h3 class="tool-name">ChapterGen</h3>
+                        <p class="tool-desc">Generate YouTube chapters with timestamps in seconds.</p>
+                        <a href="chaptergen.html" class="tool-link">
+                            Launch
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        <div class="tool-pricing">
+                            <div class="tool-price">$7<span>/month</span></div>
+                            <p class="tool-free-text">1 free use to start</p>
+                            <button class="tool-try-btn" data-tool="free">Try Free</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta">
+            <div class="container">
+                <div class="cta-card fade-up">
+                    <h2>Ready to ship content faster?</h2>
+                    <a href="#tools" class="hero-btn">
+                        Try It Now →
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-inner">
+                <div class="social-links">
+                    <a href="https://x.com/Layton_Gott" target="_blank" rel="noopener noreferrer" title="X">
+                        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/layton-gott/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </a>
+                </div>
+                <div class="copyright">Built by LTG © 2026</div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="carousel.js"></script>
+
+    <!-- Email Modal -->
+    <div class="modal-overlay" id="emailModal">
+        <div class="modal">
+            <h2 class="modal-title">Get Your Free API Key</h2>
+            <p class="modal-subtitle">Enter your email to start with 5 free uses of each tool.</p>
+
+            <div class="modal-input-group">
+                <label for="emailInput">Email Address</label>
+                <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+            </div>
+
+            <div id="modalStatus" class="modal-status"></div>
+
+            <div class="api-key-display" id="apiKeyDisplay">
+                <div class="api-key-box">
+                    <div class="api-key-label">Your API Key</div>
+                    <div class="api-key-value" id="apiKeyValue"></div>
+                    <p class="api-key-warning">Save this key now. It won't be shown again.</p>
+                    <div class="api-key-actions">
+                        <button class="copy-key-btn" id="copyKeyBtn">Copy Key</button>
+                        <a href="dashboard.html" class="dashboard-link">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons" id="modalButtons">
+                <button class="modal-btn cancel" id="cancelBtn">Cancel</button>
+                <button class="modal-btn confirm" id="confirmBtn">Get Free Key</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Email Modal Logic
+        (function() {
+            var modal = document.getElementById('emailModal');
+            var emailInput = document.getElementById('emailInput');
+            var confirmBtn = document.getElementById('confirmBtn');
+            var cancelBtn = document.getElementById('cancelBtn');
+            var modalStatus = document.getElementById('modalStatus');
+            var modalButtons = document.getElementById('modalButtons');
+            var apiKeyDisplay = document.getElementById('apiKeyDisplay');
+            var apiKeyValue = document.getElementById('apiKeyValue');
+            var copyKeyBtn = document.getElementById('copyKeyBtn');
+
+            // Try Free button click handlers
+            document.querySelectorAll('.tool-try-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    openModal();
+                });
+            });
+
+            function openModal() {
+                emailInput.value = '';
+                modalStatus.classList.remove('visible');
+                apiKeyDisplay.classList.remove('visible');
+                modalButtons.style.display = 'flex';
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Get Free Key';
+                modal.classList.add('visible');
+                emailInput.focus();
+            }
+
+            cancelBtn.addEventListener('click', function() {
+                modal.classList.remove('visible');
+            });
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('visible');
+                }
+            });
+
+            confirmBtn.addEventListener('click', async function() {
+                var email = emailInput.value.trim();
+
+                if (!email) {
+                    showStatus('Please enter your email address.', 'error');
+                    return;
+                }
+
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showStatus('Please enter a valid email address.', 'error');
+                    return;
+                }
+
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Processing...';
+                hideStatus();
+
+                try {
+                    var response = await fetch('/api/checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, tool: 'free' })
+                    });
+
+                    var data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Something went wrong');
+                    }
+
+                    if (data.apiKey) {
+                        showApiKey(data.apiKey);
+                    }
+                } catch (error) {
+                    showStatus(error.message || 'Failed to process. Please try again.', 'error');
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Get Free Key';
+                }
+            });
+
+            function showApiKey(apiKey) {
+                apiKeyValue.textContent = apiKey;
+                modalButtons.style.display = 'none';
+                apiKeyDisplay.classList.add('visible');
+                localStorage.setItem('ltgv_api_key', apiKey);
+            }
+
+            copyKeyBtn.addEventListener('click', function() {
+                var key = apiKeyValue.textContent;
+                navigator.clipboard.writeText(key).then(function() {
+                    copyKeyBtn.textContent = 'Copied!';
+                    copyKeyBtn.classList.add('copied');
+                    setTimeout(function() {
+                        copyKeyBtn.textContent = 'Copy Key';
+                        copyKeyBtn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+
+            function showStatus(message, type) {
+                modalStatus.textContent = message;
+                modalStatus.className = 'modal-status visible ' + type;
+            }
+
+            function hideStatus() {
+                modalStatus.classList.remove('visible');
+            }
+
+            emailInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    confirmBtn.click();
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>

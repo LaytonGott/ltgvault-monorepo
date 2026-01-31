@@ -1,3 +1,4 @@
+// Resume API - Pages Router catch-all handler
 const { supabase } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
 const { checkResumeAIUsage, getResumeAIUsageStats } = require('../../lib/resume-ai-usage');

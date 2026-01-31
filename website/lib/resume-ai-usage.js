@@ -1,22 +1,14 @@
 // AI Usage Limits for Resume Builder
-// Free users: 10 total AI generations (lifetime)
+// Free users: 5 total AI generations (lifetime)
 // Pro users (subscribed_resumebuilder): 100 per month
 
-import { supabase } from './supabase';
+const { supabase } = require('./supabase');
 
-export const FREE_LIMIT = 5;
-export const PRO_MONTHLY_LIMIT = 100;
-
-interface UsageCheckResult {
-  allowed: boolean;
-  used: number;
-  limit: number;
-  isPro: boolean;
-  message?: string;
-}
+const FREE_LIMIT = 5;
+const PRO_MONTHLY_LIMIT = 100;
 
 // Check if user can make an AI generation
-export async function checkResumeAIUsage(userId: string): Promise<UsageCheckResult> {
+async function checkResumeAIUsage(userId) {
   try {
     // Get user to check subscription status
     const { data: user, error: userError } = await supabase
@@ -41,7 +33,7 @@ export async function checkResumeAIUsage(userId: string): Promise<UsageCheckResu
         .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter'])
         .gte('usage_date', startOfMonth.toISOString().split('T')[0]);
 
-      const used = (monthlyUsage || []).reduce((sum: number, row: any) => sum + (row.usage_count || 0), 0);
+      const used = (monthlyUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
 
       if (used >= PRO_MONTHLY_LIMIT) {
         return {
@@ -67,7 +59,7 @@ export async function checkResumeAIUsage(userId: string): Promise<UsageCheckResu
         .eq('user_id', userId)
         .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter']);
 
-      const used = (totalUsage || []).reduce((sum: number, row: any) => sum + (row.usage_count || 0), 0);
+      const used = (totalUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
 
       if (used >= FREE_LIMIT) {
         return {
@@ -99,7 +91,7 @@ export async function checkResumeAIUsage(userId: string): Promise<UsageCheckResu
 }
 
 // Get current usage stats for display in UI
-export async function getResumeAIUsageStats(userId: string): Promise<{ used: number; limit: number; isPro: boolean }> {
+async function getResumeAIUsageStats(userId) {
   const result = await checkResumeAIUsage(userId);
   return {
     used: result.used,
@@ -108,3 +100,9 @@ export async function getResumeAIUsageStats(userId: string): Promise<{ used: num
   };
 }
 
+module.exports = {
+  FREE_LIMIT,
+  PRO_MONTHLY_LIMIT,
+  checkResumeAIUsage,
+  getResumeAIUsageStats
+};

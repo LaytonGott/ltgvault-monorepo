@@ -1,24 +1,24 @@
-import crypto from 'crypto';
-import { supabase } from './supabase';
+const crypto = require('crypto');
+const { supabase } = require('./supabase');
 
 // Generate a new API key
-export function generateApiKey() {
+function generateApiKey() {
   const randomBytes = crypto.randomBytes(24).toString('hex');
   return `ltgv_${randomBytes}`;
 }
 
 // Hash an API key for storage
-export function hashApiKey(apiKey) {
+function hashApiKey(apiKey) {
   return crypto.createHash('sha256').update(apiKey).digest('hex');
 }
 
 // Get the last 4 characters of an API key
-export function getLastFour(apiKey) {
+function getLastFour(apiKey) {
   return apiKey.slice(-4);
 }
 
 // Validate an API key and return the user
-export async function validateApiKey(apiKey) {
+async function validateApiKey(apiKey) {
   if (!apiKey || !apiKey.startsWith('ltgv_')) {
     return null;
   }
@@ -58,7 +58,7 @@ export async function validateApiKey(apiKey) {
 }
 
 // Create a new API key for a user
-export async function createApiKeyForUser(userId) {
+async function createApiKeyForUser(userId) {
   const apiKey = generateApiKey();
   const keyHash = hashApiKey(apiKey);
   const lastFour = getLastFour(apiKey);
@@ -89,7 +89,7 @@ export async function createApiKeyForUser(userId) {
 }
 
 // Middleware to extract and validate API key from request
-export async function authenticateRequest(req) {
+async function authenticateRequest(req) {
   const apiKey = req.headers['x-api-key'];
 
   if (!apiKey) {
@@ -110,3 +110,11 @@ export async function authenticateRequest(req) {
   return { user, error: null };
 }
 
+module.exports = {
+  generateApiKey,
+  hashApiKey,
+  getLastFour,
+  validateApiKey,
+  createApiKeyForUser,
+  authenticateRequest
+};

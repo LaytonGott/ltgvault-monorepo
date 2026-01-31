@@ -948,7 +948,7 @@
                 // Auto-claim API key from checkout session
                 showStatus('Activating your subscription...', 'info');
                 try {
-                    var response = await fetch('/api/claim-key', {
+                    var response = await fetch('/api/activate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ sessionId: sessionId })
@@ -1038,7 +1038,7 @@
 
                 // Sync API key to this browser (ensures tool pages work)
                 try {
-                    var syncResponse = await fetch('/api/sync-access', {
+                    var syncResponse = await fetch('/api/activate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: email })

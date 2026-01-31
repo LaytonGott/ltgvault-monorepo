@@ -109,7 +109,7 @@ export default function ResumesPage() {
   async function handleCreateResume() {
     try {
       if (isGuest) {
-        // Guest mode: check local resumes limit
+        // Guest mode: check local resumes limit (1 resume max for guests)
         const guestResumes = getGuestResumes();
         if (guestResumes.length >= 1) {
           setUpgradeMessage('Create a free account to save more resumes, or upgrade to Pro for unlimited resumes.');
@@ -119,18 +119,13 @@ export default function ResumesPage() {
         const resume = createGuestResume();
         router.push(`/resume/${resume.id}`);
       } else {
-        // Check pro status before creating
-        if (proStatus && !proStatus.canCreateResume) {
-          setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
-          setShowUpgradeModal(true);
-          return;
-        }
+        // Let the API handle the limit check - it will return RESUME_LIMIT error if they've hit their limit
         const { resume } = await createResume();
         router.push(`/resume/${resume.id}`);
       }
     } catch (err: any) {
-      // Handle limit error from API
-      if (err.message?.includes('RESUME_LIMIT') || err.message?.includes('Upgrade to Pro')) {
+      // Handle limit error from API - this triggers when user tries to create 2nd resume as free user
+      if (err.code === 'RESUME_LIMIT' || err.message?.includes('RESUME_LIMIT') || err.message?.includes('Upgrade to Pro')) {
         setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
         setShowUpgradeModal(true);
         return;

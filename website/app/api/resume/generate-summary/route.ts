@@ -4,6 +4,19 @@ import { supabase } from '@/lib/supabase';
 import { validateApiKey } from '@/lib/auth';
 import { checkResumeAIUsage } from '@/lib/resume-ai-usage';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-api-key',
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 async function getUser(request: NextRequest) {
   const apiKey = request.headers.get('x-api-key');
 

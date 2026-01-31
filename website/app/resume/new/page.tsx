@@ -19,9 +19,14 @@ export default function NewResumePage() {
       try {
         const { resume } = await createResume();
         router.replace(`/resume/${resume.id}`);
-      } catch (err) {
-        console.error('Failed to create resume:', err);
-        router.replace('/resume');
+      } catch (err: any) {
+        console.error('Failed to create resume:', err.code, err.message);
+        // Pass error info to the resume page so it can show the appropriate message
+        if (err.code === 'RESUME_LIMIT') {
+          router.replace('/resume?limit=true');
+        } else {
+          router.replace('/resume?error=' + encodeURIComponent(err.message || 'Failed to create resume'));
+        }
       }
     }
 

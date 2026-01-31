@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { listResumes, createResume, deleteResume } from '@/lib/resume-api';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -54,6 +54,7 @@ interface ProStatus {
 
 export default function ResumesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,21 @@ export default function ResumesPage() {
 
     loadResumes();
     loadProStatus();
-  }, []);
+
+    // Handle query params from redirects (e.g., from /resume/new)
+    const limitParam = searchParams.get('limit');
+    const errorParam = searchParams.get('error');
+
+    if (limitParam === 'true') {
+      setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
+      setShowUpgradeModal(true);
+      // Clean up URL
+      router.replace('/resume');
+    } else if (errorParam) {
+      setError(errorParam);
+      router.replace('/resume');
+    }
+  }, [searchParams, router]);
 
   async function loadProStatus() {
     try {
@@ -119,18 +134,22 @@ export default function ResumesPage() {
         const resume = createGuestResume();
         router.push(`/resume/${resume.id}`);
       } else {
-        // Let the API handle the limit check - it will return RESUME_LIMIT error if they've hit their limit
+        // Logged in user - API handles the limit check
+        // First-time users (0 resumes) are always allowed to create their first resume
         const { resume } = await createResume();
         router.push(`/resume/${resume.id}`);
       }
     } catch (err: any) {
-      // Handle limit error from API - this triggers when user tries to create 2nd resume as free user
-      if (err.code === 'RESUME_LIMIT' || err.message?.includes('RESUME_LIMIT') || err.message?.includes('Upgrade to Pro')) {
+      console.log('Create resume error:', err.code, err.message);
+      // ONLY show upgrade modal for the specific RESUME_LIMIT error code
+      // This ensures first-time users aren't blocked by other error types
+      if (err.code === 'RESUME_LIMIT') {
         setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
         setShowUpgradeModal(true);
         return;
       }
-      setError(err.message);
+      // All other errors just show the error message
+      setError(err.message || 'Failed to create resume');
     }
   }
 

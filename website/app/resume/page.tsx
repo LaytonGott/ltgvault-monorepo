@@ -13,19 +13,51 @@ interface Resume {
   updated_at: string;
 }
 
+// Guest mode helpers - store resumes in localStorage
+function getGuestResumes(): Resume[] {
+  if (typeof window === 'undefined') return [];
+  const data = localStorage.getItem('ltgv_guest_resumes');
+  return data ? JSON.parse(data) : [];
+}
+
+function saveGuestResumes(resumes: Resume[]) {
+  localStorage.setItem('ltgv_guest_resumes', JSON.stringify(resumes));
+}
+
+function createGuestResume(): Resume {
+  const id = 'guest_' + Date.now();
+  const resume: Resume = {
+    id,
+    title: 'Untitled Resume',
+    template: 'clean',
+    updated_at: new Date().toISOString()
+  };
+  const resumes = getGuestResumes();
+  resumes.unshift(resume);
+  saveGuestResumes(resumes);
+  return resume;
+}
+
+function deleteGuestResume(id: string) {
+  const resumes = getGuestResumes().filter(r => r.id !== id);
+  saveGuestResumes(resumes);
+}
+
 export default function ResumesPage() {
   const router = useRouter();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    // Check for API key in localStorage
     const apiKey = localStorage.getItem('ltgv_api_key');
 
     if (!apiKey) {
-      // Redirect to dashboard to login
-      window.location.href = '/dashboard.html';
+      // Guest mode - use localStorage
+      setIsGuest(true);
+      setResumes(getGuestResumes());
+      setLoading(false);
       return;
     }
 
@@ -45,8 +77,13 @@ export default function ResumesPage() {
 
   async function handleCreateResume() {
     try {
-      const { resume } = await createResume();
-      router.push(`/resume/${resume.id}`);
+      if (isGuest) {
+        const resume = createGuestResume();
+        router.push(`/resume/${resume.id}`);
+      } else {
+        const { resume } = await createResume();
+        router.push(`/resume/${resume.id}`);
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -59,8 +96,13 @@ export default function ResumesPage() {
     if (!confirm('Delete this resume?')) return;
 
     try {
-      await deleteResume(id);
-      setResumes(resumes.filter(r => r.id !== id));
+      if (isGuest) {
+        deleteGuestResume(id);
+        setResumes(resumes.filter(r => r.id !== id));
+      } else {
+        await deleteResume(id);
+        setResumes(resumes.filter(r => r.id !== id));
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -99,6 +141,15 @@ export default function ResumesPage() {
       </div>
 
       <main className={styles.main}>
+        {isGuest && (
+          <div className={styles.guestBanner}>
+            <span>You're in guest mode. Your resumes are saved locally.</span>
+            <Link href="/pricing.html" className={styles.guestBannerLink}>
+              Create free account to save online
+            </Link>
+          </div>
+        )}
+
         <div className={styles.titleRow}>
           <h1>My Resumes</h1>
           <button onClick={handleCreateResume} className={styles.newButton}>

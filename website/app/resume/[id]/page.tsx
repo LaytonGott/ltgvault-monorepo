@@ -8,6 +8,25 @@ import { getResume, updateResume, updateSection, deleteFromSection } from '@/lib
 import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import styles from './editor.module.css';
 
+// Guest mode storage helpers
+function getGuestResumeData(resumeId: string) {
+  if (typeof window === 'undefined') return null;
+  const data = localStorage.getItem(`ltgv_guest_resume_${resumeId}`);
+  return data ? JSON.parse(data) : null;
+}
+
+function saveGuestResumeData(resumeId: string, data: any) {
+  localStorage.setItem(`ltgv_guest_resume_${resumeId}`, JSON.stringify(data));
+  // Also update the resumes list
+  const resumes = JSON.parse(localStorage.getItem('ltgv_guest_resumes') || '[]');
+  const idx = resumes.findIndex((r: any) => r.id === resumeId);
+  if (idx >= 0) {
+    resumes[idx].updated_at = new Date().toISOString();
+    resumes[idx].title = data.resume?.title || resumes[idx].title;
+    localStorage.setItem('ltgv_guest_resumes', JSON.stringify(resumes));
+  }
+}
+
 interface PersonalInfo {
   first_name?: string;
   last_name?: string;
@@ -82,6 +101,7 @@ export default function ResumeEditorPage() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   const [openSections, setOpenSections] = useState<string[]>(['personal']);
+  const [isGuest, setIsGuest] = useState(false);
 
   // AI Modal State (for bullets and summary)
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -101,13 +121,46 @@ export default function ResumeEditorPage() {
 
   useEffect(() => {
     const apiKey = localStorage.getItem('ltgv_api_key');
-    if (!apiKey) {
+    const isGuestResume = resumeId.startsWith('guest_');
+
+    if (isGuestResume) {
+      setIsGuest(true);
+      loadGuestResume();
+    } else if (!apiKey) {
       window.location.href = '/dashboard.html';
       return;
+    } else {
+      loadResume();
+      loadAIUsage();
     }
-    loadResume();
-    loadAIUsage();
   }, [resumeId]);
+
+  function loadGuestResume() {
+    const data = getGuestResumeData(resumeId);
+    if (data) {
+      setResume(data.resume || { id: resumeId, title: 'Untitled Resume', template: 'clean' });
+      setPersonalInfo(data.personalInfo || {});
+      setEducation(data.education || []);
+      setExperience(data.experience || []);
+      setSkills(data.skills || []);
+      setProjects(data.projects || []);
+    } else {
+      // New guest resume
+      setResume({ id: resumeId, title: 'Untitled Resume', template: 'clean' });
+    }
+    setLoading(false);
+  }
+
+  function saveGuestData() {
+    saveGuestResumeData(resumeId, {
+      resume,
+      personalInfo,
+      education,
+      experience,
+      skills,
+      projects
+    });
+  }
 
   async function loadAIUsage() {
     try {
@@ -174,14 +227,26 @@ export default function ResumeEditorPage() {
     sectionSaveTimeoutRef.current[key] = setTimeout(async () => {
       setSaveStatus('saving');
       try {
-        await saveFn();
+        if (isGuest) {
+          // Guest mode: save to localStorage
+          saveGuestResumeData(resumeId, {
+            resume,
+            personalInfo,
+            education,
+            experience,
+            skills,
+            projects
+          });
+        } else {
+          await saveFn();
+        }
         showSavedStatus();
       } catch (err) {
         console.error('Save error:', err);
         showErrorStatus();
       }
     }, 1000);
-  }, [showSavedStatus, showErrorStatus]);
+  }, [showSavedStatus, showErrorStatus, isGuest, resumeId, resume, personalInfo, education, experience, skills, projects]);
 
   // Debounced save for personal info
   const savePersonalInfoDebounced = useCallback((data: PersonalInfo) => {
@@ -196,13 +261,23 @@ export default function ResumeEditorPage() {
 
   function handleUpdateResumeTitle(title: string) {
     if (!resume) return;
-    setResume({ ...resume, title });
-    debouncedSave('title', () => updateResume(resumeId, { title }));
+    const updatedResume = { ...resume, title };
+    setResume(updatedResume);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume: updatedResume, personalInfo, education, experience, skills, projects });
+    } else {
+      debouncedSave('title', () => updateResume(resumeId, { title }));
+    }
   }
 
   async function handleUpdateTemplate(template: string) {
     if (!resume) return;
-    setResume({ ...resume, template });
+    const updatedResume = { ...resume, template };
+    setResume(updatedResume);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume: updatedResume, personalInfo, education, experience, skills, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await updateResume(resumeId, { template });
@@ -223,6 +298,17 @@ export default function ResumeEditorPage() {
 
   // Education CRUD
   async function addEducation() {
+    if (isGuest) {
+      const newEdu: Education = {
+        id: 'edu_' + Date.now(),
+        school_name: '',
+        is_current: false
+      };
+      const updated = [...education, newEdu];
+      setEducation(updated);
+      saveGuestResumeData(resumeId, { resume, personalInfo, education: updated, experience, skills, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await updateSection(resumeId, 'education', { school_name: '', sort_order: education.length });
@@ -240,7 +326,12 @@ export default function ResumeEditorPage() {
   }
 
   async function handleDeleteEducation(id: string) {
-    setEducation(prev => prev.filter(e => e.id !== id));
+    const updated = education.filter(e => e.id !== id);
+    setEducation(updated);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume, personalInfo, education: updated, experience, skills, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await deleteFromSection(resumeId, 'education', id);
@@ -253,6 +344,19 @@ export default function ResumeEditorPage() {
 
   // Experience CRUD
   async function addExperience() {
+    if (isGuest) {
+      const newExp: Experience = {
+        id: 'exp_' + Date.now(),
+        company_name: '',
+        job_title: '',
+        is_current: false,
+        experience_type: 'job'
+      };
+      const updated = [...experience, newExp];
+      setExperience(updated);
+      saveGuestResumeData(resumeId, { resume, personalInfo, education, experience: updated, skills, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await updateSection(resumeId, 'experience', { company_name: '', job_title: '', sort_order: experience.length });
@@ -270,7 +374,12 @@ export default function ResumeEditorPage() {
   }
 
   async function handleDeleteExperience(id: string) {
-    setExperience(prev => prev.filter(e => e.id !== id));
+    const updated = experience.filter(e => e.id !== id);
+    setExperience(updated);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume, personalInfo, education, experience: updated, skills, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await deleteFromSection(resumeId, 'experience', id);
@@ -283,6 +392,16 @@ export default function ResumeEditorPage() {
 
   // Skills CRUD
   async function addSkill() {
+    if (isGuest) {
+      const newSkill: Skill = {
+        id: 'skill_' + Date.now(),
+        skill_name: ''
+      };
+      const updated = [...skills, newSkill];
+      setSkills(updated);
+      saveGuestResumeData(resumeId, { resume, personalInfo, education, experience, skills: updated, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await updateSection(resumeId, 'skills', { skill_name: '', sort_order: skills.length });
@@ -300,7 +419,12 @@ export default function ResumeEditorPage() {
   }
 
   async function handleDeleteSkill(id: string) {
-    setSkills(prev => prev.filter(s => s.id !== id));
+    const updated = skills.filter(s => s.id !== id);
+    setSkills(updated);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume, personalInfo, education, experience, skills: updated, projects });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await deleteFromSection(resumeId, 'skills', id);
@@ -313,6 +437,17 @@ export default function ResumeEditorPage() {
 
   // Projects CRUD
   async function addProject() {
+    if (isGuest) {
+      const newProject: Project = {
+        id: 'proj_' + Date.now(),
+        project_name: '',
+        project_type: 'project'
+      };
+      const updated = [...projects, newProject];
+      setProjects(updated);
+      saveGuestResumeData(resumeId, { resume, personalInfo, education, experience, skills, projects: updated });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await updateSection(resumeId, 'projects', { project_name: '', sort_order: projects.length });
@@ -330,7 +465,12 @@ export default function ResumeEditorPage() {
   }
 
   async function handleDeleteProject(id: string) {
-    setProjects(prev => prev.filter(p => p.id !== id));
+    const updated = projects.filter(p => p.id !== id);
+    setProjects(updated);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume, personalInfo, education, experience, skills, projects: updated });
+      return;
+    }
     setSaveStatus('saving');
     try {
       await deleteFromSection(resumeId, 'projects', id);
@@ -558,6 +698,16 @@ export default function ResumeEditorPage() {
 
   return (
     <div className={styles.container}>
+      {/* Guest Banner */}
+      {isGuest && (
+        <div className={styles.guestBanner}>
+          <span>Guest mode - saved locally only. AI features disabled.</span>
+          <Link href="/pricing.html" className={styles.guestBannerLink}>
+            Create free account
+          </Link>
+        </div>
+      )}
+
       {/* Top Bar */}
       <header className={styles.topBar}>
         <div className={styles.topBarLeft}>
@@ -692,15 +842,17 @@ export default function ResumeEditorPage() {
               <div className={styles.formGroup}>
                 <div className={styles.labelWithAction}>
                   <label>Summary</label>
-                  <button
-                    type="button"
-                    onClick={openSummaryModal}
-                    className={styles.aiButton}
-                    title="Generate summary with AI"
-                  >
-                    <span className={styles.sparkle}>✨</span>
-                    <span>AI Summary</span>
-                  </button>
+                  {!isGuest && (
+                    <button
+                      type="button"
+                      onClick={openSummaryModal}
+                      className={styles.aiButton}
+                      title="Generate summary with AI"
+                    >
+                      <span className={styles.sparkle}>✨</span>
+                      <span>AI Summary</span>
+                    </button>
+                  )}
                 </div>
                 <textarea value={personalInfo.summary || ''} onChange={(e) => updatePersonalField('summary', e.target.value)} placeholder="Brief summary about yourself..." rows={4} />
               </div>
@@ -852,15 +1004,17 @@ export default function ResumeEditorPage() {
                   <div className={styles.formGroup}>
                     <div className={styles.labelWithAction}>
                       <label>Description</label>
-                      <button
-                        type="button"
-                        onClick={() => openAiModal('experience', exp.id)}
-                        className={styles.aiButton}
-                        title="Generate bullet points with AI"
-                      >
-                        <span className={styles.sparkle}>✨</span>
-                        <span>AI Bullets</span>
-                      </button>
+                      {!isGuest && (
+                        <button
+                          type="button"
+                          onClick={() => openAiModal('experience', exp.id)}
+                          className={styles.aiButton}
+                          title="Generate bullet points with AI"
+                        >
+                          <span className={styles.sparkle}>✨</span>
+                          <span>AI Bullets</span>
+                        </button>
+                      )}
                     </div>
                     <textarea value={exp.description || ''} onChange={(e) => handleUpdateExperience(exp.id, 'description', e.target.value)} placeholder="What did you do? Use bullet points..." rows={4} />
                   </div>
@@ -969,15 +1123,17 @@ export default function ResumeEditorPage() {
                   <div className={styles.formGroup}>
                     <div className={styles.labelWithAction}>
                       <label>Description</label>
-                      <button
-                        type="button"
-                        onClick={() => openAiModal('project', project.id)}
-                        className={styles.aiButton}
-                        title="Generate bullet points with AI"
-                      >
-                        <span className={styles.sparkle}>✨</span>
-                        <span>AI Bullets</span>
-                      </button>
+                      {!isGuest && (
+                        <button
+                          type="button"
+                          onClick={() => openAiModal('project', project.id)}
+                          className={styles.aiButton}
+                          title="Generate bullet points with AI"
+                        >
+                          <span className={styles.sparkle}>✨</span>
+                          <span>AI Bullets</span>
+                        </button>
+                      )}
                     </div>
                     <textarea value={project.description || ''} onChange={(e) => handleUpdateProject(project.id, 'description', e.target.value)} placeholder="What did you do or accomplish?" rows={3} />
                   </div>

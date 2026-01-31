@@ -103,6 +103,30 @@
   padding: 130px 24px 60px;
 }
 
+.guestBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(201, 162, 39, 0.1);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  color: var(--gold-light);
+}
+
+.guestBannerLink {
+  color: var(--gold);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.guestBannerLink:hover {
+  text-decoration: underline;
+}
+
 .titleRow {
   display: flex;
   justify-content: space-between;

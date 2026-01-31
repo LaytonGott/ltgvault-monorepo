@@ -26,6 +26,28 @@
   flex-direction: column;
 }
 
+/* Guest Banner */
+.guestBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(201, 162, 39, 0.15);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.3);
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  color: var(--gold-light);
+}
+
+.guestBannerLink {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.guestBannerLink:hover {
+  text-decoration: underline;
+}
+
 /* Top Bar */
 .topBar {
   height: 56px;

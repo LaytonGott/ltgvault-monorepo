@@ -2,33 +2,23 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase-browser';
+import { createResume } from '@/lib/resume-api';
 
 export default function NewResumePage() {
   const router = useRouter();
 
   useEffect(() => {
     async function createAndRedirect() {
-      const userId = localStorage.getItem('ltgv_user_id');
+      const apiKey = localStorage.getItem('ltgv_api_key');
 
-      if (!userId) {
+      if (!apiKey) {
         window.location.href = '/dashboard.html';
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('resumes')
-          .insert({
-            user_id: userId,
-            title: 'Untitled Resume',
-            template: 'clean'
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        router.replace(`/resume/${data.id}`);
+        const { resume } = await createResume();
+        router.replace(`/resume/${resume.id}`);
       } catch (err) {
         console.error('Failed to create resume:', err);
         router.replace('/resume');

@@ -15,7 +15,7 @@ const PRO_LIMITS = {
   resumes: Infinity,
   jobs: Infinity,
   aiGenerationsPerMonth: 100,
-  templates: ['clean', 'modern', 'professional', 'creative']
+  templates: ['clean', 'modern', 'professional', 'bold', 'minimal', 'compact']
 };
 
 // Check if user is Pro (has purchased Resume Builder)

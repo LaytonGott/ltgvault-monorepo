@@ -216,6 +216,51 @@
 }
 
 /* ============ TEMPLATE SELECTOR ============ */
+.templateDropdownWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.templateDropdown {
+  padding: 8px 32px 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  min-width: 140px;
+  transition: all 0.2s;
+}
+
+.templateDropdown:hover {
+  border-color: rgba(201, 162, 39, 0.4);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.templateDropdown:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
+}
+
+.templateDropdown option {
+  background: #1a1a1a;
+  color: var(--white);
+  padding: 8px;
+}
+
+.templateDropdown option:disabled {
+  color: #666;
+}
+
 .templateSelector {
   display: flex;
   background: rgba(255, 255, 255, 0.05);
@@ -926,6 +971,350 @@
   color: #444;
   line-height: 1.5;
   white-space: pre-line;
+}
+
+/* ============ PROFESSIONAL TEMPLATE PREVIEW ============ */
+.professionalTemplate {
+  font-family: 'Times New Roman', Georgia, serif;
+  padding: 48px !important;
+}
+
+.professionalName {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.professionalContact {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+}
+
+.professionalSection {
+  margin-bottom: 20px;
+}
+
+.professionalSection h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #222;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #222;
+}
+
+.professionalSection p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.professionalEntry {
+  margin-bottom: 12px;
+}
+
+.professionalEntryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.professionalEntryHeader strong {
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.professionalEntryHeader em {
+  font-size: 0.85rem;
+  color: #555;
+  font-style: italic;
+}
+
+.professionalEntrySubtitle {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.professionalSkills {
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* ============ BOLD TEMPLATE PREVIEW ============ */
+.boldTemplate {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.boldHeader {
+  background: #2563eb;
+  padding: 28px 32px 20px;
+}
+
+.boldName {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.boldContact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.boldBody {
+  padding: 24px 32px;
+}
+
+.boldSection {
+  margin-bottom: 20px;
+}
+
+.boldSection h2 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  background: #2563eb;
+  padding: 6px 12px;
+  margin: 0 -12px 12px;
+  border-radius: 0;
+}
+
+.boldSection p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.boldEntry {
+  margin-bottom: 14px;
+}
+
+.boldEntryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+
+.boldEntryHeader strong {
+  font-size: 0.95rem;
+  color: #1a1a1a;
+}
+
+.boldDate {
+  font-size: 0.8rem;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.boldEntrySubtitle {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.boldSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.boldSkill {
+  background: #2563eb;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+/* ============ MINIMAL TEMPLATE PREVIEW ============ */
+.minimalTemplate {
+  padding: 48px !important;
+}
+
+.minimalName {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+
+.minimalContact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 0.5px solid #ddd;
+}
+
+.minimalSection {
+  margin-bottom: 28px;
+}
+
+.minimalSection h2 {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #999;
+  margin-bottom: 14px;
+  border: none;
+}
+
+.minimalSection p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.minimalEntry {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid #eee;
+}
+
+.minimalEntryLast {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.minimalEntryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.minimalEntryHeader strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.minimalEntryHeader span {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.minimalEntrySubtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.minimalSkills {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.8;
+}
+
+/* ============ COMPACT TEMPLATE PREVIEW ============ */
+.compactTemplate {
+  padding: 28px !important;
+  font-size: 0.85rem;
+}
+
+.compactName {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #1a1a1a;
+}
+
+.compactContact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: #555;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.compactSection {
+  margin-bottom: 10px;
+}
+
+.compactSection h2 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+  background: #f0f0f0;
+  padding: 3px 6px;
+  border: none;
+}
+
+.compactSection p {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #333;
+}
+
+.compactEntry {
+  margin-bottom: 8px;
+}
+
+.compactEntryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.compactEntryHeader strong {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.compactEntryHeader span {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.compactSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.compactSkill {
+  background: #e8e8e8;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  color: #333;
 }
 
 /* Label with Action Button */

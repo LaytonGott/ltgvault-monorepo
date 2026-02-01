@@ -513,7 +513,7 @@ export default function ResumeEditorPage() {
     try {
       const blob = await pdf(
         <ResumePDF
-          template={resume.template as 'clean' | 'modern'}
+          template={resume.template as 'clean' | 'modern' | 'professional' | 'bold' | 'minimal' | 'compact'}
           personalInfo={personalInfo}
           education={education}
           experience={experience}
@@ -846,27 +846,23 @@ export default function ResumeEditorPage() {
             </div>
           )}
 
-          {/* Template Selector */}
-          <div className={styles.templateSelector}>
-            <button
-              className={`${styles.templateOption} ${resume.template === 'clean' ? styles.activeTemplate : ''}`}
-              onClick={() => handleUpdateTemplate('clean')}
+          {/* Template Selector Dropdown */}
+          <div className={styles.templateDropdownWrapper}>
+            <select
+              className={styles.templateDropdown}
+              value={resume.template || 'clean'}
+              onChange={(e) => handleUpdateTemplate(e.target.value)}
             >
-              Clean
-            </button>
-            <button
-              className={`${styles.templateOption} ${resume.template === 'modern' ? styles.activeTemplate : ''} ${!isPro ? styles.lockedTemplate : ''}`}
-              onClick={() => handleUpdateTemplate('modern')}
-              title={!isPro ? 'Pro feature - Unlock premium templates' : 'Modern template'}
-            >
-              Modern
-              {!isPro && (
-                <>
-                  <span className={styles.lockIcon}>🔒</span>
-                  <span className={styles.templateProBadge}>PRO</span>
-                </>
-              )}
-            </button>
+              <option value="clean">Clean</option>
+              <option value="modern" disabled={!isPro}>Modern {!isPro ? '🔒 PRO' : ''}</option>
+              <option value="professional" disabled={!isPro}>Professional {!isPro ? '🔒 PRO' : ''}</option>
+              <option value="bold" disabled={!isPro}>Bold {!isPro ? '🔒 PRO' : ''}</option>
+              <option value="minimal" disabled={!isPro}>Minimal {!isPro ? '🔒 PRO' : ''}</option>
+              <option value="compact" disabled={!isPro}>Compact {!isPro ? '🔒 PRO' : ''}</option>
+            </select>
+            {!isPro && !['clean'].includes(resume.template || 'clean') && (
+              <span className={styles.templateProBadge}>PRO</span>
+            )}
           </div>
 
           <button
@@ -1317,19 +1313,14 @@ export default function ResumeEditorPage() {
 
         {/* Right Panel - Preview */}
         <div className={styles.previewPanel}>
-          {resume.template === 'modern' ? (
-            /* Modern Template - Two Column Layout */
+          {/* Modern Template - Two Column Layout */}
+          {resume.template === 'modern' && (
             <div className={`${styles.resumePreview} ${styles.modernTemplate}`}>
               <div className={styles.modernSidebar}>
                 <div className={styles.modernNameSection}>
-                  <h1 className={styles.modernName}>
-                    {personalInfo.first_name || 'Your'}
-                  </h1>
-                  <h1 className={styles.modernName}>
-                    {personalInfo.last_name || 'Name'}
-                  </h1>
+                  <h1 className={styles.modernName}>{personalInfo.first_name || 'Your'}</h1>
+                  <h1 className={styles.modernName}>{personalInfo.last_name || 'Name'}</h1>
                 </div>
-
                 <div className={styles.modernSidebarSection}>
                   <h3>Contact</h3>
                   <div className={styles.modernContactList}>
@@ -1340,7 +1331,6 @@ export default function ResumeEditorPage() {
                     {personalInfo.website_url && <p>{personalInfo.website_url}</p>}
                   </div>
                 </div>
-
                 {skills.length > 0 && skills.some(s => s.skill_name) && (
                   <div className={styles.modernSidebarSection}>
                     <h3>Skills</h3>
@@ -1352,15 +1342,8 @@ export default function ResumeEditorPage() {
                   </div>
                 )}
               </div>
-
               <div className={styles.modernMain}>
-                {personalInfo.summary && (
-                  <div className={styles.modernSection}>
-                    <h2>Summary</h2>
-                    <p>{personalInfo.summary}</p>
-                  </div>
-                )}
-
+                {personalInfo.summary && <div className={styles.modernSection}><h2>Summary</h2><p>{personalInfo.summary}</p></div>}
                 {experience.length > 0 && (
                   <div className={styles.modernSection}>
                     <h2>Experience</h2>
@@ -1370,15 +1353,12 @@ export default function ResumeEditorPage() {
                           <strong>{exp.job_title || 'Job Title'}</strong>
                           <span>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                         </div>
-                        <div className={styles.modernEntrySubtitle}>
-                          {exp.company_name}{exp.location ? ` | ${exp.location}` : ''}
-                        </div>
+                        <div className={styles.modernEntrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</div>
                         {exp.description && <p className={styles.modernDescription}>{exp.description}</p>}
                       </div>
                     ))}
                   </div>
                 )}
-
                 {education.length > 0 && (
                   <div className={styles.modernSection}>
                     <h2>Education</h2>
@@ -1389,17 +1369,13 @@ export default function ResumeEditorPage() {
                           <span>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
                         </div>
                         {(edu.degree || edu.field_of_study) && (
-                          <div className={styles.modernEntrySubtitle}>
-                            {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
-                            {edu.gpa && <span> | GPA: {edu.gpa}</span>}
-                          </div>
+                          <div className={styles.modernEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && <span> | GPA: {edu.gpa}</span>}</div>
                         )}
                         {edu.achievements && <p className={styles.modernDescription}>{edu.achievements}</p>}
                       </div>
                     ))}
                   </div>
                 )}
-
                 {projects.length > 0 && (
                   <div className={styles.modernSection}>
                     <h2>Projects & Activities</h2>
@@ -1415,23 +1391,242 @@ export default function ResumeEditorPage() {
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
 
-                {!personalInfo.summary && education.length === 0 && experience.length === 0 && projects.length === 0 && (
-                  <div className={styles.previewEmpty}>
-                    <p>Start filling out the form to see your resume preview</p>
+          {/* Professional Template - Traditional/Corporate */}
+          {resume.template === 'professional' && (
+            <div className={`${styles.resumePreview} ${styles.professionalTemplate}`}>
+              <h1 className={styles.professionalName}>
+                {personalInfo.first_name || personalInfo.last_name
+                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                  : 'Your Name'}
+              </h1>
+              <div className={styles.professionalContact}>
+                {[personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url]
+                  .filter(Boolean).join(' | ') || 'email@example.com | (555) 123-4567'}
+              </div>
+              {personalInfo.summary && <div className={styles.professionalSection}><h2>Professional Summary</h2><p>{personalInfo.summary}</p></div>}
+              {experience.length > 0 && (
+                <div className={styles.professionalSection}>
+                  <h2>Professional Experience</h2>
+                  {experience.map((exp) => (
+                    <div key={exp.id} className={styles.professionalEntry}>
+                      <div className={styles.professionalEntryHeader}>
+                        <strong>{exp.job_title || 'Job Title'}</strong>
+                        <em>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</em>
+                      </div>
+                      <div className={styles.professionalEntrySubtitle}>{exp.company_name}{exp.location ? `, ${exp.location}` : ''}</div>
+                      {exp.description && <p>{exp.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {education.length > 0 && (
+                <div className={styles.professionalSection}>
+                  <h2>Education</h2>
+                  {education.map((edu) => (
+                    <div key={edu.id} className={styles.professionalEntry}>
+                      <div className={styles.professionalEntryHeader}>
+                        <strong>{edu.school_name || 'School Name'}</strong>
+                        <em>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</em>
+                      </div>
+                      {(edu.degree || edu.field_of_study) && (
+                        <div className={styles.professionalEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa ? ` — GPA: ${edu.gpa}` : ''}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {skills.length > 0 && skills.some(s => s.skill_name) && (
+                <div className={styles.professionalSection}>
+                  <h2>Skills</h2>
+                  <p className={styles.professionalSkills}>{skills.filter(s => s.skill_name).map(s => s.skill_name).join(' • ')}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Bold Template - Eye-catching */}
+          {resume.template === 'bold' && (
+            <div className={`${styles.resumePreview} ${styles.boldTemplate}`}>
+              <div className={styles.boldHeader}>
+                <h1 className={styles.boldName}>
+                  {personalInfo.first_name || personalInfo.last_name
+                    ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                    : 'Your Name'}
+                </h1>
+                <div className={styles.boldContact}>
+                  {personalInfo.email && <span>{personalInfo.email}</span>}
+                  {personalInfo.phone && <span>{personalInfo.phone}</span>}
+                  {personalInfo.location && <span>{personalInfo.location}</span>}
+                </div>
+              </div>
+              <div className={styles.boldBody}>
+                {personalInfo.summary && <div className={styles.boldSection}><h2>About Me</h2><p>{personalInfo.summary}</p></div>}
+                {experience.length > 0 && (
+                  <div className={styles.boldSection}>
+                    <h2>Work Experience</h2>
+                    {experience.map((exp) => (
+                      <div key={exp.id} className={styles.boldEntry}>
+                        <div className={styles.boldEntryHeader}>
+                          <strong>{exp.job_title || 'Job Title'}</strong>
+                          <span className={styles.boldDate}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                        </div>
+                        <div className={styles.boldEntrySubtitle}>{exp.company_name}{exp.location ? ` • ${exp.location}` : ''}</div>
+                        {exp.description && <p>{exp.description}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {education.length > 0 && (
+                  <div className={styles.boldSection}>
+                    <h2>Education</h2>
+                    {education.map((edu) => (
+                      <div key={edu.id} className={styles.boldEntry}>
+                        <div className={styles.boldEntryHeader}>
+                          <strong>{edu.school_name || 'School Name'}</strong>
+                          <span className={styles.boldDate}>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
+                        </div>
+                        {(edu.degree || edu.field_of_study) && (
+                          <div className={styles.boldEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {skills.length > 0 && skills.some(s => s.skill_name) && (
+                  <div className={styles.boldSection}>
+                    <h2>Skills</h2>
+                    <div className={styles.boldSkills}>
+                      {skills.filter(s => s.skill_name).map((skill) => (
+                        <span key={skill.id} className={styles.boldSkill}>{skill.skill_name}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
             </div>
-          ) : (
-            /* Clean Template - Single Column Layout */
+          )}
+
+          {/* Minimal Template - Clean/Creative */}
+          {resume.template === 'minimal' && (
+            <div className={`${styles.resumePreview} ${styles.minimalTemplate}`}>
+              <h1 className={styles.minimalName}>
+                {personalInfo.first_name || personalInfo.last_name
+                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                  : 'Your Name'}
+              </h1>
+              <div className={styles.minimalContact}>
+                {personalInfo.email && <span>{personalInfo.email}</span>}
+                {personalInfo.phone && <span>{personalInfo.phone}</span>}
+                {personalInfo.location && <span>{personalInfo.location}</span>}
+              </div>
+              {personalInfo.summary && <div className={styles.minimalSection}><h2>Profile</h2><p>{personalInfo.summary}</p></div>}
+              {experience.length > 0 && (
+                <div className={styles.minimalSection}>
+                  <h2>Experience</h2>
+                  {experience.map((exp, idx) => (
+                    <div key={exp.id} className={`${styles.minimalEntry} ${idx === experience.length - 1 ? styles.minimalEntryLast : ''}`}>
+                      <div className={styles.minimalEntryHeader}>
+                        <strong>{exp.job_title || 'Job Title'}</strong>
+                        <span>{exp.start_date}{exp.end_date ? ` — ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                      </div>
+                      <div className={styles.minimalEntrySubtitle}>{exp.company_name}</div>
+                      {exp.description && <p>{exp.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {education.length > 0 && (
+                <div className={styles.minimalSection}>
+                  <h2>Education</h2>
+                  {education.map((edu, idx) => (
+                    <div key={edu.id} className={`${styles.minimalEntry} ${idx === education.length - 1 ? styles.minimalEntryLast : ''}`}>
+                      <div className={styles.minimalEntryHeader}>
+                        <strong>{edu.school_name || 'School Name'}</strong>
+                        <span>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
+                      </div>
+                      {(edu.degree || edu.field_of_study) && (
+                        <div className={styles.minimalEntrySubtitle}>{edu.degree}{edu.field_of_study ? `, ${edu.field_of_study}` : ''}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {skills.length > 0 && skills.some(s => s.skill_name) && (
+                <div className={styles.minimalSection}>
+                  <h2>Skills</h2>
+                  <p className={styles.minimalSkills}>{skills.filter(s => s.skill_name).map(s => s.skill_name).join('  /  ')}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Compact Template - Dense/Experienced */}
+          {resume.template === 'compact' && (
+            <div className={`${styles.resumePreview} ${styles.compactTemplate}`}>
+              <h1 className={styles.compactName}>
+                {personalInfo.first_name || personalInfo.last_name
+                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                  : 'Your Name'}
+              </h1>
+              <div className={styles.compactContact}>
+                {personalInfo.email && <span>{personalInfo.email}</span>}
+                {personalInfo.phone && <span>{personalInfo.phone}</span>}
+                {personalInfo.location && <span>{personalInfo.location}</span>}
+                {personalInfo.linkedin_url && <span>{personalInfo.linkedin_url}</span>}
+              </div>
+              {personalInfo.summary && <div className={styles.compactSection}><h2>Summary</h2><p>{personalInfo.summary}</p></div>}
+              {experience.length > 0 && (
+                <div className={styles.compactSection}>
+                  <h2>Experience</h2>
+                  {experience.map((exp) => (
+                    <div key={exp.id} className={styles.compactEntry}>
+                      <div className={styles.compactEntryHeader}>
+                        <strong>{exp.job_title} — {exp.company_name}</strong>
+                        <span>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                      </div>
+                      {exp.description && <p>{exp.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {education.length > 0 && (
+                <div className={styles.compactSection}>
+                  <h2>Education</h2>
+                  {education.map((edu) => (
+                    <div key={edu.id} className={styles.compactEntry}>
+                      <div className={styles.compactEntryHeader}>
+                        <strong>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''} — {edu.school_name}</strong>
+                        <span>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {skills.length > 0 && skills.some(s => s.skill_name) && (
+                <div className={styles.compactSection}>
+                  <h2>Skills</h2>
+                  <div className={styles.compactSkills}>
+                    {skills.filter(s => s.skill_name).map((skill) => (
+                      <span key={skill.id} className={styles.compactSkill}>{skill.skill_name}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Clean Template - Default Single Column Layout */}
+          {(!resume.template || resume.template === 'clean') && (
             <div className={styles.resumePreview}>
               <h1 className={styles.previewName}>
                 {personalInfo.first_name || personalInfo.last_name
                   ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
                   : 'Your Name'}
               </h1>
-
               <div className={styles.previewContact}>
                 {personalInfo.email && <span>{personalInfo.email}</span>}
                 {personalInfo.phone && <span>{personalInfo.phone}</span>}
@@ -1442,14 +1637,7 @@ export default function ResumeEditorPage() {
                   <span className={styles.placeholder}>email@example.com | (555) 123-4567 | City, State</span>
                 )}
               </div>
-
-              {personalInfo.summary && (
-                <div className={styles.previewSection}>
-                  <h2>Summary</h2>
-                  <p>{personalInfo.summary}</p>
-                </div>
-              )}
-
+              {personalInfo.summary && <div className={styles.previewSection}><h2>Summary</h2><p>{personalInfo.summary}</p></div>}
               {education.length > 0 && (
                 <div className={styles.previewSection}>
                   <h2>Education</h2>
@@ -1460,17 +1648,13 @@ export default function ResumeEditorPage() {
                         <span>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
                       </div>
                       {(edu.degree || edu.field_of_study) && (
-                        <div className={styles.previewEntrySubtitle}>
-                          {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
-                          {edu.gpa && <span className={styles.gpa}> | GPA: {edu.gpa}</span>}
-                        </div>
+                        <div className={styles.previewEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && <span className={styles.gpa}> | GPA: {edu.gpa}</span>}</div>
                       )}
                       {edu.achievements && <p className={styles.previewDescription}>{edu.achievements}</p>}
                     </div>
                   ))}
                 </div>
               )}
-
               {experience.length > 0 && (
                 <div className={styles.previewSection}>
                   <h2>Experience</h2>
@@ -1480,15 +1664,12 @@ export default function ResumeEditorPage() {
                         <strong>{exp.job_title || 'Job Title'}</strong>
                         <span>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
-                      <div className={styles.previewEntrySubtitle}>
-                        {exp.company_name}{exp.location ? ` | ${exp.location}` : ''}
-                      </div>
+                      <div className={styles.previewEntrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</div>
                       {exp.description && <p className={styles.previewDescription}>{exp.description}</p>}
                     </div>
                   ))}
                 </div>
               )}
-
               {skills.length > 0 && skills.some(s => s.skill_name) && (
                 <div className={styles.previewSection}>
                   <h2>Skills</h2>
@@ -1499,7 +1680,6 @@ export default function ResumeEditorPage() {
                   </div>
                 </div>
               )}
-
               {projects.length > 0 && (
                 <div className={styles.previewSection}>
                   <h2>Projects & Activities</h2>
@@ -1515,11 +1695,8 @@ export default function ResumeEditorPage() {
                   ))}
                 </div>
               )}
-
               {!personalInfo.summary && education.length === 0 && experience.length === 0 && skills.length === 0 && projects.length === 0 && (
-                <div className={styles.previewEmpty}>
-                  <p>Start filling out the form to see your resume preview</p>
-                </div>
+                <div className={styles.previewEmpty}><p>Start filling out the form to see your resume preview</p></div>
               )}
             </div>
           )}

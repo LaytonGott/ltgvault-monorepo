@@ -143,7 +143,7 @@ export default function ResumesPage() {
   }
 
   async function handleCreateResume() {
-    console.log('[Create Resume] Starting...', { isGuest, isPro: proStatus?.isPro });
+    console.log('[Create Resume] Starting...', { isGuest, isPro: proStatus?.isPro, proStatusLoaded: !!proStatus });
 
     try {
       if (isGuest) {
@@ -157,7 +157,13 @@ export default function ResumesPage() {
         const resume = createGuestResume();
         router.push(`/resume/${resume.id}`);
       } else {
-        // Logged in user - API handles the limit check
+        // Logged in user
+        // If Pro status confirms user is Pro, proceed without worry
+        // The API also checks, but this ensures we don't show wrong modals
+        if (proStatus?.isPro) {
+          console.log('[Create Resume] User is Pro - creating resume');
+        }
+
         console.log('[Create Resume] Calling API...');
         const { resume } = await createResume();
         console.log('[Create Resume] Success:', resume.id);
@@ -165,13 +171,24 @@ export default function ResumesPage() {
       }
     } catch (err: any) {
       console.log('[Create Resume] Error:', err.code, err.message, err);
-      // ONLY show upgrade modal for the specific RESUME_LIMIT error code
-      // This ensures first-time users aren't blocked by other error types
+
+      // CRITICAL: If we know user is Pro but got RESUME_LIMIT, log the bug but DON'T show modal
+      // This prevents the bad UX where Pro users see upgrade prompts
+      if (proStatus?.isPro && err.code === 'RESUME_LIMIT') {
+        console.error('[Create Resume] BUG: Pro user got RESUME_LIMIT! proStatus:', proStatus);
+        // Try refreshing Pro status and retrying once
+        await loadProStatus();
+        setError('Something went wrong. Please try again.');
+        return;
+      }
+
+      // Show upgrade modal ONLY for free users hitting the limit
       if (err.code === 'RESUME_LIMIT') {
         setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
         setShowUpgradeModal(true);
         return;
       }
+
       // All other errors just show the error message
       setError(err.message || 'Failed to create resume');
     }

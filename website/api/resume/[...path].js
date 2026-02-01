@@ -43,13 +43,47 @@ module.exports = async function handler(req, res) {
       }
 
       if (segment === 'ai-usage') {
+        // CRITICAL FIX: Use direct Pro check from user object
+        const directIsPro = user.subscribed_resumebuilder === true;
         const stats = await getResumeAIUsageStats(user.id);
-        return res.status(200).json({ used: stats.used, limit: stats.limit, isPro: stats.isPro, remaining: stats.limit - stats.used });
+
+        console.log('[AI Usage] user.subscribed_resumebuilder:', user.subscribed_resumebuilder, 'directIsPro:', directIsPro, 'stats.isPro:', stats.isPro);
+
+        return res.status(200).json({
+          used: stats.used,
+          limit: directIsPro ? 100 : 5, // Pro: 100/month, Free: 5 total
+          isPro: directIsPro,
+          remaining: directIsPro
+            ? Math.max(0, 100 - stats.used)
+            : Math.max(0, 5 - stats.used)
+        });
       }
 
       if (segment === 'pro-status') {
+        // CRITICAL FIX: Also include the direct user object's Pro status for debugging
+        // This ensures consistency with the resume create endpoint
         const status = await getResumeProStatus(user.id);
-        return res.status(200).json(status);
+        const directIsPro = user.subscribed_resumebuilder === true;
+
+        console.log('[Pro Status] user.id:', user.id);
+        console.log('[Pro Status] user.subscribed_resumebuilder:', user.subscribed_resumebuilder);
+        console.log('[Pro Status] directIsPro:', directIsPro);
+        console.log('[Pro Status] status.isPro:', status.isPro);
+
+        // Use the direct check as the source of truth
+        if (directIsPro !== status.isPro) {
+          console.warn('[Pro Status] MISMATCH! Direct:', directIsPro, 'Function:', status.isPro);
+        }
+
+        return res.status(200).json({
+          ...status,
+          isPro: directIsPro, // Override with direct check
+          _debug: {
+            directIsPro,
+            functionIsPro: status.isPro,
+            userSubscribedResumebuilder: user.subscribed_resumebuilder
+          }
+        });
       }
 
       if (segment === 'cover-letters' && !id) {
@@ -99,21 +133,40 @@ module.exports = async function handler(req, res) {
       const body = req.body || {};
 
       if (segment === 'create') {
-        // Check if user can create more resumes
-        const resumeCheck = await canCreateResume(user.id);
-        if (!resumeCheck.allowed) {
+        const { title = 'Untitled Resume', template = 'clean' } = body;
+
+        // CRITICAL FIX: Check Pro status directly from user object (already loaded by validateApiKey)
+        // This bypasses potential issues with isResumeProUser query
+        const isPro = user.subscribed_resumebuilder === true;
+        console.log('[Resume Create] User:', user.id, 'isPro (from user object):', isPro, 'subscribed_resumebuilder:', user.subscribed_resumebuilder);
+
+        if (isPro) {
+          // Pro users: unlimited resumes, create immediately
+          const { data } = await supabase.from('resumes').insert({ user_id: user.id, title, template }).select().single();
+          console.log('[Resume Create] Pro user - created resume:', data.id);
+          return res.status(200).json({ resume: data, isPro: true });
+        }
+
+        // Free users: check resume limit
+        const { count: resumeCount } = await supabase
+          .from('resumes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        console.log('[Resume Create] Free user - resume count:', resumeCount);
+
+        if ((resumeCount || 0) >= 1) {
           return res.status(403).json({
             error: 'RESUME_LIMIT',
             message: 'Upgrade to Pro to create unlimited resumes',
-            current: resumeCheck.current,
-            limit: resumeCheck.limit,
-            isPro: resumeCheck.isPro
+            current: resumeCount || 0,
+            limit: 1,
+            isPro: false
           });
         }
 
-        const { title = 'Untitled Resume', template = 'clean' } = body;
         const { data } = await supabase.from('resumes').insert({ user_id: user.id, title, template }).select().single();
-        return res.status(200).json({ resume: data });
+        return res.status(200).json({ resume: data, isPro: false });
       }
 
       if (segment === 'cover-letters' && !id) {

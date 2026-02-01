@@ -9,6 +9,7 @@ import { pdf } from '@react-pdf/renderer';
 import { getResume, updateResume, updateSection, deleteFromSection } from '@/lib/resume-api';
 import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
+import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
 import styles from './editor.module.css';
 
 // Guest mode storage helpers
@@ -725,32 +726,9 @@ export default function ResumeEditorPage() {
   const canUseAI = !isGuest && aiUsage && aiUsage.remaining > 0;
   const aiLimitReached = !isGuest && aiUsage && aiUsage.remaining <= 0;
 
-  // Handle upgrade button click
+  // Handle upgrade button click - goes directly to Stripe checkout
   async function handleUpgradeClick() {
-    try {
-      const apiKey = localStorage.getItem('ltgv_api_key');
-      if (!apiKey) {
-        window.location.href = '/pricing.html';
-        return;
-      }
-
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey
-        },
-        body: JSON.stringify({ tool: 'resumebuilder' })
-      });
-
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      window.location.href = '/pricing.html';
-    }
+    await redirectToResumeProCheckout();
   }
 
   // Handle locked nav tab click

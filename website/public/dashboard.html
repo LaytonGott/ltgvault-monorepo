@@ -1293,10 +1293,66 @@
                 if (percent >= 100) barEl.classList.add('full');
                 else if (percent >= 80) barEl.classList.add('high');
 
-                // Keep upgrade button
+                // Keep upgrade button - goes directly to Stripe checkout
                 actionEl.textContent = 'Upgrade to Pro - $19';
                 actionEl.className = 'subscription-action upgrade';
-                actionEl.href = '/resume';
+                actionEl.href = '#';
+                actionEl.onclick = function(e) {
+                    e.preventDefault();
+                    redirectToResumeProCheckout();
+                };
+            }
+        }
+
+        // Centralized checkout function for Resume Builder Pro
+        async function redirectToResumeProCheckout() {
+            try {
+                var apiKey = localStorage.getItem('ltgv_api_key');
+                var headers = { 'Content-Type': 'application/json' };
+
+                if (apiKey) {
+                    headers['x-api-key'] = apiKey;
+                }
+
+                var response = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ tool: 'resumebuilder' })
+                });
+
+                var data = await response.json();
+
+                if (!response.ok) {
+                    // If not logged in, the API will return an error asking for email
+                    if (data.error === 'Email is required') {
+                        var email = window.prompt('Enter your email to upgrade to Resume Builder Pro ($19 one-time):');
+                        if (!email) return;
+
+                        // Retry with email
+                        var retryResponse = await fetch('/api/checkout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tool: 'resumebuilder', email: email })
+                        });
+
+                        var retryData = await retryResponse.json();
+                        if (retryData.url) {
+                            window.location.href = retryData.url;
+                            return;
+                        }
+                        throw new Error(retryData.error || 'Failed to create checkout session');
+                    }
+                    throw new Error(data.error || 'Failed to create checkout session');
+                }
+
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    throw new Error('No checkout URL returned');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showStatus('Failed to start checkout. Please try again.', 'error');
             }
         }
 

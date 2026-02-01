@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
 import styles from './UpgradeModal.module.css';
 
 interface UpgradeModalProps {
@@ -30,29 +31,7 @@ export default function UpgradeModal({
     setError(null);
 
     try {
-      const apiKey = localStorage.getItem('ltgv_api_key');
-      if (!apiKey) {
-        // Not logged in - redirect to dashboard to sign up first
-        window.location.href = '/dashboard.html?upgrade=resumebuilder';
-        return;
-      }
-
-      // Go directly to Stripe checkout
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey
-        },
-        body: JSON.stringify({ tool: 'resumebuilder' })
-      });
-
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
+      await redirectToResumeProCheckout();
     } catch (err: any) {
       console.error('Checkout error:', err);
       setError(err.message || 'Failed to start checkout. Please try again.');

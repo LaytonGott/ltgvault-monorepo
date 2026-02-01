@@ -617,6 +617,15 @@
             margin-top: 2px;
         }
 
+        .subscription-subtext .pro-label {
+            background: linear-gradient(135deg, #c9a227, #e5c040);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.65rem;
+        }
+
         .subscription-stats {
             font-size: 0.8rem;
             color: var(--gray-light);
@@ -1240,11 +1249,11 @@
             var resumeUsage = usage.resumebuilder || { resumes: 0, aiUsed: 0, aiLimit: 5 };
 
             if (isPro) {
-                // Pro user - lifetime access
-                subscriptionItem.classList.add('pro');
+                // Pro user - lifetime access (green active styling like other tools)
                 subscriptionItem.classList.add('subscribed');
-                badge.textContent = 'PRO';
-                badge.className = 'subscription-badge lifetime';
+                subscriptionItem.classList.remove('pro');
+                badge.textContent = 'Active';
+                badge.className = 'subscription-badge active';
 
                 // Show resume count
                 resumesEl.textContent = resumeUsage.resumes || 0;
@@ -1252,26 +1261,24 @@
                 // Show AI usage (100/month for Pro)
                 usageEl.innerHTML = '<strong>' + (resumeUsage.aiUsed || 0) + '</strong> / 100 AI this month';
 
-                // Bar
-                var percent = Math.min(((resumeUsage.aiUsed || 0) / 100) * 100, 100);
-                barEl.style.width = percent + '%';
-                barEl.classList.remove('full', 'high');
-                if (percent >= 100) barEl.classList.add('full');
-                else if (percent >= 80) barEl.classList.add('high');
+                // Green unlimited bar (like other active subscriptions)
+                barEl.className = 'usage-bar-fill unlimited';
+                barEl.style.width = '100%';
 
                 // Update action button
                 actionEl.textContent = 'Open Resume Builder';
                 actionEl.className = 'subscription-action manage';
                 actionEl.href = '/resume';
+                actionEl.onclick = null;
 
-                // Add subtext for lifetime
+                // Add PRO badge and lifetime text
                 var subtext = subscriptionItem.querySelector('.subscription-subtext');
                 if (!subtext) {
                     subtext = document.createElement('div');
                     subtext.className = 'subscription-subtext';
                     badge.parentNode.appendChild(subtext);
                 }
-                subtext.textContent = 'Lifetime Access';
+                subtext.innerHTML = '<span class="pro-label">PRO</span> · Lifetime Access';
             } else {
                 // Free user
                 subscriptionItem.classList.remove('pro', 'subscribed');

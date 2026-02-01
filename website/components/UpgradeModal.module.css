@@ -125,7 +125,7 @@
 .planName {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #555;
+  color: #888;
   margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -141,7 +141,7 @@
 .priceAmount {
   font-size: 2rem;
   font-weight: 700;
-  color: #444;
+  color: #777;
 }
 
 /* Pro Plan Styling - Highlighted */
@@ -227,11 +227,11 @@
 
 /* Negative features (Free plan) */
 .featureItemNegative {
-  color: #555;
+  color: #888;
 }
 
 .xIcon {
-  color: #5c4343;
+  color: #6b5555;
   flex-shrink: 0;
 }
 
@@ -266,8 +266,8 @@
   width: 100%;
   padding: 12px 20px;
   background: transparent;
-  color: #555;
-  border: 1px solid #333;
+  color: #777;
+  border: 1px solid #444;
   border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -277,9 +277,9 @@
 }
 
 .freeButton:hover {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: #444;
-  color: #777;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #555;
+  color: #999;
 }
 
 .proButton {
@@ -327,21 +327,6 @@
 @keyframes starPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
-}
-
-/* Guarantee */
-.guarantee {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 12px 0 0 0;
-  font-size: 0.75rem;
-  color: #666;
-}
-
-.guarantee svg {
-  color: #4a9f4a;
 }
 
 /* Sparkle Effects */

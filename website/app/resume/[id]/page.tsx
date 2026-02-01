@@ -761,17 +761,21 @@ export default function ResumeEditorPage() {
 
   // Handle AI button click with Pro check
   function handleAIButtonClick(type: 'bullets' | 'summary', targetType?: 'experience' | 'project', targetId?: string) {
+    // Guests see upgrade modal prompting them to sign up
     if (isGuest) {
-      window.location.href = '/pricing.html';
+      setUpgradeMessage('Sign up for free to get 5 AI generations, or upgrade to Pro for 100/month.');
+      setShowUpgradeModal(true);
       return;
     }
 
+    // Free users who've hit their limit
     if (aiLimitReached) {
       setUpgradeMessage('You\'ve used all 5 free AI generations. Upgrade to Pro for 100 generations per month.');
       setShowUpgradeModal(true);
       return;
     }
 
+    // Free users with remaining generations can use AI
     if (type === 'summary') {
       openSummaryModal();
     } else if (targetType && targetId) {
@@ -995,22 +999,20 @@ export default function ResumeEditorPage() {
               <div className={styles.formGroup}>
                 <div className={styles.labelWithAction}>
                   <label>Summary</label>
-                  {!isGuest && (
-                    <button
-                      type="button"
-                      onClick={() => handleAIButtonClick('summary')}
-                      className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
-                      title={!isPro ? 'Pro feature - AI-generated professional summary' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate summary with AI'}
-                    >
-                      <span className={styles.sparkle}>✨</span>
-                      <span>AI Summary</span>
-                      {!isPro && (
-                        <span className={styles.proBadge}>
-                          <span className={styles.lockIconSmall}>🔒</span> PRO
-                        </span>
-                      )}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleAIButtonClick('summary')}
+                    className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
+                    title={isGuest ? 'Sign up to use AI features' : !isPro ? 'Pro feature - AI-generated professional summary' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate summary with AI'}
+                  >
+                    <span className={styles.sparkle}>✨</span>
+                    <span>Generate</span>
+                    {(isGuest || !isPro) && (
+                      <span className={styles.proBadge}>
+                        <span className={styles.lockIconSmall}>🔒</span> PRO
+                      </span>
+                    )}
+                  </button>
                 </div>
                 <textarea value={personalInfo.summary || ''} onChange={(e) => updatePersonalField('summary', e.target.value)} placeholder="Brief summary about yourself..." rows={4} />
               </div>
@@ -1162,22 +1164,20 @@ export default function ResumeEditorPage() {
                   <div className={styles.formGroup}>
                     <div className={styles.labelWithAction}>
                       <label>Description</label>
-                      {!isGuest && (
-                        <button
-                          type="button"
-                          onClick={() => handleAIButtonClick('bullets', 'experience', exp.id)}
-                          className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
-                          title={!isPro ? 'Pro feature - Turn your experience into professional bullets' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
-                        >
-                          <span className={styles.sparkle}>✨</span>
-                          <span>AI Bullets</span>
-                          {!isPro && (
-                            <span className={styles.proBadge}>
-                              <span className={styles.lockIconSmall}>🔒</span> PRO
-                            </span>
-                          )}
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleAIButtonClick('bullets', 'experience', exp.id)}
+                        className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
+                        title={isGuest ? 'Sign up to use AI features' : !isPro ? 'Pro feature - Turn your experience into professional bullets' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
+                      >
+                        <span className={styles.sparkle}>✨</span>
+                        <span>AI Bullets</span>
+                        {(isGuest || !isPro) && (
+                          <span className={styles.proBadge}>
+                            <span className={styles.lockIconSmall}>🔒</span> PRO
+                          </span>
+                        )}
+                      </button>
                     </div>
                     <textarea value={exp.description || ''} onChange={(e) => handleUpdateExperience(exp.id, 'description', e.target.value)} placeholder="What did you do? Use bullet points..." rows={4} />
                   </div>
@@ -1286,22 +1286,20 @@ export default function ResumeEditorPage() {
                   <div className={styles.formGroup}>
                     <div className={styles.labelWithAction}>
                       <label>Description</label>
-                      {!isGuest && (
-                        <button
-                          type="button"
-                          onClick={() => handleAIButtonClick('bullets', 'project', project.id)}
-                          className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
-                          title={!isPro ? 'Pro feature - Turn your experience into professional bullets' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
-                        >
-                          <span className={styles.sparkle}>✨</span>
-                          <span>AI Bullets</span>
-                          {!isPro && (
-                            <span className={styles.proBadge}>
-                              <span className={styles.lockIconSmall}>🔒</span> PRO
-                            </span>
-                          )}
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleAIButtonClick('bullets', 'project', project.id)}
+                        className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
+                        title={isGuest ? 'Sign up to use AI features' : !isPro ? 'Pro feature - Turn your experience into professional bullets' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
+                      >
+                        <span className={styles.sparkle}>✨</span>
+                        <span>AI Bullets</span>
+                        {(isGuest || !isPro) && (
+                          <span className={styles.proBadge}>
+                            <span className={styles.lockIconSmall}>🔒</span> PRO
+                          </span>
+                        )}
+                      </button>
                     </div>
                     <textarea value={project.description || ''} onChange={(e) => handleUpdateProject(project.id, 'description', e.target.value)} placeholder="What did you do or accomplish?" rows={3} />
                   </div>

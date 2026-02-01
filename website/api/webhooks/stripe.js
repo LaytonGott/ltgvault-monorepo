@@ -75,14 +75,43 @@ module.exports = async function handler(req, res) {
 
 async function handleCheckoutCompleted(session) {
   console.log('Processing checkout.session.completed');
+  console.log('Session ID:', session.id);
+  console.log('Session mode:', session.mode);
+  console.log('Session metadata:', JSON.stringify(session.metadata));
+  console.log('Customer email:', session.customer_email);
+  console.log('Customer ID:', session.customer);
 
   const customerId = session.customer;
   const subscriptionId = session.subscription;
-  const userEmail = session.metadata?.user_email || session.customer_email;
+  let userEmail = session.metadata?.user_email || session.customer_email;
   const tool = session.metadata?.tool;
 
+  // For anonymous checkouts, fetch email from customer or session details
+  if (!userEmail && customerId) {
+    try {
+      const customer = await stripe.customers.retrieve(customerId);
+      userEmail = customer.email;
+      console.log('Got email from customer:', userEmail);
+    } catch (e) {
+      console.log('Could not fetch customer email:', e.message);
+    }
+  }
+
+  // If still no email, try to get from the checkout session with expanded customer_details
   if (!userEmail) {
-    console.error('No email found in checkout session');
+    try {
+      const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+        expand: ['customer_details']
+      });
+      userEmail = fullSession.customer_details?.email;
+      console.log('Got email from customer_details:', userEmail);
+    } catch (e) {
+      console.log('Could not fetch session details:', e.message);
+    }
+  }
+
+  if (!userEmail) {
+    console.error('No email found in checkout session after all attempts');
     return;
   }
 
@@ -161,12 +190,16 @@ async function handleCheckoutCompleted(session) {
 }
 
 async function handleOneTimePayment(session, userEmail, tool, customerId) {
+  console.log(`handleOneTimePayment: email=${userEmail}, tool=${tool}, customerId=${customerId}`);
+
   // Update or create user
-  let { data: user } = await supabase
+  let { data: user, error: findError } = await supabase
     .from('users')
     .select('*')
     .eq('email', userEmail.toLowerCase())
     .single();
+
+  console.log('Find user result:', user ? `found (id: ${user.id})` : 'not found', findError?.message || '');
 
   // Prepare update - set the specific tool as purchased (lifetime access)
   const updateData = {
@@ -176,15 +209,23 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
   };
   updateData[`subscribed_${tool}`] = true;
 
+  console.log('Update data:', JSON.stringify(updateData));
+
   if (user) {
     // Update existing user
-    await supabase
+    const { error: updateError } = await supabase
       .from('users')
       .update(updateData)
       .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Error updating user:', updateError);
+    } else {
+      console.log(`Updated user ${user.id} with Pro status`);
+    }
   } else {
     // Create new user
-    const { data: newUser } = await supabase
+    const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert({
         email: userEmail.toLowerCase(),
@@ -192,7 +233,18 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
       })
       .select()
       .single();
-    user = newUser;
+
+    if (insertError) {
+      console.error('Error creating user:', insertError);
+    } else {
+      user = newUser;
+      console.log(`Created new user ${user.id} with Pro status`);
+    }
+  }
+
+  if (!user) {
+    console.error('Failed to get/create user');
+    return;
   }
 
   // Generate API key if user doesn't have one
@@ -208,7 +260,7 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
     console.log(`Created API key for user: ${user.email}`);
   }
 
-  console.log(`Successfully activated ${tool} for ${userEmail} (one-time purchase)`);
+  console.log(`SUCCESS: Activated ${tool} for ${userEmail} (one-time purchase)`);
 }
 
 async function handleSubscriptionUpdated(subscription) {

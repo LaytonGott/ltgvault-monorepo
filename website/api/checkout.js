@@ -158,6 +158,11 @@ module.exports = async function handler(req, res) {
       }
     };
 
+    // For one-time payments, always create a Stripe customer so we can track them
+    if (isOneTime) {
+      sessionConfig.customer_creation = 'always';
+    }
+
     // If user is logged in with email, attach/create Stripe customer
     if (email) {
       // Check if user exists in database

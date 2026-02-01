@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
 };
 
 async function handleCheckoutCompleted(session) {
-  console.log('Processing checkout.session.completed');
+  console.log('=== CHECKOUT SESSION COMPLETED ===');
   console.log('Session ID:', session.id);
   console.log('Session mode:', session.mode);
   console.log('Session metadata:', JSON.stringify(session.metadata));
@@ -84,9 +84,32 @@ async function handleCheckoutCompleted(session) {
   const customerId = session.customer;
   const subscriptionId = session.subscription;
   let userEmail = session.metadata?.user_email || session.customer_email;
-  const tool = session.metadata?.tool;
+  let tool = session.metadata?.tool;
 
-  // For anonymous checkouts, fetch email from customer or session details
+  // For anonymous checkouts, we need to fetch the full session with expanded fields
+  // because customer_details.email is not included in the webhook payload by default
+  try {
+    const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ['customer_details', 'line_items']
+    });
+
+    // Get email from customer_details if not already set
+    if (!userEmail) {
+      userEmail = fullSession.customer_details?.email;
+      console.log('Got email from customer_details:', userEmail);
+    }
+
+    // Get tool from line items if not in metadata (fallback)
+    if (!tool && fullSession.line_items?.data?.length > 0) {
+      const priceId = fullSession.line_items.data[0].price?.id;
+      tool = getToolFromPriceId(priceId);
+      console.log('Got tool from line_items price ID:', tool, '(price:', priceId, ')');
+    }
+  } catch (e) {
+    console.error('Could not fetch full session:', e.message);
+  }
+
+  // Also try customer email as fallback
   if (!userEmail && customerId) {
     try {
       const customer = await stripe.customers.retrieve(customerId);
@@ -97,34 +120,30 @@ async function handleCheckoutCompleted(session) {
     }
   }
 
-  // If still no email, try to get from the checkout session with expanded customer_details
-  if (!userEmail) {
-    try {
-      const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
-        expand: ['customer_details']
-      });
-      userEmail = fullSession.customer_details?.email;
-      console.log('Got email from customer_details:', userEmail);
-    } catch (e) {
-      console.log('Could not fetch session details:', e.message);
-    }
-  }
+  console.log('Final values - email:', userEmail, 'tool:', tool, 'mode:', session.mode);
 
   if (!userEmail) {
-    console.error('No email found in checkout session after all attempts');
+    console.error('FAILED: No email found in checkout session after all attempts');
     return;
   }
 
   // Handle one-time payment (e.g., resumebuilder)
-  if (session.mode === 'payment' && tool && isOneTimePayment(tool)) {
-    console.log(`One-time purchase completed: ${userEmail}, tool: ${tool}`);
-    await handleOneTimePayment(session, userEmail, tool, customerId);
-    return;
+  // Check: mode is 'payment' AND we have a tool AND it's a one-time tool
+  if (session.mode === 'payment') {
+    if (tool && isOneTimePayment(tool)) {
+      console.log(`Processing one-time purchase: ${userEmail}, tool: ${tool}`);
+      await handleOneTimePayment(session, userEmail, tool, customerId);
+      return;
+    } else if (!subscriptionId) {
+      // It's a one-time payment but we couldn't determine the tool
+      console.error('FAILED: One-time payment but could not determine tool. Tool:', tool);
+      return;
+    }
   }
 
   // Handle subscription payment
   if (!subscriptionId) {
-    console.error('No subscription ID found for subscription checkout');
+    console.error('FAILED: No subscription ID found for subscription checkout');
     return;
   }
 
@@ -203,10 +222,16 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
 
   // Prepare update - set the specific tool as purchased (lifetime access)
   const updateData = {
-    stripe_customer_id: customerId,
     subscription_status: 'active',
     updated_at: new Date().toISOString()
   };
+
+  // Only set stripe_customer_id if we have one
+  if (customerId) {
+    updateData.stripe_customer_id = customerId;
+  }
+
+  // Set the tool as subscribed (e.g., subscribed_resumebuilder = true)
   updateData[`subscribed_${tool}`] = true;
 
   console.log('Update data:', JSON.stringify(updateData));

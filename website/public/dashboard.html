@@ -460,8 +460,14 @@
         /* Subscriptions Card */
         .subscription-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
+        }
+
+        @media (min-width: 900px) {
+            .subscription-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .subscription-item {
@@ -576,6 +582,85 @@
 
         .subscription-action.manage:hover {
             background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Resume Builder Pro Card */
+        .subscription-item.pro {
+            border-color: rgba(201, 162, 39, 0.4);
+            background: rgba(201, 162, 39, 0.05);
+        }
+
+        .subscription-badge.pro {
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.3), rgba(201, 162, 39, 0.15));
+            color: var(--gold);
+        }
+
+        .subscription-badge.lifetime {
+            background: linear-gradient(135deg, #c9a227, #e5c040);
+            color: #000;
+        }
+
+        .subscription-tool-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subscription-tool-icon svg {
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .subscription-subtext {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+
+        .subscription-stats {
+            font-size: 0.8rem;
+            color: var(--gray-light);
+            margin-bottom: 6px;
+        }
+
+        .subscription-stats strong {
+            color: var(--white);
+        }
+
+        .subscription-action.upgrade {
+            background: linear-gradient(135deg, #c9a227, #e5c040);
+            color: #000;
+            border: none;
+        }
+
+        .subscription-action.upgrade:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+        }
+
+        .subscription-links {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .subscription-links a {
+            flex: 1;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--gray-light);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .subscription-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
         }
 
         /* Quick Links */
@@ -711,9 +796,11 @@
                 font-size: 1.5rem;
             }
 
-            .subscription-grid,
-            .quick-links {
+            .subscription-grid {
                 grid-template-columns: 1fr;
+            }
+            .quick-links {
+                grid-template-columns: repeat(2, 1fr) !important;
             }
 
             .api-key-container {
@@ -821,6 +908,37 @@
                     <button class="btn secondary" id="billingBtn" style="display: none;">Manage Billing</button>
                 </div>
                 <div class="subscription-grid">
+                    <!-- Resume Builder -->
+                    <div class="subscription-item" id="resumebuilderSubscription">
+                        <div class="subscription-header">
+                            <div class="subscription-tool-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                <span class="subscription-tool">Resume Builder</span>
+                            </div>
+                            <span class="subscription-badge free" id="resumebuilderBadge">Free</span>
+                        </div>
+                        <div class="subscription-stats" id="resumebuilderStats">
+                            <strong id="resumebuilderResumes">0</strong> resumes created
+                        </div>
+                        <div class="subscription-usage" id="resumebuilderUsage">
+                            <strong>0</strong> / 5 AI generations
+                        </div>
+                        <div class="usage-bar">
+                            <div class="usage-bar-fill" id="resumebuilderBar" style="width: 0%"></div>
+                        </div>
+                        <div class="subscription-links" id="resumebuilderLinks">
+                            <a href="/resume">Create Resume</a>
+                            <a href="/resume">View Resumes</a>
+                        </div>
+                        <a href="/resume" class="subscription-action upgrade" id="resumebuilderAction">Upgrade to Pro - $19</a>
+                    </div>
+
+                    <!-- PostUp -->
                     <div class="subscription-item" id="postupSubscription">
                         <div class="subscription-header">
                             <span class="subscription-tool">PostUp</span>
@@ -870,7 +988,16 @@
                 <div class="card-header">
                     <h2 class="card-title">Tools</h2>
                 </div>
-                <div class="quick-links">
+                <div class="quick-links" style="grid-template-columns: repeat(4, 1fr);">
+                    <a href="/resume" class="quick-link">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        <span class="quick-link-text">Resume Builder</span>
+                    </a>
                     <a href="postup.html" class="quick-link">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
@@ -1084,15 +1211,93 @@
             // Check if user has any subscriptions
             hasAnySubscription = subs.postup || subs.chaptergen || subs.threadgen;
 
-            // Show billing button if any subscription
+            // Show billing button if any subscription (not for Resume Builder - it's one-time)
             if (hasAnySubscription) {
                 billingBtn.style.display = 'inline-flex';
             }
+
+            // Update Resume Builder UI
+            updateResumeBuilderUI(user, usage);
 
             // Update each tool's subscription status
             updateToolUI('postup', usage.postup);
             updateToolUI('chaptergen', usage.chaptergen);
             updateToolUI('threadgen', usage.threadgen);
+        }
+
+        // Update Resume Builder UI
+        function updateResumeBuilderUI(user, usage) {
+            var subscriptionItem = document.getElementById('resumebuilderSubscription');
+            var badge = document.getElementById('resumebuilderBadge');
+            var statsEl = document.getElementById('resumebuilderStats');
+            var resumesEl = document.getElementById('resumebuilderResumes');
+            var usageEl = document.getElementById('resumebuilderUsage');
+            var barEl = document.getElementById('resumebuilderBar');
+            var linksEl = document.getElementById('resumebuilderLinks');
+            var actionEl = document.getElementById('resumebuilderAction');
+
+            var isPro = user.subscribed_resumebuilder === true;
+            var resumeUsage = usage.resumebuilder || { resumes: 0, aiUsed: 0, aiLimit: 5 };
+
+            if (isPro) {
+                // Pro user - lifetime access
+                subscriptionItem.classList.add('pro');
+                subscriptionItem.classList.add('subscribed');
+                badge.textContent = 'PRO';
+                badge.className = 'subscription-badge lifetime';
+
+                // Show resume count
+                resumesEl.textContent = resumeUsage.resumes || 0;
+
+                // Show AI usage (100/month for Pro)
+                usageEl.innerHTML = '<strong>' + (resumeUsage.aiUsed || 0) + '</strong> / 100 AI this month';
+
+                // Bar
+                var percent = Math.min(((resumeUsage.aiUsed || 0) / 100) * 100, 100);
+                barEl.style.width = percent + '%';
+                barEl.classList.remove('full', 'high');
+                if (percent >= 100) barEl.classList.add('full');
+                else if (percent >= 80) barEl.classList.add('high');
+
+                // Update action button
+                actionEl.textContent = 'Open Resume Builder';
+                actionEl.className = 'subscription-action manage';
+                actionEl.href = '/resume';
+
+                // Add subtext for lifetime
+                var subtext = subscriptionItem.querySelector('.subscription-subtext');
+                if (!subtext) {
+                    subtext = document.createElement('div');
+                    subtext.className = 'subscription-subtext';
+                    badge.parentNode.appendChild(subtext);
+                }
+                subtext.textContent = 'Lifetime Access';
+            } else {
+                // Free user
+                subscriptionItem.classList.remove('pro', 'subscribed');
+                badge.textContent = 'Free';
+                badge.className = 'subscription-badge free';
+
+                // Show resume count
+                resumesEl.textContent = resumeUsage.resumes || 0;
+
+                // Show AI usage (5 lifetime for free)
+                var aiUsed = resumeUsage.aiUsed || 0;
+                var aiLimit = 5;
+                usageEl.innerHTML = '<strong>' + aiUsed + '</strong> / ' + aiLimit + ' AI generations';
+
+                // Bar
+                var percent = Math.min((aiUsed / aiLimit) * 100, 100);
+                barEl.style.width = percent + '%';
+                barEl.classList.remove('full', 'high', 'unlimited');
+                if (percent >= 100) barEl.classList.add('full');
+                else if (percent >= 80) barEl.classList.add('high');
+
+                // Keep upgrade button
+                actionEl.textContent = 'Upgrade to Pro - $19';
+                actionEl.className = 'subscription-action upgrade';
+                actionEl.href = '/resume';
+            }
         }
 
         // Update UI for a single tool

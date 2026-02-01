@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
       .is('revoked_at', null)
       .single();
 
-    // Get usage stats
+    // Get usage stats for content tools
     const currentMonth = new Date().toISOString().slice(0, 7);
     const { data: usageData } = await supabase
       .from('usage')
@@ -87,7 +87,7 @@ module.exports = async function handler(req, res) {
       .eq('user_id', user.id)
       .eq('month', currentMonth);
 
-    // Build usage object
+    // Build usage object for content tools
     const usage = {};
     const tools = ['postup', 'chaptergen', 'threadgen'];
     const freeLimits = { postup: 3, chaptergen: 1, threadgen: 3 };
@@ -105,11 +105,55 @@ module.exports = async function handler(req, res) {
       };
     });
 
+    // Get Resume Builder stats
+    const isResumePro = user.subscribed_resumebuilder || false;
+
+    // Count user's resumes
+    const { count: resumeCount } = await supabase
+      .from('resumes')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    // Get AI usage for resume features
+    let resumeAiUsed = 0;
+    if (isResumePro) {
+      // Pro: count this month's usage
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const { data: monthlyUsage } = await supabase
+        .from('ai_usage')
+        .select('usage_count')
+        .eq('user_id', user.id)
+        .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter'])
+        .gte('usage_date', startOfMonth.toISOString().split('T')[0]);
+
+      resumeAiUsed = (monthlyUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
+    } else {
+      // Free: count total lifetime usage
+      const { data: totalUsage } = await supabase
+        .from('ai_usage')
+        .select('usage_count')
+        .eq('user_id', user.id)
+        .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter']);
+
+      resumeAiUsed = (totalUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
+    }
+
+    usage.resumebuilder = {
+      resumes: resumeCount || 0,
+      aiUsed: resumeAiUsed,
+      aiLimit: isResumePro ? 100 : 5,
+      subscribed: isResumePro
+    };
+
     return res.status(200).json({
       success: true,
       user: {
         email: user.email,
-        createdAt: user.created_at
+        createdAt: user.created_at,
+        subscribed_resumebuilder: isResumePro
       },
       apiKey: keyData ? {
         prefix: keyData.key_prefix,
@@ -121,7 +165,8 @@ module.exports = async function handler(req, res) {
       subscriptions: {
         postup: user.subscribed_postup || false,
         chaptergen: user.subscribed_chaptergen || false,
-        threadgen: user.subscribed_threadgen || false
+        threadgen: user.subscribed_threadgen || false,
+        resumebuilder: isResumePro
       },
       usage: usage
     });

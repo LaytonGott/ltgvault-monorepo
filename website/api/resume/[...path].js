@@ -6,8 +6,35 @@ const { getResumeProStatus, canCreateResume, canCreateJob, canUseTemplate } = re
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];
-  if (apiKey) return await validateApiKey(apiKey);
-  return null;
+  if (!apiKey) return null;
+
+  const user = await validateApiKey(apiKey);
+  if (!user) return null;
+
+  // CRITICAL FIX: If user doesn't have Pro status, check if there's another user
+  // with the same email that DOES have Pro (webhook might have created/updated a different record)
+  if (!user.subscribed_resumebuilder && user.email) {
+    console.log('[getUser] User by API key does not have Pro, checking by email:', user.email);
+    const { data: proUser } = await supabase
+      .from('users')
+      .select('subscribed_resumebuilder')
+      .eq('email', user.email.toLowerCase())
+      .eq('subscribed_resumebuilder', true)
+      .single();
+
+    if (proUser) {
+      console.log('[getUser] Found Pro subscription by email! Merging Pro status.');
+      user.subscribed_resumebuilder = true;
+
+      // Also update the original user record to have Pro status (fix the data)
+      await supabase
+        .from('users')
+        .update({ subscribed_resumebuilder: true, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+    }
+  }
+
+  return user;
 }
 
 module.exports = async function handler(req, res) {

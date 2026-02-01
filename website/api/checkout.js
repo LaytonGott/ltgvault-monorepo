@@ -33,25 +33,28 @@ module.exports = async function handler(req, res) {
 
     // If API key is provided, get user email from it (for logged-in users upgrading)
     const apiKey = req.headers['x-api-key'];
-    if (apiKey && !email) {
+    let existingUser = null;
+    if (apiKey) {
       const user = await validateApiKey(apiKey);
       if (user) {
         email = user.email;
+        existingUser = user;
       }
     }
 
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+    // Validate email format if provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Invalid email format' });
-    }
-
-    // Handle free tier signup (no tool specified)
+    // Handle free tier signup (no tool specified) - requires email
     if (!tool || tool === 'free') {
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required for free signup' });
+      }
       // Check if user already exists
       let { data: existingUser } = await supabase
         .from('users')
@@ -122,47 +125,6 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Price not configured for this tool' });
     }
 
-    // Check if user exists, create/get Stripe customer
-    let { data: existingUser } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .single();
-
-    let stripeCustomerId;
-
-    if (existingUser?.stripe_customer_id) {
-      stripeCustomerId = existingUser.stripe_customer_id;
-    } else {
-      // Create Stripe customer
-      const customer = await stripe.customers.create({
-        email: email.toLowerCase(),
-        metadata: {
-          source: 'ltgvault'
-        }
-      });
-      stripeCustomerId = customer.id;
-
-      // Create or update user with Stripe customer ID
-      if (existingUser) {
-        await supabase
-          .from('users')
-          .update({ stripe_customer_id: stripeCustomerId })
-          .eq('id', existingUser.id);
-      } else {
-        const { data: newUser } = await supabase
-          .from('users')
-          .insert({
-            email: email.toLowerCase(),
-            stripe_customer_id: stripeCustomerId,
-            subscription_status: 'active'
-          })
-          .select()
-          .single();
-        existingUser = newUser;
-      }
-    }
-
     // Create Stripe checkout session for tool subscription
     const siteUrl = (process.env.SITE_URL || 'https://ltgvault.vercel.app').trim().replace(/\/$/, '');
 
@@ -179,8 +141,8 @@ module.exports = async function handler(req, res) {
     const successUrl = `${siteUrl}${toolPage}?${successParam}=true&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteUrl}/pricing.html?canceled=true`;
 
-    const session = await stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
+    // Build checkout session config
+    const sessionConfig = {
       payment_method_types: ['card'],
       line_items: [
         {
@@ -192,10 +154,59 @@ module.exports = async function handler(req, res) {
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
-        user_email: email.toLowerCase(),
         tool: tool
       }
-    });
+    };
+
+    // If user is logged in with email, attach/create Stripe customer
+    if (email) {
+      // Check if user exists in database
+      if (!existingUser) {
+        const { data: dbUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email.toLowerCase())
+          .single();
+        existingUser = dbUser;
+      }
+
+      let stripeCustomerId;
+      if (existingUser?.stripe_customer_id) {
+        stripeCustomerId = existingUser.stripe_customer_id;
+      } else {
+        // Create Stripe customer
+        const customer = await stripe.customers.create({
+          email: email.toLowerCase(),
+          metadata: { source: 'ltgvault' }
+        });
+        stripeCustomerId = customer.id;
+
+        // Create or update user with Stripe customer ID
+        if (existingUser) {
+          await supabase
+            .from('users')
+            .update({ stripe_customer_id: stripeCustomerId })
+            .eq('id', existingUser.id);
+        } else {
+          const { data: newUser } = await supabase
+            .from('users')
+            .insert({
+              email: email.toLowerCase(),
+              stripe_customer_id: stripeCustomerId,
+              subscription_status: 'active'
+            })
+            .select()
+            .single();
+          existingUser = newUser;
+        }
+      }
+
+      sessionConfig.customer = stripeCustomerId;
+      sessionConfig.metadata.user_email = email.toLowerCase();
+    }
+
+    // Create the checkout session
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return res.status(200).json({
       success: true,

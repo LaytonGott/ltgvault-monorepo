@@ -14,6 +14,7 @@ export async function redirectToResumeProCheckout(): Promise<void> {
       headers['x-api-key'] = apiKey;
     }
 
+    // Don't pass email - Stripe will collect it during checkout
     const response = await fetch('/api/checkout', {
       method: 'POST',
       headers,
@@ -22,39 +23,13 @@ export async function redirectToResumeProCheckout(): Promise<void> {
 
     const data = await response.json();
 
-    if (!response.ok) {
-      // If not logged in, the API will return an error asking for email
-      // In this case, redirect to pricing page as fallback
-      if (data.error === 'Email is required') {
-        // User not logged in - show a prompt or redirect to pricing
-        const email = window.prompt('Enter your email to upgrade to Resume Builder Pro ($19 one-time):');
-        if (!email) return;
-
-        // Retry with email
-        const retryResponse = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tool: 'resumebuilder', email }),
-        });
-
-        const retryData = await retryResponse.json();
-        if (retryData.url) {
-          window.location.href = retryData.url;
-          return;
-        }
-        throw new Error(retryData.error || 'Failed to create checkout session');
-      }
-      throw new Error(data.error || 'Failed to create checkout session');
-    }
-
     if (data.url) {
       window.location.href = data.url;
     } else {
-      throw new Error('No checkout URL returned');
+      throw new Error(data.error || 'Failed to create checkout session');
     }
   } catch (error) {
     console.error('Checkout error:', error);
-    // Fallback to pricing page on error
     window.location.href = '/pricing.html';
   }
 }

@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { listResumes, createResume, deleteResume } from '@/lib/resume-api';
 import UpgradeModal from '@/components/UpgradeModal';
@@ -56,7 +56,6 @@ interface ProStatus {
 
 export default function ResumesPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,19 +79,21 @@ export default function ResumesPage() {
     loadProStatus();
 
     // Handle query params from redirects (e.g., from /resume/new)
-    const limitParam = searchParams.get('limit');
-    const errorParam = searchParams.get('error');
+    // Using window.location.search instead of useSearchParams to avoid SSR issues
+    const params = new URLSearchParams(window.location.search);
+    const limitParam = params.get('limit');
+    const errorParam = params.get('error');
 
     if (limitParam === 'true') {
       setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
       setShowUpgradeModal(true);
       // Clean up URL
-      router.replace('/resume');
+      window.history.replaceState({}, '', '/resume');
     } else if (errorParam) {
       setError(errorParam);
-      router.replace('/resume');
+      window.history.replaceState({}, '', '/resume');
     }
-  }, [searchParams, router]);
+  }, []);
 
   async function loadProStatus() {
     try {

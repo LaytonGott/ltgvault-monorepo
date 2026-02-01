@@ -853,8 +853,15 @@ export default function ResumeEditorPage() {
             <button
               className={`${styles.templateOption} ${resume.template === 'modern' ? styles.activeTemplate : ''} ${!isPro ? styles.lockedTemplate : ''}`}
               onClick={() => handleUpdateTemplate('modern')}
+              title={!isPro ? 'Pro feature - Unlock premium templates' : 'Modern template'}
             >
-              Modern {!isPro && <span className={styles.lockIcon}>🔒</span>}
+              Modern
+              {!isPro && (
+                <>
+                  <span className={styles.lockIcon}>🔒</span>
+                  <span className={styles.templateProBadge}>PRO</span>
+                </>
+              )}
             </button>
           </div>
 
@@ -907,8 +914,11 @@ export default function ResumeEditorPage() {
           <button
             className={`${styles.subNavTab} ${styles.lockedTab}`}
             onClick={() => handleLockedTabClick('Cover Letters')}
+            title="Pro feature - Generate AI cover letters"
           >
-            Cover Letters <span className={styles.lockIcon}>🔒</span>
+            Cover Letters
+            <span className={styles.lockIcon}>🔒</span>
+            <span className={styles.tabProBadge}>PRO</span>
           </button>
         )}
         {isPro ? (
@@ -919,8 +929,11 @@ export default function ResumeEditorPage() {
           <button
             className={`${styles.subNavTab} ${styles.lockedTab}`}
             onClick={() => handleLockedTabClick('Job Tracker')}
+            title="Pro feature - Track unlimited job applications"
           >
-            Job Tracker <span className={styles.lockIcon}>🔒</span>
+            Job Tracker
+            <span className={styles.lockIcon}>🔒</span>
+            <span className={styles.tabProBadge}>PRO</span>
           </button>
         )}
       </nav>
@@ -986,12 +999,16 @@ export default function ResumeEditorPage() {
                     <button
                       type="button"
                       onClick={() => handleAIButtonClick('summary')}
-                      className={`${styles.aiButton} ${aiLimitReached ? styles.aiButtonLocked : ''}`}
-                      title={aiLimitReached ? 'Upgrade to Pro for more AI generations' : 'Generate summary with AI'}
+                      className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
+                      title={!isPro ? 'Pro feature - AI-generated professional summary' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate summary with AI'}
                     >
                       <span className={styles.sparkle}>✨</span>
                       <span>AI Summary</span>
-                      {!isPro && <span className={styles.proBadge}>Pro</span>}
+                      {!isPro && (
+                        <span className={styles.proBadge}>
+                          <span className={styles.lockIconSmall}>🔒</span> PRO
+                        </span>
+                      )}
                     </button>
                   )}
                 </div>
@@ -1149,12 +1166,16 @@ export default function ResumeEditorPage() {
                         <button
                           type="button"
                           onClick={() => handleAIButtonClick('bullets', 'experience', exp.id)}
-                          className={`${styles.aiButton} ${aiLimitReached ? styles.aiButtonLocked : ''}`}
-                          title={aiLimitReached ? 'Upgrade to Pro for more AI generations' : 'Generate bullet points with AI'}
+                          className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
+                          title={!isPro ? 'Pro feature - Turn your experience into professional bullets' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
                         >
                           <span className={styles.sparkle}>✨</span>
                           <span>AI Bullets</span>
-                          {!isPro && <span className={styles.proBadge}>Pro</span>}
+                          {!isPro && (
+                            <span className={styles.proBadge}>
+                              <span className={styles.lockIconSmall}>🔒</span> PRO
+                            </span>
+                          )}
                         </button>
                       )}
                     </div>
@@ -1269,12 +1290,16 @@ export default function ResumeEditorPage() {
                         <button
                           type="button"
                           onClick={() => handleAIButtonClick('bullets', 'project', project.id)}
-                          className={`${styles.aiButton} ${aiLimitReached ? styles.aiButtonLocked : ''}`}
-                          title={aiLimitReached ? 'Upgrade to Pro for more AI generations' : 'Generate bullet points with AI'}
+                          className={`${styles.aiButton} ${!isPro || aiLimitReached ? styles.aiButtonLocked : ''}`}
+                          title={!isPro ? 'Pro feature - Turn your experience into professional bullets' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
                         >
                           <span className={styles.sparkle}>✨</span>
                           <span>AI Bullets</span>
-                          {!isPro && <span className={styles.proBadge}>Pro</span>}
+                          {!isPro && (
+                            <span className={styles.proBadge}>
+                              <span className={styles.lockIconSmall}>🔒</span> PRO
+                            </span>
+                          )}
                         </button>
                       )}
                     </div>

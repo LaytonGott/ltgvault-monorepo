@@ -197,7 +197,22 @@
 
 .lockIcon {
   font-size: 0.75rem;
-  opacity: 0.8;
+  color: #c9a227;
+}
+
+.tabProBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.3), rgba(201, 162, 39, 0.15));
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #c9a227;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 6px;
 }
 
 /* ============ TEMPLATE SELECTOR ============ */
@@ -240,11 +255,34 @@
 
 .lockedTemplate {
   color: var(--gray);
+  position: relative;
 }
 
 .lockedTemplate:hover {
-  background: rgba(201, 162, 39, 0.1);
+  background: rgba(201, 162, 39, 0.15);
   color: var(--gold-light);
+  border-color: rgba(201, 162, 39, 0.3);
+}
+
+.lockedTemplate .lockIcon {
+  color: #c9a227;
+  font-size: 0.7rem;
+  margin-left: 4px;
+}
+
+.templateProBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px;
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.3), rgba(201, 162, 39, 0.15));
+  border-radius: 3px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #c9a227;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-left: 6px;
 }
 
 /* ============ AI USAGE INDICATOR ============ */
@@ -294,9 +332,16 @@
 .proBadge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
-  background: rgba(201, 162, 39, 0.2);
-  border-radius: 3px;
+  gap: 3px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.25), rgba(201, 162, 39, 0.15));
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #c9a227;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   font-size: 0.65rem;
   font-weight: 700;
   color: #c9a227;
@@ -306,12 +351,30 @@
 }
 
 .aiButtonLocked {
-  opacity: 0.6;
+  opacity: 0.85;
   cursor: pointer;
+  position: relative;
 }
 
 .aiButtonLocked:hover {
-  opacity: 0.8;
+  opacity: 1;
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2), rgba(201, 162, 39, 0.1));
+  border-color: rgba(201, 162, 39, 0.5);
+}
+
+.aiButtonLocked .proBadge {
+  animation: subtlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Lock icon in AI button */
+.lockIconSmall {
+  font-size: 0.7rem;
+  margin-left: 2px;
 }
 
 .downloadButton {

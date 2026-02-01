@@ -19,17 +19,26 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).json({ success: true });
 
   const user = await getUser(req);
-  if (!user) return res.status(401).json({ error: 'API key required' });
+  if (!user) {
+    console.log('Resume API: No valid user from API key');
+    return res.status(401).json({ error: 'API key required' });
+  }
 
   const path = req.query.path || [];
   const segment = path[0];
   const id = path[1];
 
+  console.log('Resume API:', req.method, 'path:', path, 'segment:', segment);
+
   try {
     // GET requests
     if (req.method === 'GET') {
       if (segment === 'list') {
-        const { data } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
+        const { data, error } = await supabase.from('resumes').select('*').eq('user_id', user.id).order('updated_at', { ascending: false });
+        if (error) {
+          console.error('Resume list query error:', error);
+          return res.status(500).json({ error: 'Database error', message: error.message });
+        }
         return res.status(200).json({ resumes: data || [] });
       }
 
@@ -81,7 +90,8 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ resume, personalInfo: pi.data, education: edu.data || [], experience: exp.data || [], skills: skills.data || [], projects: proj.data || [] });
       }
 
-      return res.status(404).json({ error: 'Not found' });
+      console.log('Resume API: Unrecognized GET route, path:', path, 'segment:', segment);
+      return res.status(404).json({ error: 'Not found', path: path, segment: segment });
     }
 
     // POST requests

@@ -118,7 +118,18 @@ export default function ResumesPage() {
       const { resumes: data } = await listResumes();
       setResumes(data || []);
     } catch (err: any) {
-      setError(err.message);
+      console.error('Failed to load resumes:', err);
+      // If API fails (invalid key, server error, etc.), fall back to guest mode
+      // This handles users with stale/invalid API keys gracefully
+      if (err.status === 401 || err.status === 404) {
+        console.log('API auth failed, clearing key and switching to guest mode');
+        localStorage.removeItem('ltgv_api_key');
+        setIsGuest(true);
+        setResumes(getGuestResumes());
+      } else {
+        // Only show error for unexpected issues
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }

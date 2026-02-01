@@ -2,8 +2,285 @@ const { authenticateRequest } = require('../../lib/auth');
 const { canUseTool, incrementUsage } = require('../../lib/usage');
 
 // ============================================================================
-// THREAD TYPE PROMPTS - Different styles for different content types
+// CONSOLIDATED TOOLS API - Routes to postup, threadgen, or chaptergen
 // ============================================================================
+
+module.exports = async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-free-trial');
+  res.setHeader('Content-Type', 'application/json');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({ success: true });
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Get tool from URL parameter
+  const { tool } = req.query;
+
+  if (!tool || !['postup', 'threadgen', 'chaptergen'].includes(tool)) {
+    return res.status(404).json({ error: 'Tool not found. Valid tools: postup, threadgen, chaptergen' });
+  }
+
+  // Route to the appropriate handler
+  switch (tool) {
+    case 'postup':
+      return handlePostUp(req, res);
+    case 'threadgen':
+      return handleThreadGen(req, res);
+    case 'chaptergen':
+      return handleChapterGen(req, res);
+    default:
+      return res.status(404).json({ error: 'Tool not found' });
+  }
+};
+
+// ============================================================================
+// POSTUP HANDLER - LinkedIn Post Generator
+// ============================================================================
+
+const {
+  buildSystemPrompt,
+  buildGenerationPrompt,
+  buildRefinementPrompt
+} = require('../../lib/prompts');
+
+async function handlePostUp(req, res) {
+  try {
+    // Check if this is a free trial request (no API key, tracked in localStorage)
+    const isFreeTrial = req.headers['x-free-trial'] === 'true';
+    const hasApiKey = !!req.headers['x-api-key'];
+
+    let user = null;
+    let isSubscribed = false;
+
+    if (hasApiKey) {
+      // Authenticate with API key
+      const { user: authUser, error: authError } = await authenticateRequest(req);
+
+      if (authError) {
+        return res.status(401).json({ error: authError });
+      }
+
+      user = authUser;
+      isSubscribed = user.subscribed_postup || false;
+
+      // Check usage limits for authenticated users
+      const { allowed, used, limit, subscribed } = await canUseTool(user.id, 'postup', isSubscribed);
+
+      if (!allowed) {
+        return res.status(429).json({
+          error: 'LIMIT_EXCEEDED',
+          message: `You've used all ${limit} free PostUp generations. Subscribe for unlimited access.`,
+          usage: { used, limit },
+          upgradeUrl: '/pricing.html'
+        });
+      }
+    } else if (!isFreeTrial) {
+      // No API key and not marked as free trial
+      return res.status(401).json({
+        error: 'API key required. Use free trial or subscribe for access.',
+        freeTrialAvailable: true
+      });
+    }
+    // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
+
+    // Get content from request
+    const content = req.body.content;
+
+    if (!content || content.trim().length === 0) {
+      return res.status(400).json({ error: 'content is required' });
+    }
+
+    if (content.length < 1) {
+      return res.status(400).json({ error: 'Content is too short.' });
+    }
+
+    if (content.length > 10000) {
+      return res.status(400).json({ error: 'Content too long. Maximum 10000 characters.' });
+    }
+
+    // Call Anthropic Claude API
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+    if (!anthropicKey) {
+      return res.status(500).json({ error: 'Anthropic API not configured' });
+    }
+
+    // Get options from request body
+    const { style, tone, inputType, niche, action, currentPost } = req.body;
+
+    // Build system prompt from shared prompts module
+    const systemPrompt = buildSystemPrompt(tone, inputType, niche, style);
+
+    // Build user prompt - either generation or refinement
+    let userPrompt;
+    if (action && currentPost) {
+      userPrompt = buildRefinementPrompt(currentPost, action);
+      if (userPrompt === null) {
+        return res.status(400).json({ error: 'Invalid action specified' });
+      }
+    } else {
+      userPrompt = buildGenerationPrompt(content);
+    }
+
+    // Build the request payload
+    const requestPayload = {
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 2500,
+      temperature: 0.3,
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: userPrompt }
+      ]
+    };
+
+    // Anthropic Claude API
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(requestPayload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch (e) {
+        errorData = { rawError: errorText };
+      }
+
+      return res.status(500).json({
+        error: errorData?.error?.message || errorData?.message || 'Failed to generate content'
+      });
+    }
+
+    const data = await response.json();
+    const rawResult = data.content?.[0]?.text;
+
+    if (!rawResult) {
+      return res.status(500).json({ error: 'Empty response from AI' });
+    }
+
+    // Process the response
+    let result;
+    try {
+      if (action) {
+        // Quick actions return plain text
+        result = rawResult.trim();
+      } else {
+        // Normal generation returns JSON
+        result = JSON.parse(rawResult);
+      }
+    } catch (e) {
+      console.error('Process response error:', e);
+      return res.status(500).json({ error: 'Failed to process response. Please try again.' });
+    }
+
+    // Post-processing: Enforce rules in code
+    const bannedStarts = ['I used to', 'I realized', 'I learned', 'I thought', 'I discovered', 'A few years ago', 'When I started', 'When I first'];
+
+    function cleanContent(text) {
+      if (!text) return text;
+      let cleaned = text;
+
+      // Remove ALL types of dashes
+      cleaned = cleaned.replace(/ — /g, ', ');
+      cleaned = cleaned.replace(/ – /g, ', ');
+      cleaned = cleaned.replace(/—/g, ', ');
+      cleaned = cleaned.replace(/–/g, ', ');
+      cleaned = cleaned.replace(/\u2014/g, ', ');
+      cleaned = cleaned.replace(/\u2013/g, ', ');
+      cleaned = cleaned.replace(/\u2012/g, ', ');
+      cleaned = cleaned.replace(/\u2015/g, ', ');
+
+      // Clean up spacing
+      cleaned = cleaned.replace(/  +/g, ' ');
+      cleaned = cleaned.replace(/ ,/g, ',');
+      cleaned = cleaned.replace(/,,+/g, ',');
+      cleaned = cleaned.replace(/, ,/g, ',');
+
+      return cleaned;
+    }
+
+    function hasBannedOpener(text) {
+      if (!text) return false;
+      const lower = text.toLowerCase().trim();
+      return bannedStarts.some(phrase => lower.startsWith(phrase.toLowerCase()));
+    }
+
+    // Process the result
+    if (action) {
+      // Quick action - just clean the text
+      result = cleanContent(result);
+    } else if (result && result.variations) {
+      // Full generation - clean each variation and flag banned openers
+      let hasBannedContent = false;
+
+      result.variations = result.variations.map((v) => {
+        const cleanedContent = cleanContent(v.content);
+        const cleanedHook = cleanContent(v.hookLine);
+
+        if (hasBannedOpener(cleanedContent)) {
+          hasBannedContent = true;
+        }
+
+        return {
+          ...v,
+          content: cleanedContent,
+          hookLine: cleanedHook
+        };
+      });
+
+      // Clean hook alternatives too
+      if (result.hookAlternatives) {
+        result.hookAlternatives = result.hookAlternatives.map(h => ({
+          ...h,
+          text: cleanContent(h.text)
+        }));
+      }
+
+      // Add warning if banned content detected
+      if (hasBannedContent) {
+        result._warning = 'Output contained banned opener phrases. Consider regenerating.';
+      }
+    }
+
+    // Increment usage after successful generation (only for authenticated users)
+    if (user) {
+      await incrementUsage(user.id, 'postup');
+    }
+
+    return res.status(200).json({
+      success: true,
+      result: result,
+      isFreeTrial: !user,
+      usage: user ? {
+        used: (await canUseTool(user.id, 'postup', isSubscribed)).used,
+        limit: isSubscribed ? 'unlimited' : 3
+      } : null
+    });
+
+  } catch (error) {
+    console.error('PostUp error:', error);
+    return res.status(500).json({ error: 'Failed to generate content' });
+  }
+}
+
+// ============================================================================
+// THREADGEN HANDLER - Twitter Thread Generator
+// ============================================================================
+
 const THREAD_TYPE_PROMPTS = {
   viral_narrative: `THREAD TYPE: Viral Narrative
 - Build tension and curiosity throughout
@@ -41,21 +318,7 @@ const THREAD_TYPE_PROMPTS = {
 - Structure: Bold claim → "Here's why" → Evidence → Double down → Challenge to reader`
 };
 
-module.exports = async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-free-trial');
-  res.setHeader('Content-Type', 'application/json');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).json({ success: true });
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+async function handleThreadGen(req, res) {
   try {
     // Check if this is a free trial request (no API key, tracked in localStorage)
     const isFreeTrial = req.headers['x-free-trial'] === 'true';
@@ -120,7 +383,7 @@ module.exports = async function handler(req, res) {
     console.error('ThreadGen error:', error);
     return res.status(500).json({ error: 'Failed to process request' });
   }
-};
+}
 
 // Generate hooks (step 1)
 async function generateHooks(req, res, user, used, limit, subscribed) {
@@ -860,5 +1123,580 @@ Return the COMPLETE thread as a JSON array with the brand new hook.`
   } catch (error) {
     console.error('Thread refinement error:', error);
     return res.status(500).json({ error: 'Failed to refine thread' });
+  }
+}
+
+// ============================================================================
+// CHAPTERGEN HANDLER - YouTube Chapter Generator
+// ============================================================================
+
+const { YoutubeTranscript } = require('youtube-transcript');
+const { getSubtitles } = require('youtube-captions-scraper');
+
+// Extract video ID from various YouTube URL formats
+function extractVideoId(url) {
+  if (!url) return null;
+  url = url.trim();
+
+  // If it's already just an ID (11 characters, alphanumeric with - and _)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+    return url;
+  }
+
+  // Standard youtube.com/watch?v= format
+  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return watchMatch[1];
+
+  // youtu.be short format
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (shortMatch) return shortMatch[1];
+
+  // youtube.com/embed/ format
+  const embedMatch = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+  if (embedMatch) return embedMatch[1];
+
+  // youtube.com/v/ format
+  const vMatch = url.match(/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/);
+  if (vMatch) return vMatch[1];
+
+  // youtube.com/shorts/ format
+  const shortsMatch = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+  if (shortsMatch) return shortsMatch[1];
+
+  return null;
+}
+
+// Format transcript items into readable text with timestamps
+function formatTranscript(items) {
+  return items.map(item => {
+    const timestamp = formatTime(item.offset || item.start * 1000);
+    const text = (item.text || item.text).replace(/\n/g, ' ').trim();
+    return `[${timestamp}] ${text}`;
+  }).join('\n');
+}
+
+// Format captions-scraper items (different structure)
+function formatCaptionsScraperTranscript(items) {
+  return items.map(item => {
+    const timestamp = formatTimeSeconds(parseFloat(item.start));
+    const text = item.text.replace(/\n/g, ' ').trim();
+    return `[${timestamp}] ${text}`;
+  }).join('\n');
+}
+
+// Convert milliseconds to MM:SS or HH:MM:SS format
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Convert seconds to MM:SS or HH:MM:SS format
+function formatTimeSeconds(totalSeconds) {
+  totalSeconds = Math.floor(totalSeconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Method 1: youtube-transcript library
+async function tryYoutubeTranscript(videoId) {
+  console.log('Trying youtube-transcript library...');
+  const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+
+  if (!transcriptItems || transcriptItems.length === 0) {
+    throw new Error('No transcript returned');
+  }
+
+  const transcript = formatTranscript(transcriptItems);
+  const lastItem = transcriptItems[transcriptItems.length - 1];
+  const videoDuration = formatTime(lastItem.offset + lastItem.duration);
+
+  return {
+    success: true,
+    transcript,
+    videoDuration,
+    itemCount: transcriptItems.length,
+    method: 'youtube-transcript'
+  };
+}
+
+// Method 2: youtube-captions-scraper library
+async function tryCaptionsScraper(videoId) {
+  console.log('Trying youtube-captions-scraper library...');
+
+  // Try English first, then auto-generated
+  const languages = ['en', 'en-US', 'en-GB', 'a.en'];
+
+  for (const lang of languages) {
+    try {
+      const captions = await getSubtitles({ videoID: videoId, lang: lang });
+
+      if (captions && captions.length > 0) {
+        const transcript = formatCaptionsScraperTranscript(captions);
+        const lastItem = captions[captions.length - 1];
+        const videoDuration = formatTimeSeconds(parseFloat(lastItem.start) + parseFloat(lastItem.dur || 0));
+
+        return {
+          success: true,
+          transcript,
+          videoDuration,
+          itemCount: captions.length,
+          method: 'youtube-captions-scraper',
+          language: lang
+        };
+      }
+    } catch (e) {
+      console.log(`Language ${lang} failed:`, e.message);
+      continue;
+    }
+  }
+
+  throw new Error('No captions found in any language');
+}
+
+// Fetch transcript from YouTube - tries multiple methods
+async function fetchYouTubeTranscript(url) {
+  const videoId = extractVideoId(url);
+
+  if (!videoId) {
+    return { error: 'Invalid YouTube URL or video ID' };
+  }
+
+  console.log('Fetching transcript for video:', videoId);
+
+  // Try Method 1: youtube-transcript
+  try {
+    const result = await tryYoutubeTranscript(videoId);
+    console.log('Success with youtube-transcript');
+    return result;
+  } catch (error1) {
+    console.log('youtube-transcript failed:', error1.message);
+
+    // Try Method 2: youtube-captions-scraper
+    try {
+      const result = await tryCaptionsScraper(videoId);
+      console.log('Success with youtube-captions-scraper');
+      return result;
+    } catch (error2) {
+      console.log('youtube-captions-scraper failed:', error2.message);
+
+      // Both methods failed - return helpful error
+      if (error1.message?.includes('Transcript is disabled') || error2.message?.includes('disabled')) {
+        return { error: 'Transcripts are disabled for this video. Try pasting the transcript manually.' };
+      }
+      if (error1.message?.includes('Video unavailable') || error1.message?.includes('not found')) {
+        return { error: 'Video not found. Check the URL and try again.' };
+      }
+
+      return { error: 'Could not fetch transcript automatically. Try pasting it manually.' };
+    }
+  }
+}
+
+// Output type prompts for ChapterGen
+const OUTPUT_TYPE_PROMPTS = {
+  chapters: {
+    system: `You are a YouTube chapter expert. Create chapters at the START of each segment, not where it's described.
+
+CRITICAL - CHAPTER TIMING:
+Chapters mark where a viewer should SKIP TO to watch a segment FROM THE BEGINNING.
+
+The problem: Captions often describe what just happened. If a play happens from 0:02-0:19, the player's name appears in captions at 0:19 (after the play). But the chapter should be at 0:02 (where the play STARTS).
+
+How to find the correct timestamp:
+1. When you see a name/topic mentioned, look BACKWARDS to find where that segment STARTED
+2. For highlights: Each clip starts right after the previous clip ends. New clip = new chapter at its START
+3. For list videos: Chapter starts at "next up", "number X is", "moving on to" - NOT in the middle of discussion
+4. Look for gaps/transitions between segments - that's where the new chapter begins
+
+Think: "If someone clicks this chapter, where do they land to see the WHOLE segment?"
+
+OTHER RULES:
+- SHORT TITLES (3-5 words): "[Player Name]'s [Play Type]" or "[Item] - [Detail]"
+- Copy names EXACTLY as spelled in transcript
+- Capture EVERY distinct play/item - don't skip any
+- First chapter at 0:00: "Intro" or brief topic (2-3 words)`,
+    user: (transcript, videoDuration) => `Create YouTube chapters for this video. Duration: ${videoDuration}
+
+CRITICAL - READ CAREFULLY:
+The transcript shows timestamps where words are SPOKEN, but chapters should be where segments START.
+
+Example problem:
+- [0:02] (play begins - no caption yet)
+- [0:19] "What a goal by Caufield!" (caption appears AFTER the play)
+- WRONG: 0:19 Caufield's Goal (this is the END)
+- RIGHT: 0:02 Caufield's Goal (this is the START)
+
+For each chapter: Look at the context BEFORE the description to find where that segment actually began. Place the chapter at the START of the action, not where it's narrated.
+
+Transcript with context:
+${transcript}
+
+Return ONLY chapters in format (timestamps at segment STARTS):
+0:00 Intro
+0:02 Player's Goal`
+  },
+
+  clips: {
+    system: `You are a video editor identifying clip-worthy moments from longer content.
+
+Find 3-5 moments that would work as standalone short clips (30-60 seconds).
+
+GOOD CLIPS HAVE:
+- A complete thought or moment (doesn't need context)
+- Something interesting happens (story, tip, reaction, insight)
+- Clear start and end points
+
+AVOID:
+- Rambling without payoff
+- Moments that need prior context
+- Incomplete thoughts`,
+    user: (transcript, videoDuration) => `Find the 3-5 most interesting moments to clip from this video. Duration: ${videoDuration}
+
+Transcript:
+${transcript}
+
+Return in this simple format:
+
+CLIP 1: [start] - [end]
+Hook: [One sentence describing what happens in this moment]
+
+CLIP 2: [start] - [end]
+Hook: [One sentence describing what happens in this moment]
+
+CLIP 3: [start] - [end]
+Hook: [One sentence describing what happens in this moment]`
+  },
+
+  blog: {
+    system: `You are turning a video transcript into a simple blog outline.
+
+Create a clean, useful outline that someone could actually write from.
+Use specific details from the transcript, not generic filler.
+No emojis. No marketing fluff. No "let's dive in" phrases.`,
+    user: (transcript, videoDuration) => `Create a blog outline from this transcript. Duration: ${videoDuration}
+
+Transcript:
+${transcript}
+
+Return in this simple format:
+
+HEADLINE: [Clear, simple title based on the content]
+
+INTRO: [2-3 sentences setting up the topic - based on how the video starts]
+
+SECTIONS:
+1. [Section title] — [one sentence summary of what to cover]
+2. [Section title] — [one sentence summary]
+3. [Section title] — [one sentence summary]
+4. [Section title] — [one sentence summary]
+
+KEY POINTS TO INCLUDE:
+- [specific detail or quote from the transcript]
+- [specific detail or quote from the transcript]
+- [specific detail or quote from the transcript]
+- [specific detail or quote from the transcript]
+
+CONCLUSION ANGLE: [one sentence on how to wrap it up]`
+  },
+
+  highlights: {
+    system: `You extract the most important moments from video transcripts.
+
+List the key points someone would want to know if they don't have time to watch.
+No emojis. No labels. No verbose explanations.
+Just timestamp, dash, and one short sentence.`,
+    user: (transcript, videoDuration) => `Extract the key highlights from this transcript. Duration: ${videoDuration}
+
+Transcript:
+${transcript}
+
+Return a simple list in this exact format:
+
+KEY HIGHLIGHTS
+
+0:00 — [One sentence describing the key point]
+1:23 — [One sentence describing the key point]
+3:45 — [One sentence describing the key point]
+5:12 — [One sentence describing the key point]
+
+List 8-15 of the most important moments. Keep each point to one short sentence.`
+  }
+};
+
+// Spelling correction system prompt
+const SPELLING_PROMPT = `You are a spelling correction expert for sports players, celebrities, YouTubers, and brand names.
+
+Your job: Fix obvious misspellings in YouTube chapter titles caused by auto-caption errors.
+
+Common patterns to fix:
+- Phonetic spellings: "Cfield" -> "Caufield", "Jack Eel" -> "Jack Eichel", "Ovetshkin" -> "Ovechkin"
+- Split names: "Mc David" -> "McDavid", "Le Bron" -> "LeBron"
+- Sound-alikes: "Croz B" -> "Crosby", "Dry Seidel" -> "Draisaitl"
+- Missing letters: "Gretzky" is correct, "Gretsky" is wrong
+
+Rules:
+- ONLY fix obvious misspellings of real names
+- Do NOT change timestamps
+- Do NOT change chapter structure or wording (except the misspelled name)
+- If unsure, leave the name as-is
+- Keep everything else exactly the same`;
+
+// Build refinement prompt for quick actions
+function buildChapterRefinementPrompt(currentChapters, action, transcript) {
+  const actionPrompts = {
+    'more_chapters': `Add more chapters to break this video into smaller segments. Find additional natural breakpoints in the content.
+
+Current chapters:
+${currentChapters}
+
+Reference transcript:
+${transcript}
+
+Return the improved chapters with more granular timestamps. Keep existing chapters but add new ones between them where appropriate.`,
+
+    'shorter_titles': `Make these chapter titles shorter and punchier. Aim for 2-4 words per title.
+
+Current chapters:
+${currentChapters}
+
+Return the same chapters with shorter, more scannable titles. Keep the same timestamps.`,
+
+    'add_timestamps': `Find more section breaks and add additional timestamps to these chapters.
+
+Current chapters:
+${currentChapters}
+
+Reference transcript:
+${transcript}
+
+Add more timestamps to capture transitions and topic changes that were missed. Return the complete chapter list with additions.`
+  };
+
+  return actionPrompts[action] || null;
+}
+
+// Fix name spellings (second pass)
+async function fixNameSpellings(chapters, openaiKey) {
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openaiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: SPELLING_PROMPT },
+          { role: 'user', content: `Fix any obvious name misspellings in these YouTube chapters. Only correct names that are clearly wrong phonetic transcriptions of real sports players, celebrities, or brands.\n\nChapters:\n${chapters}\n\nReturn the corrected chapters in the exact same format. If no corrections needed, return them unchanged.` }
+        ],
+        max_tokens: 2000,
+        temperature: 0.1
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const corrected = data.choices?.[0]?.message?.content?.trim();
+      if (corrected) return corrected;
+    }
+  } catch (e) {
+    console.error('Spelling correction failed:', e);
+  }
+  return chapters;
+}
+
+async function handleChapterGen(req, res) {
+  try {
+    // Check if this is a free trial request
+    const isFreeTrial = req.headers['x-free-trial'] === 'true';
+    const hasApiKey = !!req.headers['x-api-key'];
+
+    let user = null;
+    let isSubscribed = false;
+
+    if (hasApiKey) {
+      // Authenticate with API key
+      const { user: authUser, error: authError } = await authenticateRequest(req);
+
+      if (authError) {
+        return res.status(401).json({ error: authError });
+      }
+
+      user = authUser;
+      isSubscribed = user.subscribed_chaptergen || false;
+
+      // Check usage limits for authenticated users
+      const { allowed, used, limit, subscribed } = await canUseTool(user.id, 'chaptergen', isSubscribed);
+
+      if (!allowed) {
+        return res.status(429).json({
+          error: 'LIMIT_EXCEEDED',
+          message: `You've used all ${limit} free ChapterGen generations. Subscribe for unlimited access.`,
+          usage: { used, limit },
+          upgradeUrl: '/pricing.html'
+        });
+      }
+    } else if (!isFreeTrial) {
+      // No API key and not marked as free trial
+      return res.status(401).json({
+        error: 'API key required. Use free trial or subscribe for access.',
+        freeTrialAvailable: true
+      });
+    }
+    // If isFreeTrial && !hasApiKey, we allow the request (frontend tracks usage)
+
+    // Get parameters from request
+    const { transcript: providedTranscript, youtubeUrl, action, currentChapters, fetchOnly, outputType } = req.body;
+
+    let transcript = providedTranscript;
+
+    // If YouTube URL provided, fetch transcript first
+    if (youtubeUrl) {
+      const fetchResult = await fetchYouTubeTranscript(youtubeUrl);
+
+      if (fetchResult.error) {
+        return res.status(400).json({
+          error: fetchResult.error,
+          requiresManualEntry: true
+        });
+      }
+
+      // If fetchOnly mode, just return the transcript
+      if (fetchOnly) {
+        return res.status(200).json({
+          success: true,
+          transcript: fetchResult.transcript,
+          videoDuration: fetchResult.videoDuration,
+          itemCount: fetchResult.itemCount
+        });
+      }
+
+      transcript = fetchResult.transcript;
+    }
+
+    // For quick actions, we need currentChapters
+    if (action && !currentChapters) {
+      return res.status(400).json({ error: 'currentChapters is required for quick actions' });
+    }
+
+    // For normal generation, we need transcript
+    if (!action && (!transcript || transcript.trim().length === 0)) {
+      return res.status(400).json({ error: 'transcript is required' });
+    }
+
+    if (transcript && transcript.length < 100) {
+      return res.status(400).json({ error: 'Transcript is too short. Minimum 100 characters.' });
+    }
+
+    if (transcript && transcript.length > 50000) {
+      return res.status(400).json({ error: 'Transcript too long. Maximum 50,000 characters.' });
+    }
+
+    // Call OpenAI API
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey) {
+      return res.status(500).json({ error: 'OpenAI not configured' });
+    }
+
+    let userPrompt;
+    let systemPrompt;
+
+    // Check if this is a quick action refinement (only for chapters output type)
+    if (action && currentChapters) {
+      userPrompt = buildChapterRefinementPrompt(currentChapters, action, transcript || '');
+      if (!userPrompt) {
+        return res.status(400).json({ error: 'Invalid action specified' });
+      }
+      systemPrompt = 'You are a YouTube chapter expert. Improve the given chapters based on the request. Return ONLY the improved chapters in the same format (timestamp followed by title, one per line).';
+    } else {
+      // Extract video duration from last timestamp in transcript
+      const timestampMatches = transcript.match(/\[?(\d+):(\d+)\]?/g);
+      let videoDuration = '10:00';
+      if (timestampMatches && timestampMatches.length > 0) {
+        videoDuration = timestampMatches[timestampMatches.length - 1].replace(/[\[\]]/g, '');
+      }
+
+      // Build prompts based on output type
+      const selectedOutputType = outputType || 'chapters';
+      const prompts = OUTPUT_TYPE_PROMPTS[selectedOutputType] || OUTPUT_TYPE_PROMPTS.chapters;
+      systemPrompt = prompts.system;
+      userPrompt = prompts.user(transcript, videoDuration);
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openaiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('OpenAI error:', errorData);
+      return res.status(500).json({
+        error: errorData?.error?.message || 'Failed to generate chapters'
+      });
+    }
+
+    const data = await response.json();
+    const rawResult = data.choices?.[0]?.message?.content;
+
+    if (!rawResult) {
+      return res.status(500).json({ error: 'Empty response from AI' });
+    }
+
+    // Process the response
+    let result = rawResult.trim();
+
+    // Run second pass: Fix name spellings (only for chapters output type, skip for quick actions)
+    const selectedOutputType = outputType || 'chapters';
+    if (!action && selectedOutputType === 'chapters') {
+      result = await fixNameSpellings(result, openaiKey);
+    }
+
+    // Increment usage after successful generation (only for new generations, not refinements)
+    // Increment usage only for authenticated users
+    if (user && !action) {
+      await incrementUsage(user.id, 'chaptergen');
+    }
+
+    return res.status(200).json({
+      success: true,
+      result: result,
+      outputType: selectedOutputType,
+      isFreeTrial: !user,
+      usage: user ? {
+        used: (await canUseTool(user.id, 'chaptergen', isSubscribed)).used,
+        limit: isSubscribed ? 'unlimited' : 1
+      } : null
+    });
+
+  } catch (error) {
+    console.error('ChapterGen error:', error);
+    return res.status(500).json({ error: 'Failed to generate content' });
   }
 }

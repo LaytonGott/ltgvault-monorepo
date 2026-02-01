@@ -452,6 +452,12 @@ export default function ResumesPage() {
       <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        onContinueFree={() => {
+          // If user has a resume, navigate to it; otherwise stay on page
+          if (resumes.length > 0) {
+            router.push(`/resume/${resumes[0].id}`);
+          }
+        }}
         title="Upgrade to Pro"
         message={upgradeMessage}
       />

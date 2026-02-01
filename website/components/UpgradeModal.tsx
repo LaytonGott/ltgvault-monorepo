@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import styles from './UpgradeModal.module.css';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onContinueFree?: () => void;  // Callback when user chooses to continue with free
   title?: string;
   message?: string;
   feature?: string;
@@ -13,20 +15,29 @@ interface UpgradeModalProps {
 export default function UpgradeModal({
   isOpen,
   onClose,
+  onContinueFree,
   title = 'Choose Your Plan',
   message = 'You\'ve reached a free tier limit.',
   feature = 'this feature'
 }: UpgradeModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   if (!isOpen) return null;
 
   async function handleUpgrade() {
+    setLoading(true);
+    setError(null);
+
     try {
       const apiKey = localStorage.getItem('ltgv_api_key');
       if (!apiKey) {
-        window.location.href = '/pricing.html';
+        // Not logged in - redirect to dashboard to sign up first
+        window.location.href = '/dashboard.html?upgrade=resumebuilder';
         return;
       }
 
+      // Go directly to Stripe checkout
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -40,12 +51,20 @@ export default function UpgradeModal({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error(data.error || 'Failed to create checkout');
+        throw new Error(data.error || 'Failed to create checkout session');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Checkout error:', err);
-      window.location.href = '/pricing.html';
+      setError(err.message || 'Failed to start checkout. Please try again.');
+      setLoading(false);
     }
+  }
+
+  function handleContinueFree() {
+    if (onContinueFree) {
+      onContinueFree();
+    }
+    onClose();
   }
 
   return (
@@ -63,6 +82,12 @@ export default function UpgradeModal({
           <h2 className={styles.title}>{title}</h2>
           <p className={styles.message}>{message}</p>
         </div>
+
+        {error && (
+          <div className={styles.error}>
+            {error}
+          </div>
+        )}
 
         {/* Comparison Cards */}
         <div className={styles.comparison}>
@@ -113,7 +138,7 @@ export default function UpgradeModal({
               </li>
             </ul>
 
-            <button className={styles.freeButton} onClick={onClose}>
+            <button className={styles.freeButton} onClick={handleContinueFree} disabled={loading}>
               Continue with Free
             </button>
           </div>
@@ -181,11 +206,17 @@ export default function UpgradeModal({
               <span>Lifetime access • No subscription</span>
             </div>
 
-            <button className={styles.proButton} onClick={handleUpgrade}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
-              Upgrade to Pro - $19
+            <button className={styles.proButton} onClick={handleUpgrade} disabled={loading}>
+              {loading ? (
+                'Loading...'
+              ) : (
+                <>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                  </svg>
+                  Upgrade to Pro - $19
+                </>
+              )}
             </button>
 
           </div>

@@ -1,12 +1,12 @@
-const { stripe, PRICE_IDS, getPriceIdFromTool } = require('../lib/stripe');
+const { stripe, PRICE_IDS, getPriceIdFromTool, isOneTimePayment } = require('../lib/stripe');
 const { supabase } = require('../lib/supabase');
-const { createApiKeyForUser } = require('../lib/auth');
+const { createApiKeyForUser, validateApiKey } = require('../lib/auth');
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
   res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'OPTIONS') {
@@ -29,7 +29,16 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const { email, tool } = req.body;
+    let { email, tool } = req.body;
+
+    // If API key is provided, get user email from it (for logged-in users upgrading)
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey && !email) {
+      const user = await validateApiKey(apiKey);
+      if (user) {
+        email = user.email;
+      }
+    }
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
@@ -103,7 +112,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Validate tool name
-    const validTools = ['postup', 'chaptergen', 'threadgen'];
+    const validTools = ['postup', 'chaptergen', 'threadgen', 'resumebuilder'];
     if (!validTools.includes(tool)) {
       return res.status(400).json({ error: 'Invalid tool name' });
     }
@@ -161,10 +170,13 @@ module.exports = async function handler(req, res) {
     const toolPages = {
       postup: '/postup.html',
       chaptergen: '/chaptergen.html',
-      threadgen: '/threadgen.html'
+      threadgen: '/threadgen.html',
+      resumebuilder: '/resume'
     };
     const toolPage = toolPages[tool] || '/dashboard.html';
-    const successUrl = `${siteUrl}${toolPage}?subscribed=true&session_id={CHECKOUT_SESSION_ID}`;
+    const isOneTime = isOneTimePayment(tool);
+    const successParam = isOneTime ? 'purchased' : 'subscribed';
+    const successUrl = `${siteUrl}${toolPage}?${successParam}=true&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteUrl}/pricing.html?canceled=true`;
 
     const session = await stripe.checkout.sessions.create({
@@ -176,7 +188,7 @@ module.exports = async function handler(req, res) {
           quantity: 1
         }
       ],
-      mode: 'subscription',
+      mode: isOneTime ? 'payment' : 'subscription',
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {

@@ -1,4 +1,4 @@
-const { stripe, getToolFromPriceId } = require('../../lib/stripe');
+const { stripe, getToolFromPriceId, isOneTimePayment } = require('../../lib/stripe');
 const { supabase } = require('../../lib/supabase');
 const { createApiKeyForUser } = require('../../lib/auth');
 
@@ -86,6 +86,19 @@ async function handleCheckoutCompleted(session) {
     return;
   }
 
+  // Handle one-time payment (e.g., resumebuilder)
+  if (session.mode === 'payment' && tool && isOneTimePayment(tool)) {
+    console.log(`One-time purchase completed: ${userEmail}, tool: ${tool}`);
+    await handleOneTimePayment(session, userEmail, tool, customerId);
+    return;
+  }
+
+  // Handle subscription payment
+  if (!subscriptionId) {
+    console.error('No subscription ID found for subscription checkout');
+    return;
+  }
+
   // Get subscription details to determine tool if not in metadata
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   const priceId = subscription.items.data[0]?.price?.id;
@@ -96,7 +109,7 @@ async function handleCheckoutCompleted(session) {
     return;
   }
 
-  console.log(`Checkout completed: ${userEmail}, tool: ${subscribedTool}`);
+  console.log(`Subscription checkout completed: ${userEmail}, tool: ${subscribedTool}`);
 
   // Update or create user
   let { data: user } = await supabase
@@ -145,6 +158,57 @@ async function handleCheckoutCompleted(session) {
     await createApiKeyForUser(user.id);
     console.log(`Created API key for user: ${user.email}`);
   }
+}
+
+async function handleOneTimePayment(session, userEmail, tool, customerId) {
+  // Update or create user
+  let { data: user } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', userEmail.toLowerCase())
+    .single();
+
+  // Prepare update - set the specific tool as purchased (lifetime access)
+  const updateData = {
+    stripe_customer_id: customerId,
+    subscription_status: 'active',
+    updated_at: new Date().toISOString()
+  };
+  updateData[`subscribed_${tool}`] = true;
+
+  if (user) {
+    // Update existing user
+    await supabase
+      .from('users')
+      .update(updateData)
+      .eq('id', user.id);
+  } else {
+    // Create new user
+    const { data: newUser } = await supabase
+      .from('users')
+      .insert({
+        email: userEmail.toLowerCase(),
+        ...updateData
+      })
+      .select()
+      .single();
+    user = newUser;
+  }
+
+  // Generate API key if user doesn't have one
+  const { data: existingKey } = await supabase
+    .from('api_keys')
+    .select('id')
+    .eq('user_id', user.id)
+    .is('revoked_at', null)
+    .single();
+
+  if (!existingKey) {
+    await createApiKeyForUser(user.id);
+    console.log(`Created API key for user: ${user.email}`);
+  }
+
+  console.log(`Successfully activated ${tool} for ${userEmail} (one-time purchase)`);
 }
 
 async function handleSubscriptionUpdated(subscription) {

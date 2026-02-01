@@ -139,10 +139,14 @@
     var threadgenBtn = document.getElementById('threadgen-btn');
     var threadgenCopy = document.getElementById('threadgen-copy');
 
+    // Elements - Resume (static demo)
+    var resumeSection = document.getElementById('demo-resume');
+
     // Indicators
     var indicatorPostup = document.getElementById('indicator-postup');
     var indicatorChaptergen = document.getElementById('indicator-chaptergen');
     var indicatorThreadgen = document.getElementById('indicator-threadgen');
+    var indicatorResume = document.getElementById('indicator-resume');
     var captionEl = document.getElementById('demo-caption');
 
     // Clear all animations
@@ -330,7 +334,7 @@
                                 if (s) s.textContent = 'Copied!';
 
                                 var t5 = setTimeout(function() {
-                                    if (carouselVisible) switchTo('postup');
+                                    if (carouselVisible) switchTo('resume');
                                 }, 2500);
                                 timeouts.push(t5);
                             }, 1200);
@@ -358,11 +362,13 @@
         if (postupSection) postupSection.classList.remove('active');
         if (chaptergenSection) chaptergenSection.classList.remove('active');
         if (threadgenSection) threadgenSection.classList.remove('active');
+        if (resumeSection) resumeSection.classList.remove('active');
 
         // Remove active from all indicators
         if (indicatorPostup) indicatorPostup.classList.remove('active');
         if (indicatorChaptergen) indicatorChaptergen.classList.remove('active');
         if (indicatorThreadgen) indicatorThreadgen.classList.remove('active');
+        if (indicatorResume) indicatorResume.classList.remove('active');
 
         // Show the right section and update indicator
         if (demo === 'postup') {
@@ -383,6 +389,15 @@
             if (captionEl) captionEl.textContent = 'ThreadGen in action';
             var t = setTimeout(runThreadgen, 300);
             timeouts.push(t);
+        } else if (demo === 'resume') {
+            if (resumeSection) resumeSection.classList.add('active');
+            if (indicatorResume) indicatorResume.classList.add('active');
+            if (captionEl) captionEl.textContent = 'Resume Builder';
+            // Resume is a static CTA, auto-advance after a few seconds
+            var t = setTimeout(function() {
+                if (carouselVisible && currentDemo === 'resume') switchTo('postup');
+            }, 5000);
+            timeouts.push(t);
         }
     }
 
@@ -395,6 +410,9 @@
     }
     if (indicatorThreadgen) {
         indicatorThreadgen.addEventListener('click', function() { switchTo('threadgen'); });
+    }
+    if (indicatorResume) {
+        indicatorResume.addEventListener('click', function() { switchTo('resume'); });
     }
 
     // Start carousel when visible

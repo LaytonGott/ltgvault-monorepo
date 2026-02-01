@@ -98,18 +98,25 @@ export default function ResumesPage() {
   async function loadProStatus() {
     try {
       const apiKey = localStorage.getItem('ltgv_api_key');
-      if (!apiKey) return;
+      if (!apiKey) {
+        console.log('[Pro Status] No API key found');
+        return;
+      }
 
+      console.log('[Pro Status] Fetching pro status...');
       const response = await fetch('/api/resume/pro-status', {
         headers: { 'x-api-key': apiKey }
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('[Pro Status] Response:', JSON.stringify(data));
         setProStatus(data);
+      } else {
+        console.log('[Pro Status] Error response:', response.status);
       }
     } catch (err) {
-      console.error('Failed to load pro status:', err);
+      console.error('[Pro Status] Failed to load:', err);
     }
   }
 
@@ -136,6 +143,8 @@ export default function ResumesPage() {
   }
 
   async function handleCreateResume() {
+    console.log('[Create Resume] Starting...', { isGuest, isPro: proStatus?.isPro });
+
     try {
       if (isGuest) {
         // Guest mode: check local resumes limit (1 resume max for guests)
@@ -149,12 +158,13 @@ export default function ResumesPage() {
         router.push(`/resume/${resume.id}`);
       } else {
         // Logged in user - API handles the limit check
-        // First-time users (0 resumes) are always allowed to create their first resume
+        console.log('[Create Resume] Calling API...');
         const { resume } = await createResume();
+        console.log('[Create Resume] Success:', resume.id);
         router.push(`/resume/${resume.id}`);
       }
     } catch (err: any) {
-      console.log('Create resume error:', err.code, err.message);
+      console.log('[Create Resume] Error:', err.code, err.message, err);
       // ONLY show upgrade modal for the specific RESUME_LIMIT error code
       // This ensures first-time users aren't blocked by other error types
       if (err.code === 'RESUME_LIMIT') {
@@ -213,6 +223,17 @@ export default function ResumesPage() {
       </header>
 
       <main className={styles.main}>
+        {/* Pro Status Banner */}
+        {proStatus?.isPro && (
+          <div className={styles.proBanner}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Pro Active</span>
+            <span className={styles.proBannerDetail}>Unlimited resumes · 100 AI/month</span>
+          </div>
+        )}
+
         {/* Hero Section */}
         <section className={styles.hero}>
           <div className={styles.heroContent}>

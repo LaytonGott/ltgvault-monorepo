@@ -21,16 +21,21 @@ const PRO_LIMITS = {
 // Check if user is Pro (has purchased Resume Builder)
 async function isResumeProUser(userId) {
   try {
+    console.log('[isResumeProUser] Checking userId:', userId);
     const { data: user, error } = await supabase
       .from('users')
       .select('subscribed_resumebuilder')
       .eq('id', userId)
       .single();
 
+    console.log('[isResumeProUser] Query result:', { user, error: error?.message });
+
     if (error || !user) return false;
-    return user.subscribed_resumebuilder === true;
+    const isPro = user.subscribed_resumebuilder === true;
+    console.log('[isResumeProUser] isPro:', isPro);
+    return isPro;
   } catch (error) {
-    console.error('Error checking pro status:', error);
+    console.error('[isResumeProUser] Error:', error);
     return false;
   }
 }

@@ -24,15 +24,20 @@ async function isResumeProUser(userId) {
     console.log('[isResumeProUser] Checking userId:', userId);
     const { data: user, error } = await supabase
       .from('users')
-      .select('subscribed_resumebuilder')
+      .select('id, email, subscribed_resumebuilder')
       .eq('id', userId)
       .single();
 
-    console.log('[isResumeProUser] Query result:', { user, error: error?.message });
+    console.log('[isResumeProUser] Query result:', {
+      userId: user?.id,
+      email: user?.email,
+      subscribed_resumebuilder: user?.subscribed_resumebuilder,
+      error: error?.message
+    });
 
     if (error || !user) return false;
     const isPro = user.subscribed_resumebuilder === true;
-    console.log('[isResumeProUser] isPro:', isPro);
+    console.log('[isResumeProUser] Final isPro:', isPro);
     return isPro;
   } catch (error) {
     console.error('[isResumeProUser] Error:', error);

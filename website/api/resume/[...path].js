@@ -6,34 +6,52 @@ const { getResumeProStatus, canCreateResume, canCreateJob, canUseTemplate } = re
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.log('[getUser] No API key provided');
+    return null;
+  }
 
   const user = await validateApiKey(apiKey);
-  if (!user) return null;
+  if (!user) {
+    console.log('[getUser] validateApiKey returned null');
+    return null;
+  }
 
-  // CRITICAL FIX: If user doesn't have Pro status, check if there's another user
-  // with the same email that DOES have Pro (webhook might have created/updated a different record)
-  if (!user.subscribed_resumebuilder && user.email) {
-    console.log('[getUser] User by API key does not have Pro, checking by email:', user.email);
-    const { data: proUser } = await supabase
+  console.log('[getUser] User from API key:', {
+    id: user.id,
+    email: user.email,
+    subscribed_resumebuilder: user.subscribed_resumebuilder
+  });
+
+  // CRITICAL: Always re-fetch Pro status directly from DB to avoid stale data
+  // The validateApiKey might return cached/stale user data
+  if (user.email) {
+    const { data: freshUser, error } = await supabase
       .from('users')
-      .select('subscribed_resumebuilder')
+      .select('id, subscribed_resumebuilder')
       .eq('email', user.email.toLowerCase())
-      .eq('subscribed_resumebuilder', true)
       .single();
 
-    if (proUser) {
-      console.log('[getUser] Found Pro subscription by email! Merging Pro status.');
+    console.log('[getUser] Fresh DB lookup result:', {
+      found: !!freshUser,
+      subscribed_resumebuilder: freshUser?.subscribed_resumebuilder,
+      error: error?.message
+    });
+
+    if (freshUser && freshUser.subscribed_resumebuilder === true) {
       user.subscribed_resumebuilder = true;
 
-      // Also update the original user record to have Pro status (fix the data)
-      await supabase
-        .from('users')
-        .update({ subscribed_resumebuilder: true, updated_at: new Date().toISOString() })
-        .eq('id', user.id);
+      // If API key points to different user than the one with Pro, log it
+      if (freshUser.id !== user.id) {
+        console.log('[getUser] WARNING: API key user ID differs from Pro user ID!', {
+          apiKeyUserId: user.id,
+          proUserId: freshUser.id
+        });
+      }
     }
   }
 
+  console.log('[getUser] Final Pro status:', user.subscribed_resumebuilder);
   return user;
 }
 

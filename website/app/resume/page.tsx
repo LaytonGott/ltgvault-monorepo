@@ -86,21 +86,26 @@ export default function ResumesPage() {
 
     // If no API key but we have an email, try to sync the API key
     if (!apiKey && storedEmail) {
-      console.log('[Auth] No API key but have email, attempting to sync...');
+      console.log('[Auth] No API key but have email, attempting to sync with:', storedEmail);
       try {
         const response = await fetch('/api/activate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: storedEmail })
         });
+        console.log('[Auth] Sync response status:', response.status);
         const data = await response.json();
+        console.log('[Auth] Sync response data:', JSON.stringify(data));
+
         if (data.success && data.apiKey) {
-          console.log('[Auth] API key synced successfully');
+          console.log('[Auth] API key synced successfully!');
           localStorage.setItem('ltgv_api_key', data.apiKey);
           apiKey = data.apiKey;
+        } else {
+          console.log('[Auth] Sync failed - no apiKey in response. Error:', data.error);
         }
       } catch (err) {
-        console.log('[Auth] Failed to sync API key:', err);
+        console.error('[Auth] Sync fetch failed:', err);
       }
     }
 

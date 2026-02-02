@@ -608,10 +608,10 @@ export default function ResumeEditorPage() {
         headers['x-api-key'] = apiKey;
       }
 
-      const response = await fetch('/api/resume/generate-bullets', {
+      const response = await fetch('/api/resume/generate', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ description: aiDescription, context })
+        body: JSON.stringify({ type: 'bullets', description: aiDescription, context })
       });
 
       const data = await response.json();
@@ -675,10 +675,10 @@ export default function ResumeEditorPage() {
         headers['x-api-key'] = apiKey;
       }
 
-      const response = await fetch('/api/resume/generate-summary', {
+      const response = await fetch('/api/resume/generate', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ education, experience, skills, projects })
+        body: JSON.stringify({ type: 'summary', education, experience, skills, projects })
       });
 
       const data = await response.json();

@@ -194,10 +194,11 @@ export default function CoverLetterPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/resume/generate-cover-letter', {
+      const response = await fetch('/api/resume/generate', {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify({
+          type: 'cover-letter',
           jobTitle,
           company,
           jobDescription,

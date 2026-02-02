@@ -2608,40 +2608,101 @@
         // Check if transcript was sent from Chrome extension
         function checkForExtensionData() {
             var urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('from_extension') === 'true') {
-                // Function to load transcript from localStorage
-                function loadExtensionTranscript() {
-                    var storedTranscript = localStorage.getItem('chaptergen_extension_transcript');
-                    if (storedTranscript) {
-                        elements.transcriptArea.value = storedTranscript;
+            if (urlParams.get('from_extension') !== 'true') return;
+
+            var transcriptReceived = false;
+
+            // Method 1: Check URL parameter (most reliable for short transcripts)
+            var urlTranscript = urlParams.get('transcript');
+            if (urlTranscript) {
+                try {
+                    var decoded = decodeURIComponent(urlTranscript);
+                    if (decoded && decoded.length > 0) {
+                        elements.transcriptArea.value = decoded;
+                        updateInputCounter();
+                        showStatus('Transcript received from extension!', 'success');
+                        transcriptReceived = true;
+                        // Switch to manual mode since we have a transcript
+                        switchToManualInput();
+                    }
+                } catch (e) {
+                    console.log('Failed to decode URL transcript:', e);
+                }
+            }
+
+            // Method 2: Check localStorage/sessionStorage (for long transcripts)
+            function loadExtensionTranscript() {
+                if (transcriptReceived) return true;
+
+                var storedTranscript = localStorage.getItem('chaptergen_extension_transcript') ||
+                                       sessionStorage.getItem('chaptergen_extension_transcript');
+                if (storedTranscript) {
+                    elements.transcriptArea.value = storedTranscript;
+                    updateInputCounter();
+                    localStorage.removeItem('chaptergen_extension_transcript');
+                    sessionStorage.removeItem('chaptergen_extension_transcript');
+                    showStatus('Transcript received from extension!', 'success');
+                    transcriptReceived = true;
+                    // Switch to manual mode since we have a transcript
+                    switchToManualInput();
+                    return true;
+                }
+                return false;
+            }
+
+            // Helper to switch to manual input mode
+            function switchToManualInput() {
+                var manualTab = document.querySelector('[data-input-mode="manual"]');
+                if (manualTab) manualTab.click();
+            }
+
+            // If not from URL, try storage methods
+            if (!transcriptReceived) {
+                // Try immediately
+                loadExtensionTranscript();
+
+                // Listen for custom event from extension
+                window.addEventListener('chaptergen_transcript_ready', function(e) {
+                    if (!transcriptReceived) {
+                        // Event might have transcript in detail
+                        if (e.detail) {
+                            elements.transcriptArea.value = e.detail;
+                            updateInputCounter();
+                            showStatus('Transcript received from extension!', 'success');
+                            transcriptReceived = true;
+                            switchToManualInput();
+                        } else {
+                            loadExtensionTranscript();
+                        }
+                    }
+                });
+
+                // Listen for storage events (backup method)
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'chaptergen_extension_transcript' && e.newValue && !transcriptReceived) {
+                        elements.transcriptArea.value = e.newValue;
                         updateInputCounter();
                         localStorage.removeItem('chaptergen_extension_transcript');
                         showStatus('Transcript received from extension!', 'success');
-                        return true;
+                        transcriptReceived = true;
+                        switchToManualInput();
                     }
-                    return false;
-                }
+                });
 
-                // Try immediately
-                if (!loadExtensionTranscript()) {
-                    // Listen for event from extension
-                    window.addEventListener('chaptergen_transcript_ready', function() {
-                        loadExtensionTranscript();
-                    });
-
-                    // Also poll for a few seconds in case timing is off
-                    var attempts = 0;
-                    var pollInterval = setInterval(function() {
-                        if (loadExtensionTranscript() || attempts > 10) {
-                            clearInterval(pollInterval);
-                        }
-                        attempts++;
-                    }, 500);
-                }
-
-                // Clean up URL
-                window.history.replaceState({}, '', window.location.pathname);
+                // Poll for a longer time in case of delays
+                var attempts = 0;
+                var pollInterval = setInterval(function() {
+                    if (loadExtensionTranscript() || attempts > 20 || transcriptReceived) {
+                        clearInterval(pollInterval);
+                    }
+                    attempts++;
+                }, 300);
             }
+
+            // Clean up URL after a delay (to allow multiple loads)
+            setTimeout(function() {
+                window.history.replaceState({}, '', window.location.pathname);
+            }, 2000);
         }
 
         // Pre-fill example text for first-time users (disabled for URL flow)

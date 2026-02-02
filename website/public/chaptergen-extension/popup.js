@@ -88,27 +88,57 @@ grabBtn.addEventListener('click', async () => {
 sendBtn.addEventListener('click', async () => {
   if (!currentTranscript) return;
 
-  // Open ChapterGen and inject the transcript via content script
-  const tab = await chrome.tabs.create({ url: 'https://ltgvault.com/chaptergen.html?from_extension=true' });
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Opening ChapterGen...';
 
-  // Wait for page to load, then inject transcript
-  chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
-    if (tabId === tab.id && info.status === 'complete') {
-      chrome.tabs.onUpdated.removeListener(listener);
+  // For short transcripts, use URL hash (most reliable)
+  // For longer transcripts, use localStorage with retries
+  const encodedTranscript = encodeURIComponent(currentTranscript);
 
-      // Inject script to set the transcript
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (transcript) => {
-          // Store in localStorage for the page to pick up
-          localStorage.setItem('chaptergen_extension_transcript', transcript);
-          // Trigger a custom event
-          window.dispatchEvent(new Event('chaptergen_transcript_ready'));
-        },
-        args: [currentTranscript]
-      });
-    }
-  });
+  if (encodedTranscript.length < 8000) {
+    // Short enough for URL - most reliable method
+    chrome.tabs.create({
+      url: `https://ltgvault.com/chaptergen.html?from_extension=true&transcript=${encodedTranscript}`
+    });
+  } else {
+    // Long transcript - use localStorage injection with retries
+    const tab = await chrome.tabs.create({
+      url: 'https://ltgvault.com/chaptergen.html?from_extension=true&use_storage=true'
+    });
+
+    // Wait for page to load, then inject transcript multiple times to ensure it works
+    chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+      if (tabId === tab.id && info.status === 'complete') {
+        chrome.tabs.onUpdated.removeListener(listener);
+
+        // Inject multiple times with delays to ensure the page catches it
+        const injectTranscript = () => {
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: (transcript) => {
+              // Store in both localStorage and sessionStorage
+              localStorage.setItem('chaptergen_extension_transcript', transcript);
+              sessionStorage.setItem('chaptergen_extension_transcript', transcript);
+              // Trigger custom event
+              window.dispatchEvent(new CustomEvent('chaptergen_transcript_ready', { detail: transcript }));
+              // Also dispatch storage event manually (for cross-tab listeners)
+              window.dispatchEvent(new StorageEvent('storage', {
+                key: 'chaptergen_extension_transcript',
+                newValue: transcript
+              }));
+            },
+            args: [currentTranscript]
+          }).catch(err => console.log('Inject error (may be normal):', err));
+        };
+
+        // Inject immediately and with delays
+        injectTranscript();
+        setTimeout(injectTranscript, 500);
+        setTimeout(injectTranscript, 1500);
+        setTimeout(injectTranscript, 3000);
+      }
+    });
+  }
 });
 
 // Show status message

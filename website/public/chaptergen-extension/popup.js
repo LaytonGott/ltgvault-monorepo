@@ -10,17 +10,71 @@ const openYoutubeBtn = document.getElementById('openYoutube');
 
 let currentTranscript = '';
 
-// Check if we're on YouTube
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+// Check if we're on YouTube and detect transcript availability
+chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
   const url = tabs[0]?.url || '';
   if (url.includes('youtube.com/watch')) {
     youtubeContent.style.display = 'block';
     notYoutube.style.display = 'none';
+
+    // Proactively check if transcript is available
+    try {
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: checkTranscriptAvailability
+      });
+
+      const hasTranscript = results[0]?.result;
+
+      if (!hasTranscript) {
+        grabBtn.disabled = true;
+        grabBtn.classList.add('unavailable');
+        grabBtn.title = 'No transcript available for this video';
+        showStatus('No transcript available for this video.', 'error');
+      }
+    } catch (err) {
+      console.log('Could not check transcript availability:', err);
+      // Don't disable - let user try anyway
+    }
   } else {
     youtubeContent.style.display = 'none';
     notYoutube.style.display = 'block';
   }
 });
+
+// Function to check if transcript is available (runs in page context)
+function checkTranscriptAvailability() {
+  // Check if "Show transcript" button exists in description area
+  const expandButton = document.querySelector('tp-yt-paper-button#expand');
+
+  // Check for transcript button without expanding
+  const buttons = document.querySelectorAll('button, ytd-button-renderer, ytd-menu-service-item-renderer, tp-yt-paper-item');
+  for (const btn of buttons) {
+    const text = btn.textContent?.toLowerCase() || '';
+    if (text.includes('transcript') || text.includes('show transcript')) {
+      return true;
+    }
+  }
+
+  // Check if transcript panel is already open
+  const transcriptPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"]');
+  if (transcriptPanel) {
+    return true;
+  }
+
+  // Check for captions button in player (indicates video has captions)
+  const captionsBtn = document.querySelector('.ytp-subtitles-button');
+  if (captionsBtn && captionsBtn.getAttribute('aria-pressed') !== null) {
+    return true; // Captions available means transcript likely available
+  }
+
+  // If description isn't expanded, we can't be certain - return true to let user try
+  if (expandButton) {
+    return true; // Give benefit of the doubt
+  }
+
+  return false;
+}
 
 // Open YouTube button
 openYoutubeBtn.addEventListener('click', () => {
@@ -196,7 +250,7 @@ function grabTranscriptFromPage() {
         if (transcript.transcript) {
           resolve(transcript);
         } else {
-          resolve({ error: 'Could not find transcript button. Try clicking "...more" under the video first.' });
+          resolve({ error: 'This video doesn\'t have a transcript available. Try a different video - most videos from larger channels have auto-generated transcripts.' });
         }
       }
     }, 500);

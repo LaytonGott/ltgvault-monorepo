@@ -98,3 +98,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Server error' });
   }
 };
+// Trigger deploy Mon, Feb  2, 2026 12:04:44 PM

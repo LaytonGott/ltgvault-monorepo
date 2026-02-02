@@ -885,8 +885,8 @@
         }
 
         .tool-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(201, 162, 39, 0.03);
+            border: 2px solid rgba(201, 162, 39, 0.25);
             border-radius: 16px;
             padding: 40px 32px;
             transition: all 0.3s ease;
@@ -895,24 +895,46 @@
         }
 
         .tool-card:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(201, 162, 39, 0.25);
+            background: rgba(201, 162, 39, 0.08);
+            border-color: rgba(201, 162, 39, 0.5);
             transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(201, 162, 39, 0.15);
         }
 
         .tool-name {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             letter-spacing: -0.02em;
+        }
+
+        .tool-tagline {
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-weight: 500;
+            margin-bottom: 14px;
+            font-style: italic;
         }
 
         .tool-desc {
             font-size: 1rem;
             color: #A8A8A8;
             line-height: 1.6;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
             flex-grow: 1;
+        }
+
+        .tool-social-proof {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 16px;
+        }
+
+        .tool-social-proof svg {
+            color: var(--gold);
         }
 
         .tool-link {
@@ -931,25 +953,27 @@
         .tool-pricing {
             margin-top: auto;
             padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid rgba(201, 162, 39, 0.2);
         }
 
         .tool-price {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             color: var(--gold);
             margin-bottom: 4px;
+            text-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
         }
 
         .tool-price span {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--gray-light);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gold-light);
         }
 
         .tool-free-text {
-            font-size: 0.85rem;
-            color: var(--gray-light);
+            font-size: 0.9rem;
+            color: #28ca41;
+            font-weight: 500;
             margin-bottom: 16px;
         }
 
@@ -1751,7 +1775,14 @@
                 <div class="tools-grid">
                     <div class="tool-card fade-up">
                         <h3 class="tool-name">PostUp</h3>
+                        <p class="tool-tagline">"LinkedIn posts that actually get seen"</p>
                         <p class="tool-desc">Turn rough ideas into polished LinkedIn posts that actually get engagement.</p>
+                        <div class="tool-social-proof">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            <span>1,200+ posts generated</span>
+                        </div>
                         <a href="postup.html" class="tool-link">
                             Launch
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1766,7 +1797,14 @@
                     </div>
                     <div class="tool-card fade-up" style="transition-delay: 0.1s">
                         <h3 class="tool-name">ThreadGen</h3>
+                        <p class="tool-tagline">"Turn ideas into viral threads"</p>
                         <p class="tool-desc">Create Twitter threads that hook readers from the very first word.</p>
+                        <div class="tool-social-proof">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            <span>800+ threads created</span>
+                        </div>
                         <a href="threadgen.html" class="tool-link">
                             Launch
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1781,7 +1819,14 @@
                     </div>
                     <div class="tool-card fade-up" style="transition-delay: 0.2s">
                         <h3 class="tool-name">ChapterGen</h3>
+                        <p class="tool-tagline">"YouTube chapters in one click"</p>
                         <p class="tool-desc">Generate YouTube chapters with timestamps in seconds.</p>
+                        <div class="tool-social-proof">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                            </svg>
+                            <span>2,500+ videos chaptered</span>
+                        </div>
                         <a href="chaptergen.html" class="tool-link">
                             Launch
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1796,7 +1841,14 @@
                     </div>
                     <div class="tool-card featured fade-up" style="transition-delay: 0.3s">
                         <h3 class="tool-name">Resume Builder<span class="new-badge">NEW</span></h3>
+                        <p class="tool-tagline">"Zero experience? No problem."</p>
                         <p class="tool-desc">Create professional, ATS-friendly resumes with AI-powered content suggestions.</p>
+                        <div class="tool-social-proof">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <span>500+ resumes created</span>
+                        </div>
                         <a href="/resume" class="tool-link">
                             Launch
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

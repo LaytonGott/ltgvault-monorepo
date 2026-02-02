@@ -98,25 +98,33 @@ export default function ResumesPage() {
   async function loadProStatus() {
     try {
       const apiKey = localStorage.getItem('ltgv_api_key');
+      console.log('[DEBUG 1] API Key from localStorage:', apiKey ? apiKey.substring(0, 10) + '...' : 'NULL');
+
       if (!apiKey) {
-        console.log('[Pro Status] No API key found');
+        console.log('[DEBUG 1] No API key found - stopping');
         return;
       }
 
-      console.log('[Pro Status] Fetching pro status...');
+      console.log('[DEBUG 2] Fetching /api/resume/pro-status...');
       const response = await fetch('/api/resume/pro-status', {
         headers: { 'x-api-key': apiKey }
       });
 
+      console.log('[DEBUG 3] Response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('[Pro Status] Response:', JSON.stringify(data));
+        console.log('[DEBUG 4] Pro Status API Response:');
+        console.log('  - isPro:', data.isPro);
+        console.log('  - _debug:', JSON.stringify(data._debug));
+        console.log('  - Full response:', JSON.stringify(data, null, 2));
         setProStatus(data);
       } else {
-        console.log('[Pro Status] Error response:', response.status);
+        const errorText = await response.text();
+        console.log('[DEBUG 4] Error response:', response.status, errorText);
       }
     } catch (err) {
-      console.error('[Pro Status] Failed to load:', err);
+      console.error('[DEBUG 4] Failed to load:', err);
     }
   }
 
@@ -143,13 +151,18 @@ export default function ResumesPage() {
   }
 
   async function handleCreateResume() {
-    console.log('[Create Resume] Starting...', { isGuest, isPro: proStatus?.isPro, proStatusLoaded: !!proStatus });
+    console.log('=== CREATE RESUME CLICKED ===');
+    console.log('[DEBUG 5] Current state:');
+    console.log('  - isGuest:', isGuest);
+    console.log('  - proStatus:', JSON.stringify(proStatus, null, 2));
+    console.log('  - proStatus?.isPro:', proStatus?.isPro);
 
     try {
       if (isGuest) {
-        // Guest mode: check local resumes limit (1 resume max for guests)
+        console.log('[DEBUG 6] Guest mode - checking local limit');
         const guestResumes = getGuestResumes();
         if (guestResumes.length >= 1) {
+          console.log('[DEBUG 6] Guest limit reached - showing modal');
           setUpgradeMessage('Create a free account to save more resumes, or upgrade to Pro for unlimited resumes.');
           setShowUpgradeModal(true);
           return;
@@ -157,26 +170,30 @@ export default function ResumesPage() {
         const resume = createGuestResume();
         router.push(`/resume/${resume.id}`);
       } else {
-        // Logged in user
-        // If Pro status confirms user is Pro, proceed without worry
-        // The API also checks, but this ensures we don't show wrong modals
+        console.log('[DEBUG 6] Logged in user - calling createResume API');
+
         if (proStatus?.isPro) {
-          console.log('[Create Resume] User is Pro - creating resume');
+          console.log('[DEBUG 6] Frontend thinks user is Pro');
+        } else {
+          console.log('[DEBUG 6] Frontend thinks user is NOT Pro');
         }
 
-        console.log('[Create Resume] Calling API...');
-        const { resume } = await createResume();
-        console.log('[Create Resume] Success:', resume.id);
-        router.push(`/resume/${resume.id}`);
+        console.log('[DEBUG 7] Calling POST /api/resume/create...');
+        const result = await createResume();
+        console.log('[DEBUG 8] Create success:', result);
+        router.push(`/resume/${result.resume.id}`);
       }
     } catch (err: any) {
-      console.log('[Create Resume] Error:', err.code, err.message, err);
+      console.log('[DEBUG 8] Create FAILED:');
+      console.log('  - err.code:', err.code);
+      console.log('  - err.message:', err.message);
+      console.log('  - err.status:', err.status);
+      console.log('  - Full error:', err);
 
-      // CRITICAL: If we know user is Pro but got RESUME_LIMIT, log the bug but DON'T show modal
-      // This prevents the bad UX where Pro users see upgrade prompts
+      // CRITICAL: If we know user is Pro but got RESUME_LIMIT, log the bug
       if (proStatus?.isPro && err.code === 'RESUME_LIMIT') {
-        console.error('[Create Resume] BUG: Pro user got RESUME_LIMIT! proStatus:', proStatus);
-        // Try refreshing Pro status and retrying once
+        console.error('[DEBUG 9] BUG DETECTED: Pro user got RESUME_LIMIT!');
+        console.error('  - proStatus was:', JSON.stringify(proStatus));
         await loadProStatus();
         setError('Something went wrong. Please try again.');
         return;
@@ -184,12 +201,12 @@ export default function ResumesPage() {
 
       // Show upgrade modal ONLY for free users hitting the limit
       if (err.code === 'RESUME_LIMIT') {
+        console.log('[DEBUG 9] Showing upgrade modal because err.code === RESUME_LIMIT');
         setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
         setShowUpgradeModal(true);
         return;
       }
 
-      // All other errors just show the error message
       setError(err.message || 'Failed to create resume');
     }
   }

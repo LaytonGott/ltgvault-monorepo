@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
 
       const { data: user, error: userError } = await supabase
         .from('users')
-        .select('id, email, subscribed_postup, subscribed_chaptergen, subscribed_threadgen')
+        .select('id, email, subscribed_postup, subscribed_chaptergen, subscribed_threadgen, subscribed_resumebuilder')
         .eq('email', email.toLowerCase())
         .single();
 
@@ -60,7 +60,8 @@ module.exports = async function handler(req, res) {
         subscriptions: {
           postup: user.subscribed_postup || false,
           chaptergen: user.subscribed_chaptergen || false,
-          threadgen: user.subscribed_threadgen || false
+          threadgen: user.subscribed_threadgen || false,
+          resumebuilder: user.subscribed_resumebuilder || false
         }
       });
     }
@@ -80,7 +81,7 @@ module.exports = async function handler(req, res) {
 
       const { data: user, error: userError } = await supabase
         .from('users')
-        .select('id, email, created_at, subscribed_postup, subscribed_chaptergen, subscribed_threadgen')
+        .select('id, email, created_at, subscribed_postup, subscribed_chaptergen, subscribed_threadgen, subscribed_resumebuilder')
         .eq('email', userEmail.toLowerCase())
         .single();
 
@@ -98,7 +99,8 @@ module.exports = async function handler(req, res) {
         subscriptions: {
           postup: user.subscribed_postup || false,
           chaptergen: user.subscribed_chaptergen || false,
-          threadgen: user.subscribed_threadgen || false
+          threadgen: user.subscribed_threadgen || false,
+          resumebuilder: user.subscribed_resumebuilder || false
         }
       });
     }

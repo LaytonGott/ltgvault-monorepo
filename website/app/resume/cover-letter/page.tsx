@@ -109,10 +109,17 @@ export default function CoverLetterPage() {
 
   async function loadAIUsage() {
     try {
-      const response = await fetch('/api/resume/ai-usage', { headers: getHeaders() });
+      // Use pro-status endpoint which includes AI usage data
+      const response = await fetch('/api/resume/pro-status', { headers: getHeaders() });
       if (response.ok) {
         const data = await response.json();
-        setAiUsage(data);
+        // Transform pro-status response to ai-usage format
+        setAiUsage({
+          used: data.usage?.aiGenerations || 0,
+          limit: data.aiLimit || 5,
+          remaining: data.aiRemaining || 0,
+          isPro: data.isPro || false
+        });
         setIsPro(data.isPro || false);
       }
     } catch (err) {

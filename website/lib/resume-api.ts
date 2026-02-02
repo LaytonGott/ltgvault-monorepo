@@ -38,9 +38,15 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
   return response.json();
 }
 
-// List all resumes
+// Get combined status (pro status + resume list + ai usage)
+export async function getResumeStatus() {
+  return apiCall('/status');
+}
+
+// List all resumes (uses combined status endpoint)
 export async function listResumes() {
-  return apiCall('/list');
+  const data = await apiCall('/status');
+  return { resumes: data.resumes || [] };
 }
 
 // Create new resume

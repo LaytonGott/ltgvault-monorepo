@@ -56,7 +56,7 @@ export default function JobTrackerPage() {
 
   async function loadProStatus() {
     try {
-      const response = await fetch('/api/resume/pro-status', { headers: getHeaders() });
+      const response = await fetch('/api/resume/status', { headers: getHeaders() });
       if (response.ok) {
         const data = await response.json();
         setIsPro(data.isPro || false);

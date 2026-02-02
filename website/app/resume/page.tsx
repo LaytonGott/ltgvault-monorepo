@@ -147,8 +147,8 @@ export default function ResumesPage() {
         return;
       }
 
-      console.log('[DEBUG 2] Fetching /api/resume/pro-status...');
-      const response = await fetch('/api/resume/pro-status', {
+      console.log('[DEBUG 2] Fetching /api/resume/status...');
+      const response = await fetch('/api/resume/status', {
         headers: { 'x-api-key': apiKey }
       });
 

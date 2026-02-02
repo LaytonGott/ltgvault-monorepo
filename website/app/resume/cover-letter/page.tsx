@@ -110,7 +110,7 @@ export default function CoverLetterPage() {
   async function loadAIUsage() {
     try {
       // Use pro-status endpoint which includes AI usage data
-      const response = await fetch('/api/resume/pro-status', { headers: getHeaders() });
+      const response = await fetch('/api/resume/status', { headers: getHeaders() });
       if (response.ok) {
         const data = await response.json();
         // Transform pro-status response to ai-usage format
@@ -135,16 +135,16 @@ export default function CoverLetterPage() {
         headers['x-api-key'] = apiKey;
       }
 
-      // Load resumes and cover letters in parallel
-      const [resumesRes, coverLettersRes] = await Promise.all([
-        fetch('/api/resume/list', { headers }),
+      // Load resumes (from status endpoint) and cover letters in parallel
+      const [statusRes, coverLettersRes] = await Promise.all([
+        fetch('/api/resume/status', { headers }),
         fetch('/api/resume/cover-letters', { headers })
       ]);
 
-      const resumesData = await resumesRes.json();
+      const statusData = await statusRes.json();
       const coverLettersData = await coverLettersRes.json();
 
-      setResumes(resumesData.resumes || []);
+      setResumes(statusData.resumes || []);
       setCoverLetters(coverLettersData.coverLetters || []);
 
       // If there's a resume, select it by default

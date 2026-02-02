@@ -180,7 +180,7 @@ export default function ResumeEditorPage() {
       }
 
       // Use pro-status endpoint which includes AI usage data
-      const response = await fetch('/api/resume/pro-status', { headers });
+      const response = await fetch('/api/resume/status', { headers });
       if (response.ok) {
         const data = await response.json();
         // Transform pro-status response to ai-usage format

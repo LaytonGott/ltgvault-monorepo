@@ -69,13 +69,20 @@ export default function ResumesPage() {
   }, []);
 
   async function initializeAuth() {
+    // Debug: Show ALL ltgv keys in localStorage
+    console.log('=== RESUME PAGE AUTH DEBUG ===');
+    const allKeys = Object.keys(localStorage).filter(k => k.startsWith('ltgv'));
+    console.log('[Auth] All ltgv_ keys in localStorage:', allKeys);
+    allKeys.forEach(k => {
+      const val = localStorage.getItem(k);
+      console.log(`  ${k}:`, val ? (val.length > 20 ? val.substring(0, 20) + '...' : val) : 'NULL');
+    });
+
     let apiKey = localStorage.getItem('ltgv_api_key');
     const storedEmail = localStorage.getItem('ltgv_email');
 
-    console.log('[Auth] Checking auth state:', {
-      hasApiKey: !!apiKey,
-      hasEmail: !!storedEmail
-    });
+    console.log('[Auth] API Key:', apiKey ? apiKey.substring(0, 15) + '...' : 'NULL');
+    console.log('[Auth] Email:', storedEmail || 'NULL');
 
     // If no API key but we have an email, try to sync the API key
     if (!apiKey && storedEmail) {

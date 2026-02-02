@@ -148,10 +148,10 @@ export default function CoverLetterPage() {
       setCoverLetters(coverLettersData.coverLetters || []);
 
       // If there's a resume, select it by default
-      if (resumesData.resumes?.length > 0) {
-        setSelectedResumeId(resumesData.resumes[0].id);
+      if (statusData.resumes?.length > 0) {
+        setSelectedResumeId(statusData.resumes[0].id);
         // Try to get the user's name from the resume
-        await loadUserName(resumesData.resumes[0].id, headers);
+        await loadUserName(statusData.resumes[0].id, headers);
       }
     } catch (err: any) {
       console.error('Load data error:', err);

@@ -65,21 +65,52 @@ export default function ResumesPage() {
   const [upgradeMessage, setUpgradeMessage] = useState('');
 
   useEffect(() => {
-    const apiKey = localStorage.getItem('ltgv_api_key');
+    initializeAuth();
+  }, []);
+
+  async function initializeAuth() {
+    let apiKey = localStorage.getItem('ltgv_api_key');
+    const storedEmail = localStorage.getItem('ltgv_email');
+
+    console.log('[Auth] Checking auth state:', {
+      hasApiKey: !!apiKey,
+      hasEmail: !!storedEmail
+    });
+
+    // If no API key but we have an email, try to sync the API key
+    if (!apiKey && storedEmail) {
+      console.log('[Auth] No API key but have email, attempting to sync...');
+      try {
+        const response = await fetch('/api/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: storedEmail })
+        });
+        const data = await response.json();
+        if (data.success && data.apiKey) {
+          console.log('[Auth] API key synced successfully');
+          localStorage.setItem('ltgv_api_key', data.apiKey);
+          apiKey = data.apiKey;
+        }
+      } catch (err) {
+        console.log('[Auth] Failed to sync API key:', err);
+      }
+    }
 
     if (!apiKey) {
       // Guest mode - use localStorage
+      console.log('[Auth] No API key - entering guest mode');
       setIsGuest(true);
       setResumes(getGuestResumes());
       setLoading(false);
       return;
     }
 
+    console.log('[Auth] API key found, loading user data...');
     loadResumes();
     loadProStatus();
 
     // Handle query params from redirects (e.g., from /resume/new)
-    // Using window.location.search instead of useSearchParams to avoid SSR issues
     const params = new URLSearchParams(window.location.search);
     const limitParam = params.get('limit');
     const errorParam = params.get('error');
@@ -87,13 +118,12 @@ export default function ResumesPage() {
     if (limitParam === 'true') {
       setUpgradeMessage('You\'ve reached the free limit of 1 resume. Upgrade to Pro for unlimited resumes.');
       setShowUpgradeModal(true);
-      // Clean up URL
       window.history.replaceState({}, '', '/resume');
     } else if (errorParam) {
       setError(errorParam);
       window.history.replaceState({}, '', '/resume');
     }
-  }, []);
+  }
 
   async function loadProStatus() {
     try {
@@ -429,8 +459,8 @@ export default function ResumesPage() {
           {isGuest && (
             <div className={styles.guestBanner}>
               <span>You're in guest mode. Your resumes are saved locally.</span>
-              <Link href="/pricing.html" className={styles.guestBannerLink}>
-                Create free account to save online
+              <Link href="/dashboard.html" className={styles.guestBannerLink}>
+                Already subscribed? Sync your account →
               </Link>
             </div>
           )}

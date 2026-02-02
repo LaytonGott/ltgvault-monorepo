@@ -1151,7 +1151,7 @@
 
             try {
                 // Look up user by email
-                var response = await fetch('/api/lookup', {
+                var response = await fetch('/api/account', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1411,10 +1411,10 @@
             sendAccessLinkBtn.textContent = 'Sending...';
 
             try {
-                var response = await fetch('/api/send-access-link', {
+                var response = await fetch('/api/account', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentEmail })
+                    body: JSON.stringify({ email: currentEmail, action: 'send-link' })
                 });
                 var data = await response.json();
 

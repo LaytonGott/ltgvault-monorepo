@@ -11,7 +11,7 @@ import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
 import TemplateGallery from '@/components/TemplateGallery';
 import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
-import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP } from '@/lib/template-config';
+import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId } from '@/lib/template-config';
 import styles from './editor.module.css';
 
 // Guest mode storage helpers
@@ -86,6 +86,7 @@ interface Resume {
   id: string;
   title: string;
   template: string;
+  color_theme?: string;
 }
 
 export default function ResumeEditorPage() {
@@ -341,6 +342,32 @@ export default function ResumeEditorPage() {
     }
   }
 
+  async function handleUpdateColorTheme(colorTheme: string) {
+    if (!resume) return;
+
+    // Color themes are Pro-only (except 'default')
+    if (!isPro && colorTheme !== 'default') {
+      setUpgradeMessage('Unlock custom color themes with Resume Builder Pro.');
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    const updatedResume = { ...resume, color_theme: colorTheme };
+    setResume(updatedResume);
+    if (isGuest) {
+      saveGuestResumeData(resumeId, { resume: updatedResume, personalInfo, education, experience, skills, projects });
+      return;
+    }
+    setSaveStatus('saving');
+    try {
+      await updateResume(resumeId, { color_theme: colorTheme });
+      showSavedStatus();
+    } catch (err) {
+      console.error('Color theme update error:', err);
+      showErrorStatus();
+    }
+  }
+
   function toggleSection(section: string) {
     setOpenSections(prev =>
       prev.includes(section)
@@ -542,6 +569,7 @@ export default function ResumeEditorPage() {
       const blob = await pdf(
         <ResumePDF
           template={resume.template || 'single-classic'}
+          colorTheme={resume.color_theme}
           personalInfo={personalInfo}
           education={education}
           experience={experience}
@@ -889,6 +917,25 @@ export default function ResumeEditorPage() {
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
+
+          {/* Color Theme Selector - Pro only */}
+          <div className={styles.colorSelector}>
+            <select
+              value={resume.color_theme || 'default'}
+              onChange={(e) => handleUpdateColorTheme(e.target.value)}
+              className={styles.colorSelect}
+              title={!isPro ? 'Pro feature - Custom color themes' : 'Select color theme'}
+            >
+              {Object.entries(COLOR_THEMES).map(([id, theme]) => (
+                <option key={id} value={id}>
+                  {theme.name}{id !== 'default' && !isPro ? ' 🔒' : ''}
+                </option>
+              ))}
+            </select>
+            {!isPro && resume.color_theme && resume.color_theme !== 'default' && (
+              <span className={styles.proIndicator}>PRO</span>
+            )}
+          </div>
 
           <button
             className={styles.downloadButton}

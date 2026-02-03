@@ -289,6 +289,56 @@
   margin-left: auto;
 }
 
+/* Color Theme Selector */
+.colorSelector {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.colorSelect {
+  appearance: none;
+  padding: 8px 32px 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.colorSelect:hover {
+  border-color: rgba(201, 162, 39, 0.4);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.colorSelect:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.colorSelect option {
+  background: #1a1a1a;
+  color: var(--white);
+  padding: 8px;
+}
+
+.proIndicator {
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  background: var(--gold);
+  color: black;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
 .templateSelector {
   display: flex;
   background: rgba(255, 255, 255, 0.05);

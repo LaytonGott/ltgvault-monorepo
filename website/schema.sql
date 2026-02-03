@@ -84,10 +84,14 @@ CREATE TABLE resumes (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) DEFAULT 'My Resume',
     template VARCHAR(50) DEFAULT 'clean',
+    color_theme VARCHAR(50) DEFAULT 'default',
     is_primary BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add color_theme column if table already exists
+-- ALTER TABLE resumes ADD COLUMN IF NOT EXISTS color_theme VARCHAR(50) DEFAULT 'default';
 
 CREATE INDEX idx_resumes_user ON resumes(user_id);
 

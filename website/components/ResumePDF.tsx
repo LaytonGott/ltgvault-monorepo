@@ -1,7 +1,7 @@
 'use client';
 
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { getTemplateConfig, TemplateStyle, LEGACY_TEMPLATE_MAP } from '@/lib/template-config';
+import { getTemplateConfig, TemplateStyle, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId } from '@/lib/template-config';
 
 // ==========================================
 // TYPES
@@ -56,6 +56,7 @@ interface Project {
 
 interface ResumePDFProps {
   template: string;
+  colorTheme?: string;
   personalInfo: PersonalInfo;
   education: Education[];
   experience: Experience[];
@@ -1291,11 +1292,28 @@ function SplitTemplate({ style, personalInfo, education, experience, skills, pro
 // ==========================================
 // MAIN COMPONENT
 // ==========================================
-export default function ResumePDF({ template, personalInfo, education, experience, skills, projects }: ResumePDFProps) {
+export default function ResumePDF({ template, colorTheme, personalInfo, education, experience, skills, projects }: ResumePDFProps) {
   // Get template configuration (handles legacy names)
   const config = getTemplateConfig(template);
+
+  // Apply custom color theme if specified
+  let effectiveStyle = { ...config.styleConfig };
+  if (colorTheme && colorTheme !== 'default') {
+    const theme = COLOR_THEMES[colorTheme as ColorThemeId];
+    if (theme?.color) {
+      effectiveStyle = {
+        ...effectiveStyle,
+        primaryColor: theme.color,
+        secondaryColor: theme.color,
+        accentColor: theme.color,
+        sidebarBg: theme.color,
+        headerBg: theme.color,
+      };
+    }
+  }
+
   const templateProps = {
-    style: config.styleConfig,
+    style: effectiveStyle,
     personalInfo,
     education,
     experience,

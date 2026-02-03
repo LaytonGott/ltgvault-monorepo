@@ -2,6 +2,19 @@
 // 5 Base Layouts × 5 Style Variants = 25 Templates
 // Each variant has STRUCTURAL differences, not just colors
 
+// Color theme options for Pro users
+export const COLOR_THEMES = {
+  default: { name: 'Default', color: null }, // Uses template's default color
+  navy: { name: 'Navy Blue', color: '#1e3a5f' },
+  forest: { name: 'Forest Green', color: '#2d5a3d' },
+  burgundy: { name: 'Burgundy', color: '#722f37' },
+  teal: { name: 'Teal', color: '#0d9488' },
+  purple: { name: 'Purple', color: '#5b21b6' },
+  black: { name: 'Black', color: '#1f2937' },
+} as const;
+
+export type ColorThemeId = keyof typeof COLOR_THEMES;
+
 export interface TemplateStyle {
   // Style identifier
   styleId: string;
@@ -263,6 +276,44 @@ export function getFreeTemplateIds(): string[] {
 // Get pro template IDs
 export function getProTemplateIds(): string[] {
   return TEMPLATES.filter(t => t.isPro).map(t => t.id);
+}
+
+// Get effective colors for a template with optional custom color theme
+export function getEffectiveColors(templateId: string, colorTheme?: string | null): {
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  sidebarBg: string;
+  headerBg: string;
+} {
+  const config = getTemplateConfig(templateId);
+  const style = config.styleConfig;
+
+  // If no custom theme or 'default', use template's colors
+  if (!colorTheme || colorTheme === 'default') {
+    return {
+      primaryColor: style.primaryColor,
+      secondaryColor: style.secondaryColor,
+      accentColor: style.accentColor,
+      sidebarBg: style.sidebarBg || style.primaryColor,
+      headerBg: style.headerBg || style.primaryColor,
+    };
+  }
+
+  // Get custom color
+  const theme = COLOR_THEMES[colorTheme as ColorThemeId];
+  const customColor = theme?.color || style.primaryColor;
+
+  // Generate lighter variant for secondary
+  const lighterColor = customColor + '99'; // Add alpha for lighter look
+
+  return {
+    primaryColor: customColor,
+    secondaryColor: customColor,
+    accentColor: customColor,
+    sidebarBg: customColor,
+    headerBg: customColor,
+  };
 }
 
 // Group templates by layout for gallery view

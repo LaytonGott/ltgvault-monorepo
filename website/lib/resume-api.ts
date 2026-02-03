@@ -62,8 +62,8 @@ export async function getResume(id: string) {
   return apiCall(`/${id}`);
 }
 
-// Update resume title/template
-export async function updateResume(id: string, data: { title?: string; template?: string }) {
+// Update resume title/template/color
+export async function updateResume(id: string, data: { title?: string; template?: string; color_theme?: string }) {
   return apiCall(`/${id}`, {
     method: 'PUT',
     body: JSON.stringify({ data }),

@@ -1,6 +1,9 @@
 // AI Usage Limits for Resume Builder
 // Free users: 5 total AI generations (lifetime)
 // Pro users (subscribed_resumebuilder): 100 per month
+//
+// Schema: ai_usage(id, user_id, tool, action, tokens_used, model, created_at)
+// Each row = 1 generation. Count rows to get usage.
 
 const { supabase } = require('./supabase');
 
@@ -21,19 +24,20 @@ async function checkResumeAIUsage(userId) {
     const isPro = user?.subscribed_resumebuilder === true;
 
     if (isPro) {
-      // Pro users: count this month's usage
+      // Pro users: count this month's usage (count rows, not sum)
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
-      const { data: monthlyUsage, error: usageError } = await supabase
+      const { count, error: usageError } = await supabase
         .from('ai_usage')
-        .select('usage_count')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter'])
-        .gte('usage_date', startOfMonth.toISOString().split('T')[0]);
+        .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter'])
+        .gte('created_at', startOfMonth.toISOString());
 
-      const used = (monthlyUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
+      const used = count || 0;
+      console.log('[checkResumeAIUsage] Pro user, monthly count:', used);
 
       if (used >= PRO_MONTHLY_LIMIT) {
         return {
@@ -52,14 +56,15 @@ async function checkResumeAIUsage(userId) {
         isPro: true
       };
     } else {
-      // Free users: count total lifetime usage
-      const { data: totalUsage, error: usageError } = await supabase
+      // Free users: count total lifetime usage (count rows)
+      const { count, error: usageError } = await supabase
         .from('ai_usage')
-        .select('usage_count')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter']);
+        .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter']);
 
-      const used = (totalUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
+      const used = count || 0;
+      console.log('[checkResumeAIUsage] Free user, total count:', used);
 
       if (used >= FREE_LIMIT) {
         return {

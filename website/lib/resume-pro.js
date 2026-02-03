@@ -89,34 +89,35 @@ async function getResumeProStatus(userId) {
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
 
-    // Get AI usage
+    // Get AI usage - count rows in ai_usage table
+    // Schema: ai_usage(id, user_id, tool, action, tokens_used, model, created_at)
     let aiUsed = 0;
     console.log('[getResumeProStatus] Checking AI usage for userId:', userId, 'isPro:', isPro);
     if (isPro) {
-      // Pro: count this month's usage
+      // Pro: count this month's usage (count rows)
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
-      const { data: monthlyUsage, error: usageError } = await supabase
+      const { count, error: usageError } = await supabase
         .from('ai_usage')
-        .select('*')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter'])
-        .gte('usage_date', startOfMonth.toISOString().split('T')[0]);
+        .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter'])
+        .gte('created_at', startOfMonth.toISOString());
 
-      console.log('[getResumeProStatus] Pro monthly usage query result:', { monthlyUsage, error: usageError?.message });
-      aiUsed = (monthlyUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
+      console.log('[getResumeProStatus] Pro monthly usage count:', count, 'error:', usageError?.message);
+      aiUsed = count || 0;
     } else {
-      // Free: count total lifetime usage
-      const { data: totalUsage, error: usageError } = await supabase
+      // Free: count total lifetime usage (count rows)
+      const { count, error: usageError } = await supabase
         .from('ai_usage')
-        .select('*')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter']);
+        .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter']);
 
-      console.log('[getResumeProStatus] Free total usage query result:', { totalUsage, error: usageError?.message });
-      aiUsed = (totalUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
+      console.log('[getResumeProStatus] Free total usage count:', count, 'error:', usageError?.message);
+      aiUsed = count || 0;
     }
     console.log('[getResumeProStatus] Final aiUsed:', aiUsed);
 

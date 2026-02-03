@@ -9,7 +9,9 @@ import { pdf } from '@react-pdf/renderer';
 import { getResume, updateResume, updateSection, deleteFromSection } from '@/lib/resume-api';
 import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
+import TemplateGallery from '@/components/TemplateGallery';
 import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
+import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP } from '@/lib/template-config';
 import styles from './editor.module.css';
 
 // Guest mode storage helpers
@@ -125,6 +127,9 @@ export default function ResumeEditorPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState('');
 
+  // Template Gallery State
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
+
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sectionSaveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
 
@@ -173,14 +178,17 @@ export default function ResumeEditorPage() {
 
   async function loadAIUsage() {
     try {
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = {
+        'Cache-Control': 'no-cache',
+      };
       const apiKey = localStorage.getItem('ltgv_api_key');
       if (apiKey) {
         headers['x-api-key'] = apiKey;
       }
 
       // Use pro-status endpoint which includes AI usage data
-      const response = await fetch('/api/resume/status', { headers });
+      // Add timestamp to prevent browser caching
+      const response = await fetch(`/api/resume/status?_t=${Date.now()}`, { headers, cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
         // Transform pro-status response to ai-usage format
@@ -291,9 +299,10 @@ export default function ResumeEditorPage() {
     if (!resume) return;
 
     // Check if template is locked for free users
-    const freeTemplates = ['clean'];
-    if (!isPro && !freeTemplates.includes(template)) {
-      setUpgradeMessage('Unlock all premium templates with Resume Builder Pro.');
+    const freeTemplates = ['clean', 'single-classic'];
+    const templateConfig = getTemplateConfig(template);
+    if (!isPro && templateConfig.isPro) {
+      setUpgradeMessage('Unlock all 25 premium templates with Resume Builder Pro.');
       setShowUpgradeModal(true);
       return;
     }
@@ -521,7 +530,7 @@ export default function ResumeEditorPage() {
     try {
       const blob = await pdf(
         <ResumePDF
-          template={resume.template as 'clean' | 'modern' | 'professional' | 'bold' | 'minimal' | 'compact'}
+          template={resume.template || 'single-classic'}
           personalInfo={personalInfo}
           education={education}
           experience={experience}
@@ -628,7 +637,10 @@ export default function ResumeEditorPage() {
       }
 
       setAiGeneratedBullets(data.bullets);
-      loadAIUsage(); // Refresh usage after successful generation
+      // Update AI usage from response immediately (no need to re-fetch)
+      if (data.aiUsage) {
+        setAiUsage(data.aiUsage);
+      }
     } catch (err: any) {
       console.error('Generate bullets error:', err);
       setAiError(err.message || 'Failed to generate bullets');
@@ -695,7 +707,10 @@ export default function ResumeEditorPage() {
       }
 
       setAiGeneratedSummary(data.summary);
-      loadAIUsage(); // Refresh usage after successful generation
+      // Update AI usage from response immediately (no need to re-fetch)
+      if (data.aiUsage) {
+        setAiUsage(data.aiUsage);
+      }
     } catch (err: any) {
       console.error('Generate summary error:', err);
       setAiError(err.message || 'Failed to generate summary');
@@ -839,24 +854,22 @@ export default function ResumeEditorPage() {
             </div>
           )}
 
-          {/* Template Selector Dropdown */}
-          <div className={styles.templateDropdownWrapper}>
-            <select
-              className={styles.templateDropdown}
-              value={resume.template || 'clean'}
-              onChange={(e) => handleUpdateTemplate(e.target.value)}
-            >
-              <option value="clean">Clean</option>
-              <option value="modern" disabled={!isPro}>Modern {!isPro ? '🔒 PRO' : ''}</option>
-              <option value="professional" disabled={!isPro}>Professional {!isPro ? '🔒 PRO' : ''}</option>
-              <option value="bold" disabled={!isPro}>Bold {!isPro ? '🔒 PRO' : ''}</option>
-              <option value="minimal" disabled={!isPro}>Minimal {!isPro ? '🔒 PRO' : ''}</option>
-              <option value="compact" disabled={!isPro}>Compact {!isPro ? '🔒 PRO' : ''}</option>
-            </select>
-            {!isPro && !['clean'].includes(resume.template || 'clean') && (
-              <span className={styles.templateProBadge}>PRO</span>
-            )}
-          </div>
+          {/* Template Selector Button */}
+          <button
+            className={styles.templateButton}
+            onClick={() => setShowTemplateGallery(true)}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+            </svg>
+            {getTemplateConfig(resume.template || 'clean').displayName}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
 
           <button
             className={styles.downloadButton}
@@ -1306,10 +1319,10 @@ export default function ResumeEditorPage() {
 
         {/* Right Panel - Preview */}
         <div className={styles.previewPanel}>
-          {/* Modern Template - Two Column Layout */}
-          {resume.template === 'modern' && (
-            <div className={`${styles.resumePreview} ${styles.modernTemplate}`}>
-              <div className={styles.modernSidebar}>
+          {/* Two Column Layout (twocolumn-* or legacy 'modern') */}
+          {(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || resume.template === 'modern') && (
+            <div className={`${styles.resumePreview} ${styles.modernTemplate}`} style={{ '--accent-color': getTemplateConfig(resume.template || 'clean').styleConfig.primaryColor } as React.CSSProperties}>
+              <div className={styles.modernSidebar} style={{ backgroundColor: getTemplateConfig(resume.template || 'clean').styleConfig.sidebarBg }}>
                 <div className={styles.modernNameSection}>
                   <h1 className={styles.modernName}>{personalInfo.first_name || 'Your'}</h1>
                   <h1 className={styles.modernName}>{personalInfo.last_name || 'Name'}</h1>
@@ -1388,61 +1401,8 @@ export default function ResumeEditorPage() {
             </div>
           )}
 
-          {/* Professional Template - Traditional/Corporate */}
-          {resume.template === 'professional' && (
-            <div className={`${styles.resumePreview} ${styles.professionalTemplate}`}>
-              <h1 className={styles.professionalName}>
-                {personalInfo.first_name || personalInfo.last_name
-                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                  : 'Your Name'}
-              </h1>
-              <div className={styles.professionalContact}>
-                {[personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url]
-                  .filter(Boolean).join(' | ') || 'email@example.com | (555) 123-4567'}
-              </div>
-              {personalInfo.summary && <div className={styles.professionalSection}><h2>Professional Summary</h2><p>{personalInfo.summary}</p></div>}
-              {experience.length > 0 && (
-                <div className={styles.professionalSection}>
-                  <h2>Professional Experience</h2>
-                  {experience.map((exp) => (
-                    <div key={exp.id} className={styles.professionalEntry}>
-                      <div className={styles.professionalEntryHeader}>
-                        <strong>{exp.job_title || 'Job Title'}</strong>
-                        <em>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</em>
-                      </div>
-                      <div className={styles.professionalEntrySubtitle}>{exp.company_name}{exp.location ? `, ${exp.location}` : ''}</div>
-                      {exp.description && <p>{exp.description}</p>}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {education.length > 0 && (
-                <div className={styles.professionalSection}>
-                  <h2>Education</h2>
-                  {education.map((edu) => (
-                    <div key={edu.id} className={styles.professionalEntry}>
-                      <div className={styles.professionalEntryHeader}>
-                        <strong>{edu.school_name || 'School Name'}</strong>
-                        <em>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</em>
-                      </div>
-                      {(edu.degree || edu.field_of_study) && (
-                        <div className={styles.professionalEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa ? ` — GPA: ${edu.gpa}` : ''}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {skills.length > 0 && skills.some(s => s.skill_name) && (
-                <div className={styles.professionalSection}>
-                  <h2>Skills</h2>
-                  <p className={styles.professionalSkills}>{skills.filter(s => s.skill_name).map(s => s.skill_name).join(' • ')}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Bold Template - Eye-catching */}
-          {resume.template === 'bold' && (
+          {/* Header Focus Layout (header-* or legacy 'bold') */}
+          {(getTemplateConfig(resume.template || 'clean').layout === 'header' || resume.template === 'bold') && !(resume.template === 'modern') && (
             <div className={`${styles.resumePreview} ${styles.boldTemplate}`}>
               <div className={styles.boldHeader}>
                 <h1 className={styles.boldName}>
@@ -1503,8 +1463,8 @@ export default function ResumeEditorPage() {
             </div>
           )}
 
-          {/* Minimal Template - Clean/Creative */}
-          {resume.template === 'minimal' && (
+          {/* Split Layout (split-*) - use minimal styling for preview */}
+          {getTemplateConfig(resume.template || 'clean').layout === 'split' && (
             <div className={`${styles.resumePreview} ${styles.minimalTemplate}`}>
               <h1 className={styles.minimalName}>
                 {personalInfo.first_name || personalInfo.last_name
@@ -1557,8 +1517,8 @@ export default function ResumeEditorPage() {
             </div>
           )}
 
-          {/* Compact Template - Dense/Experienced */}
-          {resume.template === 'compact' && (
+          {/* Compact Layout (compact-* or legacy 'compact') */}
+          {(getTemplateConfig(resume.template || 'clean').layout === 'compact' || resume.template === 'compact') && !(getTemplateConfig(resume.template || 'clean').layout === 'split') && (
             <div className={`${styles.resumePreview} ${styles.compactTemplate}`}>
               <h1 className={styles.compactName}>
                 {personalInfo.first_name || personalInfo.last_name
@@ -1612,8 +1572,8 @@ export default function ResumeEditorPage() {
             </div>
           )}
 
-          {/* Clean Template - Default Single Column Layout */}
-          {(!resume.template || resume.template === 'clean') && (
+          {/* Single Column Layout (single-* or legacy 'clean'/'professional'/'minimal') - Default */}
+          {(getTemplateConfig(resume.template || 'clean').layout === 'single' || !resume.template || resume.template === 'clean' || resume.template === 'professional' || resume.template === 'minimal') && !(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || getTemplateConfig(resume.template || 'clean').layout === 'header' || getTemplateConfig(resume.template || 'clean').layout === 'compact' || getTemplateConfig(resume.template || 'clean').layout === 'split' || resume.template === 'modern' || resume.template === 'bold' || resume.template === 'compact') && (
             <div className={styles.resumePreview}>
               <h1 className={styles.previewName}>
                 {personalInfo.first_name || personalInfo.last_name
@@ -1695,6 +1655,16 @@ export default function ResumeEditorPage() {
           )}
         </div>
       </div>
+
+      {/* Template Gallery Modal */}
+      {showTemplateGallery && (
+        <TemplateGallery
+          currentTemplate={resume.template || 'clean'}
+          isPro={isPro}
+          onSelect={handleUpdateTemplate}
+          onClose={() => setShowTemplateGallery(false)}
+        />
+      )}
 
       {/* Upgrade Modal */}
       <UpgradeModal

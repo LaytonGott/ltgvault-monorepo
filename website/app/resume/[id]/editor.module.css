@@ -261,6 +261,34 @@
   color: #666;
 }
 
+.templateButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.templateButton:hover {
+  border-color: rgba(201, 162, 39, 0.4);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.templateButton svg:first-child {
+  color: var(--gold);
+}
+
+.templateButton svg:last-child {
+  color: var(--gray-light);
+  margin-left: auto;
+}
+
 .templateSelector {
   display: flex;
   background: rgba(255, 255, 255, 0.05);

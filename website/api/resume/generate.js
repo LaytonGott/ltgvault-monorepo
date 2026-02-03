@@ -11,19 +11,47 @@ async function getUser(req) {
 }
 
 async function trackUsage(userId, feature) {
-  const today = new Date().toISOString().split('T')[0];
-  const { data: existing } = await supabase
-    .from('ai_usage')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('feature', feature)
-    .eq('usage_date', today)
-    .single();
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    console.log('[trackUsage] Recording usage:', { userId, feature, today });
 
-  if (existing) {
-    await supabase.from('ai_usage').update({ usage_count: existing.usage_count + 1 }).eq('id', existing.id);
-  } else {
-    await supabase.from('ai_usage').insert({ user_id: userId, feature, usage_date: today, usage_count: 1 });
+    const { data: existing, error: selectError } = await supabase
+      .from('ai_usage')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('feature', feature)
+      .eq('usage_date', today)
+      .single();
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      // PGRST116 = no rows found, which is expected for new entries
+      console.error('[trackUsage] Select error:', selectError);
+    }
+
+    if (existing) {
+      console.log('[trackUsage] Updating existing record:', existing.id);
+      const { error: updateError } = await supabase
+        .from('ai_usage')
+        .update({ usage_count: existing.usage_count + 1 })
+        .eq('id', existing.id);
+      if (updateError) {
+        console.error('[trackUsage] Update error:', updateError);
+      } else {
+        console.log('[trackUsage] Updated successfully');
+      }
+    } else {
+      console.log('[trackUsage] Inserting new record');
+      const { error: insertError } = await supabase
+        .from('ai_usage')
+        .insert({ user_id: userId, feature, usage_date: today, usage_count: 1 });
+      if (insertError) {
+        console.error('[trackUsage] Insert error:', insertError);
+      } else {
+        console.log('[trackUsage] Inserted successfully');
+      }
+    }
+  } catch (error) {
+    console.error('[trackUsage] Exception:', error);
   }
 }
 
@@ -45,13 +73,13 @@ module.exports = async function handler(req, res) {
   const { type } = body;
 
   // Check AI usage limits
-  const usage = await checkResumeAIUsage(user.id);
+  let usage = await checkResumeAIUsage(user.id);
   if (!usage.allowed) {
     return res.status(429).json({ error: 'LIMIT_EXCEEDED', message: usage.message });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (!anthropicKey) {
     return res.status(500).json({ error: 'AI not configured' });
   }
 
@@ -65,7 +93,7 @@ module.exports = async function handler(req, res) {
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-3-haiku-20240307',
           max_tokens: 500,
@@ -77,7 +105,13 @@ module.exports = async function handler(req, res) {
 
       if (!response.ok) return res.status(500).json({ error: 'AI error' });
       const data = await response.json();
-      return res.status(200).json({ success: true, bullets: data.content?.[0]?.text?.trim() });
+      // Get updated usage count
+      const updatedUsage = await checkResumeAIUsage(user.id);
+      return res.status(200).json({
+        success: true,
+        bullets: data.content?.[0]?.text?.trim(),
+        aiUsage: { used: updatedUsage.used, limit: updatedUsage.limit, remaining: updatedUsage.limit - updatedUsage.used, isPro: updatedUsage.isPro }
+      });
     }
 
     // Generate summary
@@ -92,7 +126,7 @@ module.exports = async function handler(req, res) {
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-3-haiku-20240307',
           max_tokens: 300,
@@ -104,7 +138,13 @@ module.exports = async function handler(req, res) {
 
       if (!response.ok) return res.status(500).json({ error: 'AI error' });
       const data = await response.json();
-      return res.status(200).json({ success: true, summary: data.content?.[0]?.text?.trim() });
+      // Get updated usage count
+      const updatedUsage = await checkResumeAIUsage(user.id);
+      return res.status(200).json({
+        success: true,
+        summary: data.content?.[0]?.text?.trim(),
+        aiUsage: { used: updatedUsage.used, limit: updatedUsage.limit, remaining: updatedUsage.limit - updatedUsage.used, isPro: updatedUsage.isPro }
+      });
     }
 
     // Generate cover letter
@@ -126,7 +166,7 @@ module.exports = async function handler(req, res) {
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
         body: JSON.stringify({
           model: 'claude-3-haiku-20240307',
           max_tokens: 1000,
@@ -138,7 +178,13 @@ module.exports = async function handler(req, res) {
 
       if (!response.ok) return res.status(500).json({ error: 'AI error' });
       const data = await response.json();
-      return res.status(200).json({ success: true, coverLetter: data.content?.[0]?.text?.trim() });
+      // Get updated usage count
+      const updatedUsage = await checkResumeAIUsage(user.id);
+      return res.status(200).json({
+        success: true,
+        coverLetter: data.content?.[0]?.text?.trim(),
+        aiUsage: { used: updatedUsage.used, limit: updatedUsage.limit, remaining: updatedUsage.limit - updatedUsage.used, isPro: updatedUsage.isPro }
+      });
     }
 
     return res.status(400).json({ error: 'Invalid type. Use: bullets, summary, or cover-letter' });

@@ -1,21 +1,47 @@
 // Resume Builder Pro Status & Limits
-// Free users: 1 resume, 5 AI generations, Clean template only, 3 jobs
-// Pro users ($19 one-time): Unlimited everything, 100 AI/month
+// Free users: 1 resume, 5 AI generations, Single Column Classic template only, 3 jobs
+// Pro users ($19 one-time): Unlimited everything, 100 AI/month, 25 templates
 
 const { supabase } = require('./supabase');
+
+// All 25 templates (5 layouts × 5 styles)
+const ALL_TEMPLATES = [
+  // Single Column layouts
+  'single-classic', 'single-modern', 'single-bold', 'single-elegant', 'single-minimal',
+  // Two Column layouts
+  'twocolumn-classic', 'twocolumn-modern', 'twocolumn-bold', 'twocolumn-elegant', 'twocolumn-minimal',
+  // Header Focus layouts
+  'header-classic', 'header-modern', 'header-bold', 'header-elegant', 'header-minimal',
+  // Compact layouts
+  'compact-classic', 'compact-modern', 'compact-bold', 'compact-elegant', 'compact-minimal',
+  // Modern Split layouts
+  'split-classic', 'split-modern', 'split-bold', 'split-elegant', 'split-minimal',
+];
+
+// Legacy template name mapping (for backwards compatibility)
+const LEGACY_TEMPLATE_MAP = {
+  'clean': 'single-classic',
+  'modern': 'twocolumn-modern',
+  'professional': 'single-elegant',
+  'bold': 'header-bold',
+  'minimal': 'single-minimal',
+  'compact': 'compact-classic',
+};
+
+const FREE_TEMPLATES = ['single-classic', 'clean']; // 'clean' for backwards compatibility
 
 const FREE_LIMITS = {
   resumes: 1,
   jobs: 3,
   aiGenerations: 5,
-  templates: ['clean']
+  templates: FREE_TEMPLATES
 };
 
 const PRO_LIMITS = {
   resumes: Infinity,
   jobs: Infinity,
   aiGenerationsPerMonth: 100,
-  templates: ['clean', 'modern', 'professional', 'bold', 'minimal', 'compact']
+  templates: ALL_TEMPLATES
 };
 
 // Check if user is Pro (has purchased Resume Builder)
@@ -100,7 +126,11 @@ async function getResumeProStatus(userId) {
       },
       canCreateResume: isPro || (resumeCount || 0) < FREE_LIMITS.resumes,
       canCreateJob: isPro || (jobCount || 0) < FREE_LIMITS.jobs,
-      canUseTemplate: (template) => isPro || FREE_LIMITS.templates.includes(template),
+      canUseTemplate: (template) => {
+        if (isPro) return true;
+        const normalizedTemplate = LEGACY_TEMPLATE_MAP[template] || template;
+        return FREE_TEMPLATES.includes(template) || FREE_TEMPLATES.includes(normalizedTemplate);
+      },
       aiLimit: isPro ? PRO_LIMITS.aiGenerationsPerMonth : FREE_LIMITS.aiGenerations,
       aiRemaining: isPro
         ? Math.max(0, PRO_LIMITS.aiGenerationsPerMonth - aiUsed)
@@ -115,7 +145,10 @@ async function getResumeProStatus(userId) {
       usage: { resumes: 0, jobs: 0, aiGenerations: 0 },
       canCreateResume: true,
       canCreateJob: true,
-      canUseTemplate: (template) => FREE_LIMITS.templates.includes(template),
+      canUseTemplate: (template) => {
+        const normalizedTemplate = LEGACY_TEMPLATE_MAP[template] || template;
+        return FREE_TEMPLATES.includes(template) || FREE_TEMPLATES.includes(normalizedTemplate);
+      },
       aiLimit: FREE_LIMITS.aiGenerations,
       aiRemaining: FREE_LIMITS.aiGenerations
     };
@@ -147,12 +180,19 @@ async function canCreateJob(userId) {
 // Check if template is allowed for user
 async function canUseTemplate(userId, template) {
   const isPro = await isResumeProUser(userId);
-  return isPro || FREE_LIMITS.templates.includes(template);
+  if (isPro) return true;
+
+  // Check both the exact template and any legacy mapping
+  const normalizedTemplate = LEGACY_TEMPLATE_MAP[template] || template;
+  return FREE_TEMPLATES.includes(template) || FREE_TEMPLATES.includes(normalizedTemplate);
 }
 
 module.exports = {
   FREE_LIMITS,
   PRO_LIMITS,
+  FREE_TEMPLATES,
+  ALL_TEMPLATES,
+  LEGACY_TEMPLATE_MAP,
   isResumeProUser,
   getResumeProStatus,
   canCreateResume,

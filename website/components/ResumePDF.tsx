@@ -345,6 +345,7 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
   const firstName = personalInfo.first_name || 'Your';
   const lastName = personalInfo.last_name || 'Name';
   const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
+  const hasPhoto = !!personalInfo.photo_url;
 
   // Sidebar style depends on variant
   const sidebarIsFilled = style.sidebarFilled && !style.sidebarBorderOnly;
@@ -408,6 +409,14 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
       fontSize: 9,
       color: sidebarLightColor,
       marginBottom: 2,
+    },
+    photo: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      marginBottom: 12,
+      alignSelf: 'center',
+      border: sidebarIsDark ? '2px solid rgba(255,255,255,0.3)' : `2px solid ${style.primaryColor}`,
     },
     main: {
       width: `${100 - style.sidebarWidth}%`,
@@ -474,6 +483,9 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
   return (
     <Page size="LETTER" style={s.page}>
       <View style={s.sidebar}>
+        {hasPhoto && personalInfo.photo_url && (
+          <Image src={personalInfo.photo_url} style={s.photo} />
+        )}
         <Text style={s.sidebarName}>{style.nameUppercase ? firstName.toUpperCase() : firstName}</Text>
         <Text style={s.sidebarName}>{style.nameUppercase ? lastName.toUpperCase() : lastName}</Text>
 
@@ -560,6 +572,7 @@ function HeaderTemplate({ style, personalInfo, education, experience, skills, pr
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
   const displayName = style.nameUppercase ? fullName.toUpperCase() : fullName;
   const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean);
+  const hasPhoto = !!personalInfo.photo_url;
 
   // Header style varies by variant
   const headerIsFilled = style.styleId === 'modern' || style.styleId === 'bold';
@@ -654,15 +667,43 @@ function HeaderTemplate({ style, personalInfo, education, experience, skills, pr
       fontSize: 9,
       color: style.primaryColor,
     },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 20,
+    },
+    photo: {
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      border: headerIsFilled ? '2px solid rgba(255,255,255,0.5)' : `2px solid ${style.primaryColor}`,
+    },
+    headerContent: {
+      flex: 1,
+    },
   });
 
   return (
     <Page size="LETTER" style={s.page}>
       <View style={s.header}>
-        <Text style={s.headerName}>{displayName}</Text>
-        <View style={s.headerContact}>
-          {contactItems.map((item, i) => <Text key={i} style={s.headerContactItem}>{item}</Text>)}
-        </View>
+        {hasPhoto ? (
+          <View style={s.headerRow}>
+            {personalInfo.photo_url && <Image src={personalInfo.photo_url} style={s.photo} />}
+            <View style={s.headerContent}>
+              <Text style={s.headerName}>{displayName}</Text>
+              <View style={s.headerContact}>
+                {contactItems.map((item, i) => <Text key={i} style={s.headerContactItem}>{item}</Text>)}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <>
+            <Text style={s.headerName}>{displayName}</Text>
+            <View style={s.headerContact}>
+              {contactItems.map((item, i) => <Text key={i} style={s.headerContactItem}>{item}</Text>)}
+            </View>
+          </>
+        )}
       </View>
 
       <View style={s.body}>

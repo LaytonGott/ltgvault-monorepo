@@ -12,6 +12,7 @@ import UpgradeModal from '@/components/UpgradeModal';
 import TemplateGallery from '@/components/TemplateGallery';
 import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
 import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId } from '@/lib/template-config';
+import PhotoCropper from '@/components/PhotoCropper';
 import styles from './editor.module.css';
 
 // Guest mode storage helpers
@@ -42,6 +43,7 @@ interface PersonalInfo {
   linkedin_url?: string;
   website_url?: string;
   summary?: string;
+  photo_url?: string;
 }
 
 interface Education {
@@ -130,6 +132,9 @@ export default function ResumeEditorPage() {
 
   // Template Gallery State
   const [showTemplateGallery, setShowTemplateGallery] = useState(false);
+
+  // Photo Cropper State
+  const [showPhotoCropper, setShowPhotoCropper] = useState(false);
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sectionSaveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
@@ -292,6 +297,18 @@ export default function ResumeEditorPage() {
 
   function updatePersonalField(field: string, value: string) {
     const updated = { ...personalInfo, [field]: value };
+    setPersonalInfo(updated);
+    savePersonalInfoDebounced(updated);
+  }
+
+  function handlePhotoSave(base64: string) {
+    const updated = { ...personalInfo, photo_url: base64 };
+    setPersonalInfo(updated);
+    savePersonalInfoDebounced(updated);
+  }
+
+  function handlePhotoRemove() {
+    const updated = { ...personalInfo, photo_url: undefined };
     setPersonalInfo(updated);
     savePersonalInfoDebounced(updated);
   }
@@ -1030,6 +1047,39 @@ export default function ResumeEditorPage() {
               </svg>
             </button>
             <div className={styles.sectionContent}>
+              {/* Profile Photo */}
+              <div className={styles.photoSection}>
+                <div className={styles.photoPreview}>
+                  {personalInfo.photo_url ? (
+                    <img src={personalInfo.photo_url} alt="Profile" />
+                  ) : (
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  )}
+                </div>
+                <div className={styles.photoActions}>
+                  <button
+                    type="button"
+                    className={styles.uploadPhotoButton}
+                    onClick={() => setShowPhotoCropper(true)}
+                  >
+                    {personalInfo.photo_url ? 'Change Photo' : 'Upload Photo'}
+                  </button>
+                  {personalInfo.photo_url && (
+                    <button
+                      type="button"
+                      className={styles.removePhotoButton}
+                      onClick={handlePhotoRemove}
+                    >
+                      Remove
+                    </button>
+                  )}
+                  <span className={styles.photoHint}>Optional - for select templates</span>
+                </div>
+              </div>
+
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label>First Name</label>
@@ -1738,6 +1788,13 @@ export default function ResumeEditorPage() {
         onClose={() => setShowUpgradeModal(false)}
         title="Upgrade to Pro"
         message={upgradeMessage}
+      />
+
+      {/* Photo Cropper Modal */}
+      <PhotoCropper
+        isOpen={showPhotoCropper}
+        onClose={() => setShowPhotoCropper(false)}
+        onSave={handlePhotoSave}
       />
 
       {/* AI Modal (Bullets or Summary) */}

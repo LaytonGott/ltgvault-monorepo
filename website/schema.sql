@@ -107,9 +107,13 @@ CREATE TABLE resume_personal_info (
     linkedin_url VARCHAR(500),
     website_url VARCHAR(500),
     summary TEXT,
+    photo_url TEXT,  -- Base64 encoded profile photo
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add photo_url column if table already exists
+-- ALTER TABLE resume_personal_info ADD COLUMN IF NOT EXISTS photo_url TEXT;
 
 CREATE INDEX idx_resume_personal_resume ON resume_personal_info(resume_id);
 

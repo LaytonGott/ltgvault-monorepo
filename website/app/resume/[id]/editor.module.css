@@ -661,6 +661,87 @@
   min-height: 70px;
 }
 
+/* Profile Photo Section */
+.photoSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.photoPreview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.photoPreview svg {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.photoPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photoActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.uploadPhotoButton {
+  padding: 8px 16px;
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+}
+
+.uploadPhotoButton:hover {
+  background: rgba(201, 162, 39, 0.25);
+}
+
+.removePhotoButton {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+}
+
+.removePhotoButton:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.photoHint {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
 .checkboxRow {
   display: flex;
   align-items: center;

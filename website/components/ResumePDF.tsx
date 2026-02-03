@@ -1,7 +1,7 @@
 'use client';
 
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { getTemplateConfig, TemplateStyle, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId } from '@/lib/template-config';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { getTemplateConfig, TemplateStyle, COLOR_THEMES, ColorThemeId } from '@/lib/template-config';
 
 // ==========================================
 // TYPES
@@ -15,6 +15,7 @@ interface PersonalInfo {
   linkedin_url?: string;
   website_url?: string;
   summary?: string;
+  photo_url?: string;
 }
 
 interface Education {
@@ -74,22 +75,12 @@ interface TemplateProps {
 }
 
 // ==========================================
-// HELPER: GET SPACING MULTIPLIER
-// ==========================================
-function getSpacingMultiplier(spacing: string): number {
-  switch (spacing) {
-    case 'compact': return 0.7;
-    case 'spacious': return 1.4;
-    default: return 1;
-  }
-}
-
-// ==========================================
-// SINGLE COLUMN LAYOUT - 5 DISTINCT VARIANTS
+// SINGLE COLUMN LAYOUT
+// Each style creates visually distinct appearance
 // ==========================================
 function SingleColumnTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
-  const sm = getSpacingMultiplier(style.spacing);
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
+  const displayName = style.nameUppercase ? fullName.toUpperCase() : fullName;
   const contactItems = [
     personalInfo.email,
     personalInfo.phone,
@@ -98,72 +89,82 @@ function SingleColumnTemplate({ style, personalInfo, education, experience, skil
     personalInfo.website_url,
   ].filter(Boolean);
 
-  // Create style-specific styles
-  const styles = StyleSheet.create({
+  const s = StyleSheet.create({
     page: {
-      padding: style.spacing === 'spacious' ? 56 : style.spacing === 'compact' ? 40 : 48,
+      padding: style.pageMargin,
       fontSize: 10,
       fontFamily: style.bodyFont,
       color: style.textColor,
+      lineHeight: style.lineHeight,
     },
-    // NAME STYLES
     name: {
-      fontSize: style.nameStyle === 'large' ? 28 : style.nameStyle === 'light' ? 24 : 22,
-      fontFamily: style.nameStyle === 'light' ? style.bodyFont : style.headingFont,
-      fontWeight: style.nameStyle === 'light' ? 300 : undefined,
-      marginBottom: 8 * sm,
-      letterSpacing: style.nameStyle === 'all-caps' ? 3 : style.nameStyle === 'light' ? 1 : -0.5,
-      color: style.useColor ? style.primaryColor : style.textColor,
-      textTransform: style.nameStyle === 'all-caps' ? 'uppercase' : undefined,
+      fontSize: style.nameSize,
+      fontFamily: style.headingFont,
+      letterSpacing: style.nameLetterSpacing,
+      color: style.primaryColor,
+      marginBottom: style.nameUnderline ? 4 : 8,
+      textAlign: style.styleId === 'elegant' ? 'center' : 'left',
     },
-    // CONTACT ROW
+    nameUnderline: {
+      height: style.nameUnderlineThickness,
+      backgroundColor: style.primaryColor,
+      marginBottom: 8,
+      width: style.styleId === 'bold' ? '40%' : '100%',
+    },
     contactRow: {
-      flexDirection: style.contactStyle === 'stacked' ? 'column' : 'row',
+      flexDirection: 'row',
       flexWrap: 'wrap',
+      justifyContent: style.styleId === 'elegant' ? 'center' : 'flex-start',
       fontSize: 9,
       color: style.lightText,
-      paddingBottom: 12 * sm,
-      marginBottom: 16 * sm,
-      borderBottomWidth: style.dividerStyle === 'thick-line' ? 3 : style.dividerStyle === 'thin-line' ? 1 : style.dividerStyle === 'double-line' ? 1 : 0,
-      borderBottomColor: style.useColor ? style.primaryColor : '#333333',
+      marginBottom: style.headerDivider ? 8 : style.sectionGap,
     },
     contactItem: {
-      marginRight: style.contactStyle === 'stacked' ? 0 : 12,
-      marginBottom: style.contactStyle === 'stacked' ? 2 : 0,
+      marginRight: 16,
+      marginBottom: 2,
     },
-    // SECTION STYLES
+    headerDivider: {
+      height: style.headerDividerThickness,
+      backgroundColor: style.primaryColor,
+      marginBottom: style.sectionGap,
+    },
     section: {
-      marginBottom: 16 * sm,
+      marginBottom: style.sectionGap,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+      backgroundColor: style.sectionBackground ? style.primaryColor : 'transparent',
+      paddingVertical: style.sectionBackground ? 4 : 0,
+      paddingHorizontal: style.sectionBackground ? 8 : 0,
+      marginHorizontal: style.sectionBackground ? -8 : 0,
     },
     sectionTitle: {
-      fontSize: style.sectionStyle === 'caps-spaced' ? 10 : 9,
+      fontSize: style.sectionSize,
       fontFamily: style.headingFont,
-      textTransform: 'uppercase',
-      letterSpacing: style.sectionStyle === 'caps-spaced' ? 3 : 1,
-      color: style.sectionStyle === 'background' ? '#ffffff' : (style.useColor ? style.primaryColor : style.textColor),
-      marginBottom: 8 * sm,
-      paddingBottom: style.sectionStyle === 'underline' ? 4 : style.sectionStyle === 'background' ? 6 : 2,
-      paddingTop: style.sectionStyle === 'background' ? 6 : 0,
-      paddingHorizontal: style.sectionStyle === 'background' ? 8 : 0,
-      marginHorizontal: style.sectionStyle === 'background' ? -8 : 0,
-      backgroundColor: style.sectionStyle === 'background' ? style.primaryColor : undefined,
-      borderBottomWidth: style.sectionStyle === 'underline' ? 1 : style.sectionStyle === 'dots' ? 0 : 0,
-      borderBottomColor: style.useColor ? style.secondaryColor : '#cccccc',
-      borderBottomStyle: style.sectionStyle === 'dots' ? 'dotted' : 'solid',
+      textTransform: style.sectionUppercase ? 'uppercase' : 'none',
+      letterSpacing: style.sectionLetterSpacing,
+      color: style.sectionBackground ? '#ffffff' : style.primaryColor,
     },
-    dotsDecoration: {
+    sectionUnderline: {
+      height: style.sectionUnderlineThickness,
+      backgroundColor: style.primaryColor,
+      marginTop: 4,
+      marginBottom: 8,
+    },
+    sectionDots: {
       fontSize: 8,
       color: style.secondaryColor,
       letterSpacing: 4,
-      marginBottom: 6,
-    },
-    summaryText: {
-      fontSize: 10,
-      lineHeight: 1.5,
-      color: style.textColor,
+      marginTop: 4,
+      marginBottom: 8,
     },
     entry: {
-      marginBottom: 10 * sm,
+      marginBottom: style.entryGap,
+      paddingBottom: style.entryDividers ? style.entryGap : 0,
+      borderBottomWidth: style.entryDividers ? 1 : 0,
+      borderBottomColor: '#e5e5e5',
     },
     entryHeader: {
       flexDirection: style.datePosition === 'below' ? 'column' : 'row',
@@ -177,9 +178,8 @@ function SingleColumnTemplate({ style, personalInfo, education, experience, skil
     },
     entryDate: {
       fontSize: 9,
-      color: style.useColor ? style.primaryColor : style.lightText,
-      marginTop: style.datePosition === 'below' ? 2 : 0,
-      fontStyle: style.datePosition === 'below' ? 'italic' : 'normal',
+      color: style.styleId === 'minimal' ? style.lightText : style.primaryColor,
+      fontStyle: style.dateItalic ? 'italic' : 'normal',
     },
     entrySubtitle: {
       fontSize: 10,
@@ -190,157 +190,144 @@ function SingleColumnTemplate({ style, personalInfo, education, experience, skil
     entryDescription: {
       fontSize: 10,
       color: style.textColor,
-      lineHeight: 1.5,
     },
-    // SKILLS STYLES
-    skillsContainer: {
-      flexDirection: style.skillsStyle === 'plain' || style.skillsStyle === 'bullets' ? 'column' : 'row',
+    skillsRow: {
+      flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: style.skillsStyle === 'plain' ? 2 : 6,
+      gap: 6,
     },
     skillChip: {
-      backgroundColor: style.skillsStyle === 'chips' ? (style.useColor ? `${style.primaryColor}15` : '#f3f4f6') : 'transparent',
+      backgroundColor: style.skillsStyle === 'chips' ? `${style.primaryColor}15` : 'transparent',
       paddingVertical: style.skillsStyle === 'chips' ? 3 : 0,
       paddingHorizontal: style.skillsStyle === 'chips' ? 10 : 0,
       borderRadius: 3,
       fontSize: 9,
-      color: style.useColor ? style.primaryColor : style.textColor,
-      marginRight: style.skillsStyle === 'inline' ? 8 : 6,
-      marginBottom: 4,
+      color: style.skillsStyle === 'chips' ? style.primaryColor : style.textColor,
     },
-    skillInline: {
+    skillsInline: {
       fontSize: 10,
       color: style.textColor,
-      lineHeight: 1.5,
     },
   });
 
-  // Render skills based on style
+  const renderSectionTitle = (title: string) => (
+    <View>
+      <View style={s.sectionHeader}>
+        <Text style={s.sectionTitle}>{style.sectionUppercase ? title.toUpperCase() : title}</Text>
+      </View>
+      {style.sectionUnderline && <View style={s.sectionUnderline} />}
+      {style.sectionDots && <Text style={s.sectionDots}>• • • • • • • • • •</Text>}
+    </View>
+  );
+
   const renderSkills = () => {
     const validSkills = skills.filter(s => s.skill_name);
-    if (validSkills.length === 0) return null;
-
-    if (style.skillsStyle === 'inline') {
-      return <Text style={styles.skillInline}>{validSkills.map(s => s.skill_name).join(' • ')}</Text>;
-    }
-    if (style.skillsStyle === 'plain') {
-      return <Text style={styles.skillInline}>{validSkills.map(s => s.skill_name).join(', ')}</Text>;
+    if (style.skillsStyle === 'commas' || style.skillsStyle === 'inline') {
+      return <Text style={s.skillsInline}>{validSkills.map(s => s.skill_name).join(style.skillsStyle === 'commas' ? ', ' : ' • ')}</Text>;
     }
     if (style.skillsStyle === 'bullets') {
       return validSkills.map(skill => (
-        <Text key={skill.id} style={styles.skillInline}>• {skill.skill_name}</Text>
+        <Text key={skill.id} style={s.skillsInline}>• {skill.skill_name}</Text>
       ));
     }
-    // chips (default)
-    return validSkills.map(skill => (
-      <Text key={skill.id} style={styles.skillChip}>{skill.skill_name}</Text>
-    ));
+    return (
+      <View style={s.skillsRow}>
+        {validSkills.map(skill => (
+          <Text key={skill.id} style={s.skillChip}>{skill.skill_name}</Text>
+        ))}
+      </View>
+    );
   };
 
-  // Render section title with appropriate styling
-  const renderSectionTitle = (title: string) => {
-    if (style.sectionStyle === 'dots') {
-      return (
-        <View>
-          <Text style={styles.sectionTitle}>{title}</Text>
-          <Text style={styles.dotsDecoration}>• • • • • • • • • • • • • •</Text>
-        </View>
-      );
+  const formatDate = (exp: Experience | Education) => {
+    const start = 'start_date' in exp ? exp.start_date : '';
+    const end = exp.is_current ? 'Present' : ('end_date' in exp ? exp.end_date : '');
+    if (style.datePosition === 'inline') {
+      return start && end ? `(${start} - ${end})` : '';
     }
-    return <Text style={styles.sectionTitle}>{title}</Text>;
+    return start && end ? `${start} - ${end}` : (start || end || '');
   };
 
   return (
-    <Page size="LETTER" style={styles.page}>
-      <Text style={styles.name}>{style.nameStyle === 'all-caps' ? fullName.toUpperCase() : fullName}</Text>
-      <View style={styles.contactRow}>
-        {contactItems.map((item, index) => (
-          <Text key={index} style={styles.contactItem}>{item}{style.contactStyle !== 'stacked' && index < contactItems.length - 1 ? ' |' : ''}</Text>
+    <Page size="LETTER" style={s.page}>
+      <Text style={s.name}>{displayName}</Text>
+      {style.nameUnderline && <View style={s.nameUnderline} />}
+
+      <View style={s.contactRow}>
+        {contactItems.map((item, i) => (
+          <Text key={i} style={s.contactItem}>{item}{i < contactItems.length - 1 ? ' |' : ''}</Text>
         ))}
-        {contactItems.length === 0 && (
-          <Text style={styles.contactItem}>email@example.com | (555) 123-4567</Text>
-        )}
       </View>
 
-      {style.dividerStyle === 'double-line' && (
-        <View style={{ borderBottomWidth: 1, borderBottomColor: style.useColor ? style.primaryColor : '#333333', marginTop: -14 * sm, marginBottom: 16 * sm }} />
-      )}
+      {style.headerDivider && <View style={s.headerDivider} />}
 
       {personalInfo.summary && (
-        <View style={styles.section}>
+        <View style={s.section}>
           {renderSectionTitle('Summary')}
-          <Text style={styles.summaryText}>{personalInfo.summary}</Text>
+          <Text style={s.entryDescription}>{personalInfo.summary}</Text>
         </View>
       )}
 
       {experience.length > 0 && (
-        <View style={styles.section}>
+        <View style={s.section}>
           {renderSectionTitle('Experience')}
           {experience.map((exp) => (
-            <View key={exp.id} style={styles.entry}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryTitle}>{exp.job_title || 'Job Title'}</Text>
-                {style.datePosition !== 'inline' && (
-                  <Text style={styles.entryDate}>
-                    {exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}
-                  </Text>
-                )}
+            <View key={exp.id} style={s.entry}>
+              <View style={s.entryHeader}>
+                <Text style={s.entryTitle}>
+                  {exp.job_title || 'Job Title'}
+                  {style.datePosition === 'inline' ? ` ${formatDate(exp)}` : ''}
+                </Text>
+                {style.datePosition === 'right' && <Text style={s.entryDate}>{formatDate(exp)}</Text>}
               </View>
-              <Text style={styles.entrySubtitle}>
-                {exp.company_name}{exp.location ? ` | ${exp.location}` : ''}
-                {style.datePosition === 'inline' && ` | ${exp.start_date}${exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}`}
-              </Text>
-              {exp.description && <Text style={styles.entryDescription}>{exp.description}</Text>}
+              {style.datePosition === 'below' && <Text style={s.entryDate}>{formatDate(exp)}</Text>}
+              <Text style={s.entrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</Text>
+              {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
             </View>
           ))}
         </View>
       )}
 
       {education.length > 0 && (
-        <View style={styles.section}>
+        <View style={s.section}>
           {renderSectionTitle('Education')}
           {education.map((edu) => (
-            <View key={edu.id} style={styles.entry}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryTitle}>{edu.school_name || 'School Name'}</Text>
-                {style.datePosition !== 'inline' && (
-                  <Text style={styles.entryDate}>
-                    {edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}
-                  </Text>
-                )}
+            <View key={edu.id} style={s.entry}>
+              <View style={s.entryHeader}>
+                <Text style={s.entryTitle}>{edu.school_name || 'School Name'}</Text>
+                {style.datePosition === 'right' && <Text style={s.entryDate}>{formatDate(edu)}</Text>}
               </View>
+              {style.datePosition === 'below' && <Text style={s.entryDate}>{formatDate(edu)}</Text>}
               {(edu.degree || edu.field_of_study) && (
-                <Text style={styles.entrySubtitle}>
+                <Text style={s.entrySubtitle}>
                   {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
                   {edu.gpa ? ` | GPA: ${edu.gpa}` : ''}
                 </Text>
               )}
-              {edu.achievements && <Text style={styles.entryDescription}>{edu.achievements}</Text>}
+              {edu.achievements && <Text style={s.entryDescription}>{edu.achievements}</Text>}
             </View>
           ))}
         </View>
       )}
 
-      {skills.length > 0 && skills.some(s => s.skill_name) && (
-        <View style={styles.section}>
+      {skills.length > 0 && skills.some(sk => sk.skill_name) && (
+        <View style={s.section}>
           {renderSectionTitle('Skills')}
-          <View style={styles.skillsContainer}>
-            {renderSkills()}
-          </View>
+          {renderSkills()}
         </View>
       )}
 
       {projects.length > 0 && (
-        <View style={styles.section}>
+        <View style={s.section}>
           {renderSectionTitle('Projects & Activities')}
-          {projects.map((project) => (
-            <View key={project.id} style={styles.entry}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryTitle}>{project.project_name || 'Project Name'}</Text>
-                {project.role && <Text style={styles.entryDate}>{project.role}</Text>}
+          {projects.map((proj) => (
+            <View key={proj.id} style={s.entry}>
+              <View style={s.entryHeader}>
+                <Text style={s.entryTitle}>{proj.project_name || 'Project'}</Text>
+                {proj.role && <Text style={s.entryDate}>{proj.role}</Text>}
               </View>
-              {project.organization && <Text style={styles.entrySubtitle}>{project.organization}</Text>}
-              {project.description && <Text style={styles.entryDescription}>{project.description}</Text>}
+              {proj.organization && <Text style={s.entrySubtitle}>{proj.organization}</Text>}
+              {proj.description && <Text style={s.entryDescription}>{proj.description}</Text>}
             </View>
           ))}
         </View>
@@ -350,114 +337,102 @@ function SingleColumnTemplate({ style, personalInfo, education, experience, skil
 }
 
 // ==========================================
-// TWO COLUMN LAYOUT - 5 DISTINCT VARIANTS
+// TWO COLUMN LAYOUT
+// Different sidebar treatments for each style
 // ==========================================
 function TwoColumnTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
-  const sm = getSpacingMultiplier(style.spacing);
-  const contactItems = [
-    personalInfo.email,
-    personalInfo.phone,
-    personalInfo.location,
-    personalInfo.linkedin_url,
-    personalInfo.website_url,
-  ].filter(Boolean);
+  const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
+  const firstName = personalInfo.first_name || 'Your';
+  const lastName = personalInfo.last_name || 'Name';
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
 
-  // Sidebar variations
-  const sidebarWidth = style.sidebarStyle === 'minimal' ? '25%' : style.sidebarStyle === 'accent-bar' ? '28%' : '32%';
-  const sidebarIsDark = style.sidebarStyle === 'filled' && style.useColor;
+  // Sidebar style depends on variant
+  const sidebarIsFilled = style.sidebarFilled && !style.sidebarBorderOnly;
+  const sidebarIsDark = sidebarIsFilled && style.styleId !== 'classic';
+  const sidebarBgColor = sidebarIsFilled ? style.sidebarBg : (style.sidebarBorderOnly ? '#ffffff' : '#fafafa');
+  const sidebarTextColor = sidebarIsDark ? '#ffffff' : style.textColor;
+  const sidebarLightColor = sidebarIsDark ? 'rgba(255,255,255,0.8)' : style.lightText;
 
-  const styles = StyleSheet.create({
+  const s = StyleSheet.create({
     page: {
       flexDirection: 'row',
+      fontSize: 10,
       fontFamily: style.bodyFont,
-    },
-    sidebar: {
-      width: sidebarWidth,
-      backgroundColor: style.sidebarStyle === 'filled' ? (style.useColor ? style.sidebarBg : '#f5f5f5') :
-                       style.sidebarStyle === 'bordered' ? '#ffffff' :
-                       style.sidebarStyle === 'minimal' ? '#fafafa' : '#ffffff',
-      padding: style.sidebarStyle === 'minimal' ? 20 : 28,
-      color: sidebarIsDark ? '#ffffff' : style.textColor,
-      borderRightWidth: style.sidebarStyle === 'bordered' ? 2 : style.sidebarStyle === 'accent-bar' ? 4 : 0,
-      borderRightColor: style.primaryColor,
-    },
-    main: {
-      width: style.sidebarStyle === 'minimal' ? '75%' : style.sidebarStyle === 'accent-bar' ? '72%' : '68%',
-      padding: 32,
-      backgroundColor: style.bgColor,
       color: style.textColor,
     },
+    sidebar: {
+      width: `${style.sidebarWidth}%`,
+      backgroundColor: sidebarBgColor,
+      padding: style.pageMargin * 0.6,
+      paddingTop: style.pageMargin,
+      borderRightWidth: style.sidebarBorderOnly ? 2 : 0,
+      borderRightColor: style.primaryColor,
+    },
     sidebarName: {
-      fontSize: style.nameStyle === 'large' ? 20 : style.nameStyle === 'light' ? 16 : 18,
-      fontFamily: style.nameStyle === 'light' ? style.bodyFont : style.headingFont,
+      fontSize: style.nameSize * 0.85,
+      fontFamily: style.headingFont,
       color: sidebarIsDark ? '#ffffff' : style.primaryColor,
+      letterSpacing: style.nameLetterSpacing,
       marginBottom: 2,
-      letterSpacing: style.nameStyle === 'all-caps' ? 2 : 0,
-      textTransform: style.nameStyle === 'all-caps' ? 'uppercase' : undefined,
     },
     sidebarSection: {
-      marginTop: 20 * sm,
+      marginTop: style.sectionGap,
     },
     sidebarSectionTitle: {
-      fontSize: 8,
+      fontSize: 9,
       fontFamily: style.headingFont,
       textTransform: 'uppercase',
-      letterSpacing: style.sectionStyle === 'caps-spaced' ? 3 : 1.5,
-      color: sidebarIsDark ? 'rgba(255, 255, 255, 0.7)' : style.primaryColor,
-      marginBottom: 10 * sm,
-      paddingBottom: style.sectionStyle === 'underline' ? 4 : 2,
-      borderBottomWidth: style.sectionStyle === 'underline' || style.sectionStyle === 'caps-spaced' ? 1 : 0,
-      borderBottomColor: sidebarIsDark ? 'rgba(255, 255, 255, 0.3)' : style.secondaryColor,
+      letterSpacing: 2,
+      color: sidebarIsDark ? 'rgba(255,255,255,0.7)' : style.primaryColor,
+      marginBottom: 8,
+      paddingBottom: 4,
+      borderBottomWidth: style.sectionUnderline ? 1 : 0,
+      borderBottomColor: sidebarIsDark ? 'rgba(255,255,255,0.3)' : style.primaryColor,
     },
     contactItem: {
       fontSize: 9,
-      color: sidebarIsDark ? 'rgba(255, 255, 255, 0.9)' : style.lightText,
+      color: sidebarLightColor,
       marginBottom: 4,
     },
     skillChip: {
-      backgroundColor: style.skillsStyle === 'chips' ? (sidebarIsDark ? 'rgba(255, 255, 255, 0.15)' : '#e5e7eb') : 'transparent',
+      backgroundColor: style.skillsStyle === 'chips' ? (sidebarIsDark ? 'rgba(255,255,255,0.15)' : '#e5e7eb') : 'transparent',
       paddingVertical: style.skillsStyle === 'chips' ? 3 : 0,
       paddingHorizontal: style.skillsStyle === 'chips' ? 8 : 0,
       borderRadius: 2,
       fontSize: 8,
-      color: sidebarIsDark ? '#ffffff' : style.textColor,
+      color: sidebarTextColor,
       marginRight: 4,
       marginBottom: 4,
     },
-    skillPlain: {
+    skillText: {
       fontSize: 9,
-      color: sidebarIsDark ? 'rgba(255, 255, 255, 0.9)' : style.textColor,
-      marginBottom: 3,
+      color: sidebarLightColor,
+      marginBottom: 2,
     },
-    skillsContainer: {
-      flexDirection: style.skillsStyle === 'plain' || style.skillsStyle === 'bullets' ? 'column' : 'row',
-      flexWrap: 'wrap',
+    main: {
+      width: `${100 - style.sidebarWidth}%`,
+      padding: style.pageMargin * 0.8,
+      paddingTop: style.pageMargin,
     },
     mainSection: {
-      marginBottom: 18 * sm,
+      marginBottom: style.sectionGap,
     },
     mainSectionTitle: {
-      fontSize: 10,
+      fontSize: style.sectionSize,
       fontFamily: style.headingFont,
-      textTransform: 'uppercase',
-      letterSpacing: style.sectionStyle === 'caps-spaced' ? 3 : 1,
-      color: style.sectionStyle === 'background' ? '#ffffff' : style.primaryColor,
-      marginBottom: 10 * sm,
-      paddingBottom: style.sectionStyle === 'underline' ? 4 : style.sectionStyle === 'background' ? 6 : 2,
-      paddingTop: style.sectionStyle === 'background' ? 6 : 0,
-      paddingHorizontal: style.sectionStyle === 'background' ? 8 : 0,
-      marginHorizontal: style.sectionStyle === 'background' ? -8 : 0,
-      backgroundColor: style.sectionStyle === 'background' ? style.primaryColor : undefined,
-      borderBottomWidth: style.sectionStyle === 'underline' ? 2 : style.dividerStyle === 'thick-line' ? 3 : 0,
+      textTransform: style.sectionUppercase ? 'uppercase' : 'none',
+      letterSpacing: style.sectionLetterSpacing,
+      color: style.sectionBackground ? '#ffffff' : style.primaryColor,
+      marginBottom: 10,
+      paddingVertical: style.sectionBackground ? 4 : 0,
+      paddingHorizontal: style.sectionBackground ? 8 : 0,
+      marginHorizontal: style.sectionBackground ? -8 : 0,
+      backgroundColor: style.sectionBackground ? style.primaryColor : 'transparent',
+      borderBottomWidth: style.sectionUnderline ? 2 : 0,
       borderBottomColor: style.primaryColor,
     },
-    summaryText: {
-      fontSize: 10,
-      lineHeight: 1.5,
-      color: style.textColor,
-    },
     entry: {
-      marginBottom: 10 * sm,
+      marginBottom: style.entryGap,
     },
     entryHeader: {
       flexDirection: style.datePosition === 'below' ? 'column' : 'row',
@@ -467,136 +442,107 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
     entryTitle: {
       fontSize: 11,
       fontFamily: style.headingFont,
-      color: style.textColor,
     },
     entryDate: {
       fontSize: 9,
-      color: style.useColor ? style.primaryColor : style.lightText,
-      fontFamily: style.headingFont,
-      fontStyle: style.datePosition === 'below' ? 'italic' : 'normal',
+      color: style.primaryColor,
+      fontStyle: style.dateItalic ? 'italic' : 'normal',
     },
     entrySubtitle: {
       fontSize: 10,
       color: style.lightText,
       marginBottom: 4,
-      fontStyle: style.styleId === 'elegant' ? 'italic' : 'normal',
     },
     entryDescription: {
       fontSize: 10,
-      color: style.textColor,
-      lineHeight: 1.5,
+      lineHeight: style.lineHeight,
     },
   });
 
   const renderSkills = () => {
-    const validSkills = skills.filter(s => s.skill_name);
-    if (style.skillsStyle === 'plain' || style.skillsStyle === 'inline') {
-      return validSkills.map(skill => (
-        <Text key={skill.id} style={styles.skillPlain}>{skill.skill_name}</Text>
-      ));
+    const validSkills = skills.filter(sk => sk.skill_name);
+    if (style.skillsStyle === 'chips') {
+      return (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          {validSkills.map(skill => <Text key={skill.id} style={s.skillChip}>{skill.skill_name}</Text>)}
+        </View>
+      );
     }
-    if (style.skillsStyle === 'bullets') {
-      return validSkills.map(skill => (
-        <Text key={skill.id} style={styles.skillPlain}>• {skill.skill_name}</Text>
-      ));
-    }
-    return validSkills.map(skill => (
-      <Text key={skill.id} style={styles.skillChip}>{skill.skill_name}</Text>
-    ));
+    return validSkills.map(skill => <Text key={skill.id} style={s.skillText}>{skill.skill_name}</Text>);
   };
 
   return (
-    <Page size="LETTER" style={styles.page}>
-      <View style={styles.sidebar}>
-        <Text style={styles.sidebarName}>{style.nameStyle === 'all-caps' ? (personalInfo.first_name || 'Your').toUpperCase() : (personalInfo.first_name || 'Your')}</Text>
-        <Text style={styles.sidebarName}>{style.nameStyle === 'all-caps' ? (personalInfo.last_name || 'Name').toUpperCase() : (personalInfo.last_name || 'Name')}</Text>
+    <Page size="LETTER" style={s.page}>
+      <View style={s.sidebar}>
+        <Text style={s.sidebarName}>{style.nameUppercase ? firstName.toUpperCase() : firstName}</Text>
+        <Text style={s.sidebarName}>{style.nameUppercase ? lastName.toUpperCase() : lastName}</Text>
 
-        <View style={styles.sidebarSection}>
-          <Text style={styles.sidebarSectionTitle}>Contact</Text>
-          {contactItems.map((item, index) => (
-            <Text key={index} style={styles.contactItem}>{item}</Text>
-          ))}
-          {contactItems.length === 0 && (
-            <Text style={styles.contactItem}>email@example.com</Text>
-          )}
+        <View style={s.sidebarSection}>
+          <Text style={s.sidebarSectionTitle}>Contact</Text>
+          {contactItems.map((item, i) => <Text key={i} style={s.contactItem}>{item}</Text>)}
         </View>
 
-        {skills.length > 0 && skills.some(s => s.skill_name) && (
-          <View style={styles.sidebarSection}>
-            <Text style={styles.sidebarSectionTitle}>Skills</Text>
-            <View style={styles.skillsContainer}>
-              {renderSkills()}
-            </View>
+        {skills.length > 0 && skills.some(sk => sk.skill_name) && (
+          <View style={s.sidebarSection}>
+            <Text style={s.sidebarSectionTitle}>Skills</Text>
+            {renderSkills()}
           </View>
         )}
       </View>
 
-      <View style={styles.main}>
+      <View style={s.main}>
         {personalInfo.summary && (
-          <View style={styles.mainSection}>
-            <Text style={styles.mainSectionTitle}>Summary</Text>
-            <Text style={styles.summaryText}>{personalInfo.summary}</Text>
+          <View style={s.mainSection}>
+            <Text style={s.mainSectionTitle}>Summary</Text>
+            <Text style={s.entryDescription}>{personalInfo.summary}</Text>
           </View>
         )}
 
         {experience.length > 0 && (
-          <View style={styles.mainSection}>
-            <Text style={styles.mainSectionTitle}>Experience</Text>
-            {experience.map((exp) => (
-              <View key={exp.id} style={styles.entry}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{exp.job_title || 'Job Title'}</Text>
-                  {style.datePosition !== 'inline' && (
-                    <Text style={styles.entryDate}>
-                      {exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}
-                    </Text>
-                  )}
+          <View style={s.mainSection}>
+            <Text style={s.mainSectionTitle}>Experience</Text>
+            {experience.map(exp => (
+              <View key={exp.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{exp.job_title}</Text>
+                  <Text style={s.entryDate}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</Text>
                 </View>
-                <Text style={styles.entrySubtitle}>
-                  {exp.company_name}{exp.location ? ` | ${exp.location}` : ''}
-                </Text>
-                {exp.description && <Text style={styles.entryDescription}>{exp.description}</Text>}
+                <Text style={s.entrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</Text>
+                {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
               </View>
             ))}
           </View>
         )}
 
         {education.length > 0 && (
-          <View style={styles.mainSection}>
-            <Text style={styles.mainSectionTitle}>Education</Text>
-            {education.map((edu) => (
-              <View key={edu.id} style={styles.entry}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{edu.school_name || 'School Name'}</Text>
-                  {style.datePosition !== 'inline' && (
-                    <Text style={styles.entryDate}>
-                      {edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}
-                    </Text>
-                  )}
+          <View style={s.mainSection}>
+            <Text style={s.mainSectionTitle}>Education</Text>
+            {education.map(edu => (
+              <View key={edu.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{edu.school_name}</Text>
+                  <Text style={s.entryDate}>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</Text>
                 </View>
                 {(edu.degree || edu.field_of_study) && (
-                  <Text style={styles.entrySubtitle}>
-                    {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
-                    {edu.gpa ? ` | GPA: ${edu.gpa}` : ''}
-                  </Text>
+                  <Text style={s.entrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa ? ` | GPA: ${edu.gpa}` : ''}</Text>
                 )}
-                {edu.achievements && <Text style={styles.entryDescription}>{edu.achievements}</Text>}
+                {edu.achievements && <Text style={s.entryDescription}>{edu.achievements}</Text>}
               </View>
             ))}
           </View>
         )}
 
         {projects.length > 0 && (
-          <View style={styles.mainSection}>
-            <Text style={styles.mainSectionTitle}>Projects & Activities</Text>
-            {projects.map((project) => (
-              <View key={project.id} style={styles.entry}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{project.project_name || 'Project Name'}</Text>
-                  {project.role && <Text style={styles.entryDate}>{project.role}</Text>}
+          <View style={s.mainSection}>
+            <Text style={s.mainSectionTitle}>Projects</Text>
+            {projects.map(proj => (
+              <View key={proj.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{proj.project_name}</Text>
+                  {proj.role && <Text style={s.entryDate}>{proj.role}</Text>}
                 </View>
-                {project.organization && <Text style={styles.entrySubtitle}>{project.organization}</Text>}
-                {project.description && <Text style={styles.entryDescription}>{project.description}</Text>}
+                {proj.organization && <Text style={s.entrySubtitle}>{proj.organization}</Text>}
+                {proj.description && <Text style={s.entryDescription}>{proj.description}</Text>}
               </View>
             ))}
           </View>
@@ -607,225 +553,165 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
 }
 
 // ==========================================
-// HEADER FOCUS LAYOUT - 5 DISTINCT VARIANTS
+// HEADER FOCUS LAYOUT
+// Bold header section with different styles
 // ==========================================
 function HeaderTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
-  const sm = getSpacingMultiplier(style.spacing);
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
-  const contactItems = [
-    personalInfo.email,
-    personalInfo.phone,
-    personalInfo.location,
-    personalInfo.linkedin_url,
-    personalInfo.website_url,
-  ].filter(Boolean);
+  const displayName = style.nameUppercase ? fullName.toUpperCase() : fullName;
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean);
 
-  // Header style variations
-  const headerIsDark = style.useColor;
+  // Header style varies by variant
+  const headerIsFilled = style.styleId === 'modern' || style.styleId === 'bold';
+  const headerBg = headerIsFilled ? style.headerBg : '#ffffff';
+  const headerTextColor = headerIsFilled ? '#ffffff' : style.textColor;
 
-  const styles = StyleSheet.create({
+  const s = StyleSheet.create({
     page: {
-      padding: 0,
       fontSize: 10,
       fontFamily: style.bodyFont,
       color: style.textColor,
     },
     header: {
-      backgroundColor: headerIsDark ? style.headerBg : '#f8f8f8',
-      padding: style.nameStyle === 'large' ? 40 : 32,
-      paddingBottom: style.nameStyle === 'large' ? 32 : 24,
-      borderBottomWidth: !headerIsDark ? 3 : 0,
-      borderBottomColor: style.primaryColor,
+      backgroundColor: headerBg,
+      padding: style.pageMargin,
+      paddingBottom: style.pageMargin * 0.6,
+      marginBottom: style.sectionGap,
     },
-    name: {
-      fontSize: style.nameStyle === 'large' ? 36 : style.nameStyle === 'light' ? 26 : 28,
-      fontFamily: style.nameStyle === 'light' ? style.bodyFont : style.headingFont,
-      color: headerIsDark ? '#ffffff' : style.primaryColor,
+    headerName: {
+      fontSize: style.nameSize,
+      fontFamily: style.headingFont,
+      color: headerTextColor,
+      letterSpacing: style.nameLetterSpacing,
       marginBottom: 8,
-      letterSpacing: style.nameStyle === 'all-caps' ? 4 : 1,
-      textTransform: style.nameStyle === 'all-caps' ? 'uppercase' : undefined,
+      textAlign: style.styleId === 'classic' ? 'center' : 'left',
     },
-    contactRow: {
-      flexDirection: style.contactStyle === 'stacked' ? 'column' : 'row',
+    headerContact: {
+      flexDirection: 'row',
       flexWrap: 'wrap',
-      fontSize: 9,
-      color: headerIsDark ? 'rgba(255, 255, 255, 0.9)' : style.lightText,
+      justifyContent: style.styleId === 'classic' ? 'center' : 'flex-start',
+      gap: 16,
     },
-    contactItem: {
-      marginRight: style.contactStyle === 'stacked' ? 0 : 16,
-      marginBottom: style.contactStyle === 'stacked' ? 3 : 0,
+    headerContactItem: {
+      fontSize: 9,
+      color: headerIsFilled ? 'rgba(255,255,255,0.9)' : style.lightText,
     },
     body: {
-      padding: 32,
-      paddingTop: 24,
+      padding: style.pageMargin,
+      paddingTop: 0,
     },
     section: {
-      marginBottom: 18 * sm,
+      marginBottom: style.sectionGap,
     },
     sectionTitle: {
-      fontSize: 11,
+      fontSize: style.sectionSize,
       fontFamily: style.headingFont,
-      textTransform: 'uppercase',
-      letterSpacing: style.sectionStyle === 'caps-spaced' ? 4 : 1,
-      color: style.sectionStyle === 'background' ? '#ffffff' : (style.useColor ? style.primaryColor : style.textColor),
-      backgroundColor: style.sectionStyle === 'background' ? style.primaryColor : undefined,
-      paddingVertical: style.sectionStyle === 'background' ? 6 : 0,
-      paddingHorizontal: style.sectionStyle === 'background' ? 10 : 0,
-      marginBottom: 10 * sm,
-      marginHorizontal: style.sectionStyle === 'background' ? -10 : 0,
-      borderBottomWidth: style.sectionStyle === 'underline' ? 1 : 0,
-      borderBottomColor: style.secondaryColor,
-    },
-    summaryText: {
-      fontSize: 10,
-      lineHeight: 1.5,
-      color: style.textColor,
+      textTransform: style.sectionUppercase ? 'uppercase' : 'none',
+      letterSpacing: style.sectionLetterSpacing,
+      color: style.sectionBackground ? '#ffffff' : style.primaryColor,
+      marginBottom: 10,
+      paddingVertical: style.sectionBackground ? 4 : 0,
+      paddingHorizontal: style.sectionBackground ? 8 : 0,
+      backgroundColor: style.sectionBackground ? style.primaryColor : 'transparent',
+      borderBottomWidth: style.sectionUnderline ? 2 : 0,
+      borderBottomColor: style.primaryColor,
     },
     entry: {
-      marginBottom: 12 * sm,
+      marginBottom: style.entryGap,
     },
     entryHeader: {
-      flexDirection: style.datePosition === 'below' ? 'column' : 'row',
+      flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 3,
+      marginBottom: 2,
     },
     entryTitle: {
       fontSize: 11,
       fontFamily: style.headingFont,
-      color: style.textColor,
     },
     entryDate: {
       fontSize: 9,
-      color: style.useColor ? style.primaryColor : style.lightText,
-      fontFamily: style.headingFont,
-      fontStyle: style.datePosition === 'below' ? 'italic' : 'normal',
+      color: style.primaryColor,
     },
     entrySubtitle: {
       fontSize: 10,
       color: style.lightText,
       marginBottom: 4,
-      fontStyle: style.styleId === 'elegant' ? 'italic' : 'normal',
     },
     entryDescription: {
       fontSize: 10,
-      color: style.textColor,
-      lineHeight: 1.5,
+      lineHeight: style.lineHeight,
     },
-    skillsContainer: {
-      flexDirection: style.skillsStyle === 'plain' ? 'column' : 'row',
+    skillsRow: {
+      flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 6,
+      gap: 8,
     },
     skillChip: {
-      backgroundColor: style.skillsStyle === 'chips' ? (style.useColor ? style.primaryColor : '#e5e7eb') : 'transparent',
-      paddingVertical: style.skillsStyle === 'chips' ? 4 : 0,
-      paddingHorizontal: style.skillsStyle === 'chips' ? 10 : 0,
+      backgroundColor: `${style.primaryColor}15`,
+      paddingVertical: 3,
+      paddingHorizontal: 10,
       borderRadius: 3,
       fontSize: 9,
-      color: style.skillsStyle === 'chips' && style.useColor ? '#ffffff' : style.textColor,
-      marginRight: 6,
-      marginBottom: 4,
-    },
-    skillPlain: {
-      fontSize: 10,
-      color: style.textColor,
-      marginBottom: 2,
+      color: style.primaryColor,
     },
   });
 
-  const renderSkills = () => {
-    const validSkills = skills.filter(s => s.skill_name);
-    if (style.skillsStyle === 'plain' || style.skillsStyle === 'inline') {
-      return <Text style={styles.skillPlain}>{validSkills.map(s => s.skill_name).join(', ')}</Text>;
-    }
-    return validSkills.map(skill => (
-      <Text key={skill.id} style={styles.skillChip}>{skill.skill_name}</Text>
-    ));
-  };
-
   return (
-    <Page size="LETTER" style={styles.page}>
-      <View style={styles.header}>
-        <Text style={styles.name}>{style.nameStyle === 'all-caps' ? fullName.toUpperCase() : fullName}</Text>
-        <View style={styles.contactRow}>
-          {contactItems.map((item, index) => (
-            <Text key={index} style={styles.contactItem}>{item}</Text>
-          ))}
+    <Page size="LETTER" style={s.page}>
+      <View style={s.header}>
+        <Text style={s.headerName}>{displayName}</Text>
+        <View style={s.headerContact}>
+          {contactItems.map((item, i) => <Text key={i} style={s.headerContactItem}>{item}</Text>)}
         </View>
       </View>
 
-      <View style={styles.body}>
+      <View style={s.body}>
         {personalInfo.summary && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>About Me</Text>
-            <Text style={styles.summaryText}>{personalInfo.summary}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>About</Text>
+            <Text style={s.entryDescription}>{personalInfo.summary}</Text>
           </View>
         )}
 
         {experience.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Work Experience</Text>
-            {experience.map((exp) => (
-              <View key={exp.id} style={styles.entry}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{exp.job_title || 'Job Title'}</Text>
-                  <Text style={styles.entryDate}>
-                    {exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}
-                  </Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Experience</Text>
+            {experience.map(exp => (
+              <View key={exp.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{exp.job_title}</Text>
+                  <Text style={s.entryDate}>{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</Text>
                 </View>
-                <Text style={styles.entrySubtitle}>
-                  {exp.company_name}{exp.location ? ` • ${exp.location}` : ''}
-                </Text>
-                {exp.description && <Text style={styles.entryDescription}>{exp.description}</Text>}
+                <Text style={s.entrySubtitle}>{exp.company_name}</Text>
+                {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
               </View>
             ))}
           </View>
         )}
 
         {education.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Education</Text>
-            {education.map((edu) => (
-              <View key={edu.id} style={styles.entry}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{edu.school_name || 'School Name'}</Text>
-                  <Text style={styles.entryDate}>
-                    {edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}
-                  </Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Education</Text>
+            {education.map(edu => (
+              <View key={edu.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{edu.school_name}</Text>
+                  <Text style={s.entryDate}>{edu.end_date || ''}</Text>
                 </View>
-                {(edu.degree || edu.field_of_study) && (
-                  <Text style={styles.entrySubtitle}>
-                    {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
-                    {edu.gpa ? ` • GPA: ${edu.gpa}` : ''}
-                  </Text>
-                )}
+                {edu.degree && <Text style={s.entrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}</Text>}
               </View>
             ))}
           </View>
         )}
 
-        {skills.length > 0 && skills.some(s => s.skill_name) && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Skills</Text>
-            <View style={styles.skillsContainer}>
-              {renderSkills()}
+        {skills.length > 0 && skills.some(sk => sk.skill_name) && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Skills</Text>
+            <View style={s.skillsRow}>
+              {skills.filter(sk => sk.skill_name).map(skill => (
+                <Text key={skill.id} style={s.skillChip}>{skill.skill_name}</Text>
+              ))}
             </View>
-          </View>
-        )}
-
-        {projects.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Projects</Text>
-            {projects.map((project) => (
-              <View key={project.id} style={styles.entry}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{project.project_name || 'Project Name'}</Text>
-                  {project.role && <Text style={styles.entryDate}>{project.role}</Text>}
-                </View>
-                {project.organization && <Text style={styles.entrySubtitle}>{project.organization}</Text>}
-                {project.description && <Text style={styles.entryDescription}>{project.description}</Text>}
-              </View>
-            ))}
           </View>
         )}
       </View>
@@ -834,456 +720,309 @@ function HeaderTemplate({ style, personalInfo, education, experience, skills, pr
 }
 
 // ==========================================
-// COMPACT LAYOUT - 5 DISTINCT VARIANTS
+// COMPACT LAYOUT
+// Dense design to fit more content
 // ==========================================
 function CompactTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
-  const contactItems = [
-    personalInfo.email,
-    personalInfo.phone,
-    personalInfo.location,
-    personalInfo.linkedin_url,
-    personalInfo.website_url,
-  ].filter(Boolean);
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
 
-  const styles = StyleSheet.create({
+  const s = StyleSheet.create({
     page: {
-      padding: 36,
+      padding: style.pageMargin * 0.8,
       fontSize: 9,
       fontFamily: style.bodyFont,
       color: style.textColor,
+      lineHeight: 1.3,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 12,
+      paddingBottom: 8,
+      borderBottomWidth: style.headerDivider ? style.headerDividerThickness : 0,
+      borderBottomColor: style.primaryColor,
     },
     name: {
-      fontSize: style.nameStyle === 'large' ? 22 : style.nameStyle === 'light' ? 16 : 18,
-      fontFamily: style.nameStyle === 'light' ? style.bodyFont : style.headingFont,
-      marginBottom: 4,
-      color: style.useColor ? style.primaryColor : style.textColor,
-      letterSpacing: style.nameStyle === 'all-caps' ? 2 : 0,
-      textTransform: style.nameStyle === 'all-caps' ? 'uppercase' : undefined,
+      fontSize: style.nameSize * 0.85,
+      fontFamily: style.headingFont,
+      color: style.primaryColor,
     },
-    contactRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      fontSize: 8,
-      color: style.lightText,
-      marginBottom: 10,
-      paddingBottom: 6,
-      borderBottomWidth: style.dividerStyle === 'thick-line' ? 2 : style.dividerStyle === 'thin-line' ? 1 : 0,
-      borderBottomColor: style.useColor ? style.primaryColor : '#999999',
+    contactColumn: {
+      alignItems: 'flex-end',
     },
     contactItem: {
-      marginRight: 10,
+      fontSize: 8,
+      color: style.lightText,
+      marginBottom: 1,
+    },
+    twoColumn: {
+      flexDirection: 'row',
+      gap: 20,
+    },
+    leftColumn: {
+      width: '60%',
+    },
+    rightColumn: {
+      width: '40%',
     },
     section: {
-      marginBottom: 8,
+      marginBottom: 10,
     },
     sectionTitle: {
       fontSize: 9,
       fontFamily: style.headingFont,
       textTransform: 'uppercase',
-      letterSpacing: style.sectionStyle === 'caps-spaced' ? 2 : 0.5,
-      color: style.sectionStyle === 'background' ? '#ffffff' : (style.useColor ? style.primaryColor : style.textColor),
-      marginBottom: 4,
-      backgroundColor: style.sectionStyle === 'background' ? style.primaryColor :
-                       style.sectionStyle === 'minimal' ? 'transparent' : '#f5f5f5',
-      paddingVertical: style.sectionStyle === 'minimal' ? 0 : 2,
-      paddingHorizontal: style.sectionStyle === 'minimal' ? 0 : 4,
-      borderBottomWidth: style.sectionStyle === 'underline' ? 1 : 0,
-      borderBottomColor: style.secondaryColor,
-    },
-    summaryText: {
-      fontSize: 9,
-      lineHeight: 1.4,
-      color: style.textColor,
+      letterSpacing: 1,
+      color: style.primaryColor,
+      marginBottom: 6,
+      paddingBottom: style.sectionUnderline ? 2 : 0,
+      borderBottomWidth: style.sectionUnderline ? 1 : 0,
+      borderBottomColor: style.primaryColor,
     },
     entry: {
       marginBottom: 6,
     },
-    entryHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 1,
-    },
     entryTitle: {
-      fontSize: 9,
+      fontSize: 10,
       fontFamily: style.headingFont,
-      color: style.textColor,
     },
-    entryDate: {
-      fontSize: 8,
-      color: style.lightText,
-    },
-    entrySubtitle: {
+    entryMeta: {
       fontSize: 8,
       color: style.lightText,
       marginBottom: 2,
-      fontStyle: style.styleId === 'elegant' ? 'italic' : 'normal',
     },
     entryDescription: {
-      fontSize: 8,
-      color: style.textColor,
-      lineHeight: 1.4,
+      fontSize: 9,
     },
-    skillsContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-    skillChip: {
-      backgroundColor: style.skillsStyle === 'chips' ? (style.useColor ? `${style.primaryColor}20` : '#f3f4f6') : 'transparent',
-      paddingVertical: style.skillsStyle === 'chips' ? 2 : 0,
-      paddingHorizontal: style.skillsStyle === 'chips' ? 6 : 0,
-      borderRadius: 2,
-      fontSize: 8,
-      color: style.textColor,
-      marginRight: 4,
-      marginBottom: 3,
-    },
-    skillPlain: {
-      fontSize: 8,
-      color: style.textColor,
+    skillsText: {
+      fontSize: 9,
     },
   });
 
-  const renderSkills = () => {
-    const validSkills = skills.filter(s => s.skill_name);
-    if (style.skillsStyle === 'plain' || style.skillsStyle === 'inline') {
-      return <Text style={styles.skillPlain}>{validSkills.map(s => s.skill_name).join(', ')}</Text>;
-    }
-    return validSkills.map(skill => (
-      <Text key={skill.id} style={styles.skillChip}>{skill.skill_name}</Text>
-    ));
-  };
-
   return (
-    <Page size="LETTER" style={styles.page}>
-      <Text style={styles.name}>{style.nameStyle === 'all-caps' ? fullName.toUpperCase() : fullName}</Text>
-      <View style={styles.contactRow}>
-        {contactItems.map((item, index) => (
-          <Text key={index} style={styles.contactItem}>{item}</Text>
-        ))}
+    <Page size="LETTER" style={s.page}>
+      <View style={s.header}>
+        <Text style={s.name}>{fullName}</Text>
+        <View style={s.contactColumn}>
+          {contactItems.map((item, i) => <Text key={i} style={s.contactItem}>{item}</Text>)}
+        </View>
       </View>
 
       {personalInfo.summary && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Summary</Text>
-          <Text style={styles.summaryText}>{personalInfo.summary}</Text>
+        <View style={s.section}>
+          <Text style={s.sectionTitle}>Summary</Text>
+          <Text style={s.entryDescription}>{personalInfo.summary}</Text>
         </View>
       )}
 
-      {experience.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Experience</Text>
-          {experience.map((exp) => (
-            <View key={exp.id} style={styles.entry}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryTitle}>{exp.job_title} — {exp.company_name}</Text>
-                <Text style={styles.entryDate}>
-                  {exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}
-                </Text>
-              </View>
-              {exp.description && <Text style={styles.entryDescription}>{exp.description}</Text>}
+      <View style={s.twoColumn}>
+        <View style={s.leftColumn}>
+          {experience.length > 0 && (
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Experience</Text>
+              {experience.map(exp => (
+                <View key={exp.id} style={s.entry}>
+                  <Text style={s.entryTitle}>{exp.job_title} — {exp.company_name}</Text>
+                  <Text style={s.entryMeta}>{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</Text>
+                  {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-      )}
+          )}
 
-      {education.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Education</Text>
-          {education.map((edu) => (
-            <View key={edu.id} style={styles.entry}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryTitle}>
-                  {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''} — {edu.school_name}
-                </Text>
-                <Text style={styles.entryDate}>
-                  {edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}
-                </Text>
-              </View>
+          {projects.length > 0 && (
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Projects</Text>
+              {projects.map(proj => (
+                <View key={proj.id} style={s.entry}>
+                  <Text style={s.entryTitle}>{proj.project_name}</Text>
+                  {proj.description && <Text style={s.entryDescription}>{proj.description}</Text>}
+                </View>
+              ))}
             </View>
-          ))}
+          )}
         </View>
-      )}
 
-      {skills.length > 0 && skills.some(s => s.skill_name) && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Skills</Text>
-          <View style={styles.skillsContainer}>
-            {renderSkills()}
-          </View>
-        </View>
-      )}
-
-      {projects.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Projects</Text>
-          {projects.map((project) => (
-            <View key={project.id} style={styles.entry}>
-              <View style={styles.entryHeader}>
-                <Text style={styles.entryTitle}>{project.project_name}</Text>
-                {project.role && <Text style={styles.entryDate}>{project.role}</Text>}
-              </View>
-              {project.description && <Text style={styles.entryDescription}>{project.description}</Text>}
+        <View style={s.rightColumn}>
+          {education.length > 0 && (
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Education</Text>
+              {education.map(edu => (
+                <View key={edu.id} style={s.entry}>
+                  <Text style={s.entryTitle}>{edu.school_name}</Text>
+                  <Text style={s.entryMeta}>{edu.degree}{edu.field_of_study ? `, ${edu.field_of_study}` : ''}</Text>
+                  {edu.gpa && <Text style={s.entryMeta}>GPA: {edu.gpa}</Text>}
+                </View>
+              ))}
             </View>
-          ))}
+          )}
+
+          {skills.length > 0 && skills.some(sk => sk.skill_name) && (
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>Skills</Text>
+              <Text style={s.skillsText}>{skills.filter(sk => sk.skill_name).map(sk => sk.skill_name).join(', ')}</Text>
+            </View>
+          )}
         </View>
-      )}
+      </View>
     </Page>
   );
 }
 
 // ==========================================
-// SPLIT LAYOUT - 5 DISTINCT VARIANTS
+// SPLIT/MODERN LAYOUT
+// Creative asymmetric design
 // ==========================================
 function SplitTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
-  const sm = getSpacingMultiplier(style.spacing);
-  const contactItems = [
-    personalInfo.email,
-    personalInfo.phone,
-    personalInfo.location,
-    personalInfo.linkedin_url,
-    personalInfo.website_url,
-  ].filter(Boolean);
+  const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean);
 
-  // Accent bar variations
-  const barWidth = style.dividerStyle === 'thick-line' ? 12 : style.dividerStyle === 'none' ? 0 : 8;
-
-  const styles = StyleSheet.create({
+  const s = StyleSheet.create({
     page: {
       flexDirection: 'row',
+      fontSize: 10,
       fontFamily: style.bodyFont,
+      color: style.textColor,
     },
     accentBar: {
-      width: barWidth,
-      backgroundColor: style.useColor ? style.primaryColor : '#333333',
+      width: 8,
+      backgroundColor: style.primaryColor,
     },
     main: {
       flex: 1,
-      padding: 40,
-      paddingLeft: barWidth > 0 ? 32 : 40,
+      padding: style.pageMargin,
     },
-    nameRow: {
-      flexDirection: 'row',
-      alignItems: 'baseline',
-      marginBottom: 4,
+    header: {
+      marginBottom: style.sectionGap,
     },
-    firstName: {
-      fontSize: style.nameStyle === 'large' ? 32 : style.nameStyle === 'light' ? 26 : 28,
-      fontFamily: style.nameStyle === 'light' ? style.bodyFont : style.headingFont,
-      color: style.useColor ? style.primaryColor : style.textColor,
-      marginRight: 8,
-      letterSpacing: style.nameStyle === 'all-caps' ? 2 : 0,
-      textTransform: style.nameStyle === 'all-caps' ? 'uppercase' : undefined,
-    },
-    lastName: {
-      fontSize: style.nameStyle === 'large' ? 32 : style.nameStyle === 'light' ? 26 : 28,
-      fontFamily: style.bodyFont,
-      color: style.textColor,
-      letterSpacing: style.nameStyle === 'all-caps' ? 2 : 0,
-      textTransform: style.nameStyle === 'all-caps' ? 'uppercase' : undefined,
+    name: {
+      fontSize: style.nameSize,
+      fontFamily: style.headingFont,
+      color: style.primaryColor,
+      letterSpacing: style.nameLetterSpacing,
+      marginBottom: 6,
     },
     contactRow: {
-      flexDirection: style.contactStyle === 'stacked' ? 'column' : 'row',
+      flexDirection: 'row',
       flexWrap: 'wrap',
-      fontSize: 9,
-      color: style.lightText,
-      marginBottom: 20 * sm,
-      paddingBottom: 12 * sm,
-      borderBottomWidth: style.dividerStyle === 'thick-line' ? 2 : style.dividerStyle === 'thin-line' ? 1 : 0,
-      borderBottomColor: style.useColor ? style.secondaryColor : '#cccccc',
+      gap: 12,
     },
     contactItem: {
-      marginRight: style.contactStyle === 'stacked' ? 0 : 16,
-      marginBottom: style.contactStyle === 'stacked' ? 2 : 0,
-    },
-    twoColumn: {
-      flexDirection: 'row',
-      gap: 24,
-    },
-    leftColumn: {
-      width: '35%',
-    },
-    rightColumn: {
-      width: '65%',
+      fontSize: 9,
+      color: style.lightText,
     },
     section: {
-      marginBottom: 16 * sm,
+      marginBottom: style.sectionGap,
     },
     sectionTitle: {
-      fontSize: 9,
+      fontSize: style.sectionSize,
       fontFamily: style.headingFont,
-      textTransform: 'uppercase',
-      letterSpacing: style.sectionStyle === 'caps-spaced' ? 3 : 1.5,
-      color: style.sectionStyle === 'background' ? '#ffffff' : (style.useColor ? style.primaryColor : style.textColor),
-      marginBottom: 8 * sm,
-      paddingBottom: style.sectionStyle === 'underline' ? 4 : style.sectionStyle === 'background' ? 4 : 2,
-      paddingTop: style.sectionStyle === 'background' ? 4 : 0,
-      paddingHorizontal: style.sectionStyle === 'background' ? 6 : 0,
-      backgroundColor: style.sectionStyle === 'background' ? style.primaryColor : undefined,
-      borderBottomWidth: style.sectionStyle === 'underline' ? 2 : 0,
-      borderBottomColor: style.useColor ? style.primaryColor : '#333333',
-    },
-    summaryText: {
-      fontSize: 10,
-      lineHeight: 1.6,
-      color: style.textColor,
+      textTransform: style.sectionUppercase ? 'uppercase' : 'none',
+      letterSpacing: style.sectionLetterSpacing,
+      color: style.primaryColor,
+      marginBottom: 10,
+      borderLeftWidth: 3,
+      borderLeftColor: style.primaryColor,
+      paddingLeft: 8,
     },
     entry: {
-      marginBottom: 10 * sm,
+      marginBottom: style.entryGap,
     },
     entryHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       marginBottom: 2,
     },
     entryTitle: {
       fontSize: 11,
       fontFamily: style.headingFont,
-      color: style.textColor,
     },
     entryDate: {
-      fontSize: 8,
-      color: style.useColor ? style.primaryColor : style.lightText,
-      marginTop: 1,
-      fontStyle: style.datePosition === 'below' ? 'italic' : 'normal',
-    },
-    entrySubtitle: {
       fontSize: 9,
       color: style.lightText,
+    },
+    entrySubtitle: {
+      fontSize: 10,
+      color: style.lightText,
       marginBottom: 4,
-      fontStyle: style.styleId === 'elegant' ? 'italic' : 'normal',
     },
     entryDescription: {
-      fontSize: 9,
-      color: style.textColor,
-      lineHeight: 1.5,
+      fontSize: 10,
+      lineHeight: style.lineHeight,
     },
-    skillsContainer: {
-      flexDirection: style.skillsStyle === 'plain' ? 'column' : 'row',
+    skillsRow: {
+      flexDirection: 'row',
       flexWrap: 'wrap',
+      gap: 6,
     },
-    skillItem: {
+    skill: {
       fontSize: 9,
       color: style.textColor,
-      marginBottom: 4,
-      paddingLeft: style.skillsStyle === 'bullets' || style.skillsStyle === 'bars' ? 8 : 0,
-      borderLeftWidth: style.skillsStyle === 'bars' ? 2 : 0,
-      borderLeftColor: style.useColor ? style.primaryColor : '#333333',
-    },
-    skillPlain: {
-      fontSize: 9,
-      color: style.textColor,
-      marginBottom: 2,
+      paddingRight: 8,
     },
   });
 
-  const renderSkills = () => {
-    const validSkills = skills.filter(s => s.skill_name);
-    if (style.skillsStyle === 'plain') {
-      return validSkills.map(skill => (
-        <Text key={skill.id} style={styles.skillPlain}>{skill.skill_name}</Text>
-      ));
-    }
-    if (style.skillsStyle === 'bullets') {
-      return validSkills.map(skill => (
-        <Text key={skill.id} style={styles.skillItem}>• {skill.skill_name}</Text>
-      ));
-    }
-    if (style.skillsStyle === 'inline') {
-      return <Text style={styles.skillPlain}>{validSkills.map(s => s.skill_name).join(' • ')}</Text>;
-    }
-    // bars (default for split)
-    return validSkills.map(skill => (
-      <Text key={skill.id} style={styles.skillItem}>{skill.skill_name}</Text>
-    ));
-  };
-
   return (
-    <Page size="LETTER" style={styles.page}>
-      {barWidth > 0 && <View style={styles.accentBar} />}
-      <View style={styles.main}>
-        <View style={styles.nameRow}>
-          <Text style={styles.firstName}>{style.nameStyle === 'all-caps' ? (personalInfo.first_name || 'Your').toUpperCase() : (personalInfo.first_name || 'Your')}</Text>
-          <Text style={styles.lastName}>{style.nameStyle === 'all-caps' ? (personalInfo.last_name || 'Name').toUpperCase() : (personalInfo.last_name || 'Name')}</Text>
-        </View>
-        <View style={styles.contactRow}>
-          {contactItems.map((item, index) => (
-            <Text key={index} style={styles.contactItem}>{item}</Text>
-          ))}
+    <Page size="LETTER" style={s.page}>
+      <View style={s.accentBar} />
+      <View style={s.main}>
+        <View style={s.header}>
+          <Text style={s.name}>{fullName}</Text>
+          <View style={s.contactRow}>
+            {contactItems.map((item, i) => <Text key={i} style={s.contactItem}>{item}</Text>)}
+          </View>
         </View>
 
         {personalInfo.summary && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Profile</Text>
-            <Text style={styles.summaryText}>{personalInfo.summary}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Profile</Text>
+            <Text style={s.entryDescription}>{personalInfo.summary}</Text>
           </View>
         )}
 
-        <View style={styles.twoColumn}>
-          <View style={styles.leftColumn}>
-            {skills.length > 0 && skills.some(s => s.skill_name) && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Skills</Text>
-                <View style={styles.skillsContainer}>
-                  {renderSkills()}
+        {experience.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Experience</Text>
+            {experience.map(exp => (
+              <View key={exp.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{exp.job_title}</Text>
+                  <Text style={s.entryDate}>{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</Text>
                 </View>
+                <Text style={s.entrySubtitle}>{exp.company_name}</Text>
+                {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
               </View>
-            )}
-
-            {education.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Education</Text>
-                {education.map((edu) => (
-                  <View key={edu.id} style={styles.entry}>
-                    <View style={styles.entryHeader}>
-                      <Text style={styles.entryTitle}>{edu.school_name || 'School'}</Text>
-                      <Text style={styles.entryDate}>
-                        {edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}
-                      </Text>
-                    </View>
-                    {(edu.degree || edu.field_of_study) && (
-                      <Text style={styles.entrySubtitle}>
-                        {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
-                      </Text>
-                    )}
-                  </View>
-                ))}
-              </View>
-            )}
+            ))}
           </View>
+        )}
 
-          <View style={styles.rightColumn}>
-            {experience.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Experience</Text>
-                {experience.map((exp) => (
-                  <View key={exp.id} style={styles.entry}>
-                    <View style={styles.entryHeader}>
-                      <Text style={styles.entryTitle}>{exp.job_title || 'Job Title'}</Text>
-                      <Text style={styles.entryDate}>
-                        {exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}
-                      </Text>
-                    </View>
-                    <Text style={styles.entrySubtitle}>{exp.company_name}</Text>
-                    {exp.description && <Text style={styles.entryDescription}>{exp.description}</Text>}
-                  </View>
-                ))}
+        {education.length > 0 && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Education</Text>
+            {education.map(edu => (
+              <View key={edu.id} style={s.entry}>
+                <View style={s.entryHeader}>
+                  <Text style={s.entryTitle}>{edu.school_name}</Text>
+                  <Text style={s.entryDate}>{edu.end_date || ''}</Text>
+                </View>
+                {edu.degree && <Text style={s.entrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}</Text>}
               </View>
-            )}
-
-            {projects.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Projects</Text>
-                {projects.map((project) => (
-                  <View key={project.id} style={styles.entry}>
-                    <View style={styles.entryHeader}>
-                      <Text style={styles.entryTitle}>{project.project_name || 'Project'}</Text>
-                    </View>
-                    {project.description && <Text style={styles.entryDescription}>{project.description}</Text>}
-                  </View>
-                ))}
-              </View>
-            )}
+            ))}
           </View>
-        </View>
+        )}
+
+        {skills.length > 0 && skills.some(sk => sk.skill_name) && (
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>Skills</Text>
+            <View style={s.skillsRow}>
+              {skills.filter(sk => sk.skill_name).map(skill => (
+                <Text key={skill.id} style={s.skill}>• {skill.skill_name}</Text>
+              ))}
+            </View>
+          </View>
+        )}
       </View>
     </Page>
   );
@@ -1293,7 +1032,6 @@ function SplitTemplate({ style, personalInfo, education, experience, skills, pro
 // MAIN COMPONENT
 // ==========================================
 export default function ResumePDF({ template, colorTheme, personalInfo, education, experience, skills, projects }: ResumePDFProps) {
-  // Get template configuration (handles legacy names)
   const config = getTemplateConfig(template);
 
   // Apply custom color theme if specified
@@ -1321,7 +1059,6 @@ export default function ResumePDF({ template, colorTheme, personalInfo, educatio
     projects,
   };
 
-  // Render appropriate layout based on config
   const renderLayout = () => {
     switch (config.layout) {
       case 'twocolumn':

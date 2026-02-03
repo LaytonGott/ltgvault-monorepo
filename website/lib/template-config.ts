@@ -1,6 +1,6 @@
 // Resume Template Configuration
 // 5 Base Layouts × 5 Style Variants = 25 Templates
-// Each variant has STRUCTURAL differences, not just colors
+// Each variant has DRAMATIC STRUCTURAL differences - not just colors
 
 // Color theme options for Pro users
 export const COLOR_THEMES = {
@@ -16,10 +16,10 @@ export const COLOR_THEMES = {
 export type ColorThemeId = keyof typeof COLOR_THEMES;
 
 export interface TemplateStyle {
-  // Style identifier
   styleId: string;
+  styleName: string;
 
-  // Colors
+  // COLORS
   primaryColor: string;
   secondaryColor: string;
   textColor: string;
@@ -29,41 +29,51 @@ export interface TemplateStyle {
   sidebarBg?: string;
   headerBg?: string;
 
-  // Fonts
+  // FONTS - each style uses different font families
   headingFont: string;
   bodyFont: string;
+  headingWeight: number;
 
-  // Name for display
-  styleName: string;
+  // NAME STYLING
+  nameSize: number;       // Font size for name
+  nameWeight: number;     // Font weight
+  nameLetterSpacing: number;
+  nameUppercase: boolean;
+  nameUnderline: boolean;  // Line under name
+  nameUnderlineThickness: number;
 
-  // STRUCTURAL PROPERTIES - these create visual variety
+  // SECTION HEADERS
+  sectionSize: number;
+  sectionUppercase: boolean;
+  sectionLetterSpacing: number;
+  sectionUnderline: boolean;
+  sectionUnderlineThickness: number;
+  sectionBackground: boolean;  // Full background color on section headers
+  sectionDots: boolean;        // Decorative dots after section title
 
-  // Section header style: 'underline' | 'background' | 'bold-only' | 'caps-spaced' | 'minimal' | 'dots'
-  sectionStyle: 'underline' | 'background' | 'bold-only' | 'caps-spaced' | 'minimal' | 'dots';
+  // DIVIDERS & DECORATIONS
+  headerDivider: boolean;      // Line after contact info
+  headerDividerThickness: number;
+  entryDividers: boolean;      // Lines between entries
+  useBullets: boolean;         // Bullet points for descriptions
 
-  // Divider style: 'thin-line' | 'thick-line' | 'double-line' | 'dots' | 'none'
-  dividerStyle: 'thin-line' | 'thick-line' | 'double-line' | 'dots' | 'none';
+  // SPACING
+  pageMargin: number;
+  sectionGap: number;
+  entryGap: number;
+  lineHeight: number;
 
-  // Name styling: 'standard' | 'large' | 'all-caps' | 'split-color' | 'light'
-  nameStyle: 'standard' | 'large' | 'all-caps' | 'split-color' | 'light';
+  // TWO-COLUMN SPECIFIC
+  sidebarWidth: number;        // Percentage width of sidebar (25-45)
+  sidebarFilled: boolean;      // Filled background vs border/minimal
+  sidebarBorderOnly: boolean;  // Just a border, no fill
 
-  // Spacing density: 'normal' | 'compact' | 'spacious'
-  spacing: 'normal' | 'compact' | 'spacious';
+  // SKILLS DISPLAY
+  skillsStyle: 'chips' | 'inline' | 'bullets' | 'commas';
 
-  // Skills display: 'chips' | 'inline' | 'bullets' | 'bars' | 'plain'
-  skillsStyle: 'chips' | 'inline' | 'bullets' | 'bars' | 'plain';
-
-  // Date positioning: 'right' | 'inline' | 'below'
-  datePosition: 'right' | 'inline' | 'below';
-
-  // Contact style: 'inline' | 'stacked' | 'icons'
-  contactStyle: 'inline' | 'stacked' | 'icons';
-
-  // Show color: true = use color throughout, false = minimal/no color
-  useColor: boolean;
-
-  // Sidebar style (for two-column): 'filled' | 'bordered' | 'minimal' | 'accent-bar'
-  sidebarStyle: 'filled' | 'bordered' | 'minimal' | 'accent-bar';
+  // DATE DISPLAY
+  datePosition: 'right' | 'below' | 'inline';
+  dateItalic: boolean;
 }
 
 export interface TemplateLayout {
@@ -74,18 +84,22 @@ export interface TemplateLayout {
 
 // 5 Base Layouts
 export const LAYOUTS: TemplateLayout[] = [
-  { id: 'single', name: 'Single Column', description: 'Classic vertical flow, professional and clean' },
-  { id: 'twocolumn', name: 'Two Column', description: 'Sidebar with contact/skills, main content area' },
-  { id: 'header', name: 'Header Focus', description: 'Bold header with name, content below' },
-  { id: 'compact', name: 'Compact', description: 'Dense layout, fits more content on one page' },
-  { id: 'split', name: 'Modern Split', description: 'Creative asymmetric design with accent bar' },
+  { id: 'single', name: 'Single Column', description: 'Classic vertical flow' },
+  { id: 'twocolumn', name: 'Two Column', description: 'Sidebar with main content' },
+  { id: 'header', name: 'Header Focus', description: 'Bold header design' },
+  { id: 'compact', name: 'Compact', description: 'Dense layout for more content' },
+  { id: 'split', name: 'Modern Split', description: 'Creative asymmetric design' },
 ];
 
-// 5 Style Variants - each with distinct STRUCTURAL differences
+// ============================================================
+// 5 STYLE VARIANTS - Each dramatically different
+// ============================================================
+
 export const STYLES: Record<string, TemplateStyle> = {
-  // CLASSIC: Serif fonts, thin underlines, traditional, formal
+  // CLASSIC: Traditional, serif fonts, thin lines, conservative
   classic: {
     styleId: 'classic',
+    styleName: 'Classic',
     primaryColor: '#1a1a1a',
     secondaryColor: '#333333',
     textColor: '#222222',
@@ -96,22 +110,46 @@ export const STYLES: Record<string, TemplateStyle> = {
     headerBg: '#1a1a1a',
     headingFont: 'Times-Bold',
     bodyFont: 'Times-Roman',
-    styleName: 'Classic',
-    // Structural
-    sectionStyle: 'underline',
-    dividerStyle: 'thin-line',
-    nameStyle: 'standard',
-    spacing: 'normal',
-    skillsStyle: 'inline',
+    headingWeight: 700,
+    // Name
+    nameSize: 22,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: true,
+    nameUnderlineThickness: 1,
+    // Sections
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 1,
+    sectionBackground: false,
+    sectionDots: false,
+    // Dividers
+    headerDivider: true,
+    headerDividerThickness: 1,
+    entryDividers: false,
+    useBullets: false,
+    // Spacing
+    pageMargin: 48,
+    sectionGap: 16,
+    entryGap: 10,
+    lineHeight: 1.4,
+    // Two-column
+    sidebarWidth: 30,
+    sidebarFilled: true,
+    sidebarBorderOnly: false,
+    // Skills
+    skillsStyle: 'commas',
     datePosition: 'right',
-    contactStyle: 'inline',
-    useColor: false,
-    sidebarStyle: 'filled',
+    dateItalic: false,
   },
 
-  // MODERN: Sans-serif, no lines, bold headers, clean blocks
+  // MODERN: Clean sans-serif, bold headers, no decorative lines
   modern: {
     styleId: 'modern',
+    styleName: 'Modern',
     primaryColor: '#1e3a5f',
     secondaryColor: '#2d5a87',
     textColor: '#1a1a1a',
@@ -122,22 +160,46 @@ export const STYLES: Record<string, TemplateStyle> = {
     headerBg: '#1e3a5f',
     headingFont: 'Helvetica-Bold',
     bodyFont: 'Helvetica',
-    styleName: 'Modern',
-    // Structural
-    sectionStyle: 'bold-only',
-    dividerStyle: 'none',
-    nameStyle: 'large',
-    spacing: 'normal',
+    headingWeight: 700,
+    // Name
+    nameSize: 28,
+    nameWeight: 700,
+    nameLetterSpacing: -1,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    // Sections
+    sectionSize: 12,
+    sectionUppercase: true,
+    sectionLetterSpacing: 2,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: false,
+    sectionDots: false,
+    // Dividers
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    // Spacing
+    pageMargin: 48,
+    sectionGap: 20,
+    entryGap: 12,
+    lineHeight: 1.5,
+    // Two-column
+    sidebarWidth: 32,
+    sidebarFilled: true,
+    sidebarBorderOnly: false,
+    // Skills
     skillsStyle: 'chips',
     datePosition: 'right',
-    contactStyle: 'inline',
-    useColor: true,
-    sidebarStyle: 'filled',
+    dateItalic: false,
   },
 
-  // BOLD: Chunky elements, background headers, lots of color, thick dividers
+  // BOLD: Chunky elements, thick bars, large typography
   bold: {
     styleId: 'bold',
+    styleName: 'Bold',
     primaryColor: '#0d9488',
     secondaryColor: '#14b8a6',
     textColor: '#1a1a1a',
@@ -148,22 +210,46 @@ export const STYLES: Record<string, TemplateStyle> = {
     headerBg: '#0d9488',
     headingFont: 'Helvetica-Bold',
     bodyFont: 'Helvetica',
-    styleName: 'Bold',
-    // Structural
-    sectionStyle: 'background',
-    dividerStyle: 'thick-line',
-    nameStyle: 'large',
-    spacing: 'normal',
+    headingWeight: 700,
+    // Name
+    nameSize: 32,
+    nameWeight: 700,
+    nameLetterSpacing: -1,
+    nameUppercase: false,
+    nameUnderline: true,
+    nameUnderlineThickness: 4,
+    // Sections
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: true,
+    sectionDots: false,
+    // Dividers
+    headerDivider: true,
+    headerDividerThickness: 4,
+    entryDividers: true,
+    useBullets: true,
+    // Spacing
+    pageMargin: 44,
+    sectionGap: 18,
+    entryGap: 14,
+    lineHeight: 1.5,
+    // Two-column
+    sidebarWidth: 38,
+    sidebarFilled: true,
+    sidebarBorderOnly: false,
+    // Skills
     skillsStyle: 'chips',
     datePosition: 'inline',
-    contactStyle: 'stacked',
-    useColor: true,
-    sidebarStyle: 'filled',
+    dateItalic: false,
   },
 
-  // ELEGANT: Refined, subtle gray accents, italic subtitles, spaced caps headers
+  // ELEGANT: Refined, light weight, extra spacing, subtle accents
   elegant: {
     styleId: 'elegant',
+    styleName: 'Elegant',
     primaryColor: '#7c2d36',
     secondaryColor: '#d4a5ab',
     textColor: '#2d2d2d',
@@ -174,22 +260,46 @@ export const STYLES: Record<string, TemplateStyle> = {
     headerBg: '#7c2d36',
     headingFont: 'Times-Bold',
     bodyFont: 'Times-Roman',
-    styleName: 'Elegant',
-    // Structural
-    sectionStyle: 'dots',
-    dividerStyle: 'thin-line',
-    nameStyle: 'all-caps',
-    spacing: 'spacious',
-    skillsStyle: 'plain',
+    headingWeight: 400,
+    // Name
+    nameSize: 26,
+    nameWeight: 400,
+    nameLetterSpacing: 4,
+    nameUppercase: true,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    // Sections
+    sectionSize: 9,
+    sectionUppercase: true,
+    sectionLetterSpacing: 4,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: false,
+    sectionDots: true,
+    // Dividers
+    headerDivider: true,
+    headerDividerThickness: 1,
+    entryDividers: false,
+    useBullets: false,
+    // Spacing
+    pageMargin: 56,
+    sectionGap: 24,
+    entryGap: 14,
+    lineHeight: 1.6,
+    // Two-column
+    sidebarWidth: 28,
+    sidebarFilled: false,
+    sidebarBorderOnly: true,
+    // Skills
+    skillsStyle: 'inline',
     datePosition: 'below',
-    contactStyle: 'stacked',
-    useColor: false,
-    sidebarStyle: 'bordered',
+    dateItalic: true,
   },
 
-  // MINIMAL: Maximum whitespace, no color, thin typography, no dividers
+  // MINIMAL: Maximum whitespace, no decoration, pure typography
   minimal: {
     styleId: 'minimal',
+    styleName: 'Minimal',
     primaryColor: '#666666',
     secondaryColor: '#999999',
     textColor: '#333333',
@@ -200,21 +310,47 @@ export const STYLES: Record<string, TemplateStyle> = {
     headerBg: '#f5f5f5',
     headingFont: 'Helvetica',
     bodyFont: 'Helvetica',
-    styleName: 'Minimal',
-    // Structural
-    sectionStyle: 'minimal',
-    dividerStyle: 'none',
-    nameStyle: 'light',
-    spacing: 'spacious',
-    skillsStyle: 'plain',
+    headingWeight: 400,
+    // Name
+    nameSize: 24,
+    nameWeight: 300,
+    nameLetterSpacing: 2,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    // Sections
+    sectionSize: 10,
+    sectionUppercase: false,
+    sectionLetterSpacing: 0,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: false,
+    sectionDots: false,
+    // Dividers
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: false,
+    // Spacing
+    pageMargin: 56,
+    sectionGap: 28,
+    entryGap: 16,
+    lineHeight: 1.6,
+    // Two-column
+    sidebarWidth: 22,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    // Skills
+    skillsStyle: 'commas',
     datePosition: 'right',
-    contactStyle: 'inline',
-    useColor: false,
-    sidebarStyle: 'minimal',
+    dateItalic: false,
   },
 };
 
-// Generate all 25 template combinations
+// ============================================================
+// TEMPLATE CONFIGURATION
+// ============================================================
+
 export interface TemplateConfig {
   id: string;
   displayName: string;
@@ -223,11 +359,12 @@ export interface TemplateConfig {
   layoutConfig: TemplateLayout;
   styleConfig: TemplateStyle;
   isPro: boolean;
+  hasPhoto?: boolean;
 }
 
 export const TEMPLATES: TemplateConfig[] = [];
 
-// Generate all combinations
+// Generate all 25 combinations
 LAYOUTS.forEach(layout => {
   Object.entries(STYLES).forEach(([styleId, styleConfig]) => {
     const templateId = `${layout.id}-${styleId}`;
@@ -256,10 +393,8 @@ export const LEGACY_TEMPLATE_MAP: Record<string, string> = {
 
 // Get template config by ID (handles legacy names)
 export function getTemplateConfig(templateId: string): TemplateConfig {
-  // Check for legacy template names
   const mappedId = LEGACY_TEMPLATE_MAP[templateId] || templateId;
   const config = TEMPLATES.find(t => t.id === mappedId);
-  // Default to single-classic if not found
   return config || TEMPLATES.find(t => t.id === 'single-classic')!;
 }
 
@@ -278,7 +413,7 @@ export function getProTemplateIds(): string[] {
   return TEMPLATES.filter(t => t.isPro).map(t => t.id);
 }
 
-// Get effective colors for a template with optional custom color theme
+// Get effective colors with custom color theme
 export function getEffectiveColors(templateId: string, colorTheme?: string | null): {
   primaryColor: string;
   secondaryColor: string;
@@ -289,7 +424,6 @@ export function getEffectiveColors(templateId: string, colorTheme?: string | nul
   const config = getTemplateConfig(templateId);
   const style = config.styleConfig;
 
-  // If no custom theme or 'default', use template's colors
   if (!colorTheme || colorTheme === 'default') {
     return {
       primaryColor: style.primaryColor,
@@ -300,12 +434,8 @@ export function getEffectiveColors(templateId: string, colorTheme?: string | nul
     };
   }
 
-  // Get custom color
   const theme = COLOR_THEMES[colorTheme as ColorThemeId];
   const customColor = theme?.color || style.primaryColor;
-
-  // Generate lighter variant for secondary
-  const lighterColor = customColor + '99'; // Add alpha for lighter look
 
   return {
     primaryColor: customColor,

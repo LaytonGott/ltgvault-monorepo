@@ -13,7 +13,19 @@ async function getUser(req) {
 async function trackUsage(userId, feature) {
   try {
     const today = new Date().toISOString().split('T')[0];
-    console.log('[trackUsage] Recording usage:', { userId, feature, today });
+    console.log('[trackUsage] START - Recording usage:', { userId, feature, today });
+
+    // First, let's verify the table exists and check current state
+    const { data: allRows, error: listError } = await supabase
+      .from('ai_usage')
+      .select('*')
+      .eq('user_id', userId);
+
+    console.log('[trackUsage] Current rows for user:', {
+      count: allRows?.length || 0,
+      rows: allRows,
+      listError: listError?.message
+    });
 
     const { data: existing, error: selectError } = await supabase
       .from('ai_usage')
@@ -23,33 +35,37 @@ async function trackUsage(userId, feature) {
       .eq('usage_date', today)
       .single();
 
-    if (selectError && selectError.code !== 'PGRST116') {
-      // PGRST116 = no rows found, which is expected for new entries
-      console.error('[trackUsage] Select error:', selectError);
-    }
+    console.log('[trackUsage] Existing row check:', {
+      existing,
+      selectError: selectError?.message,
+      selectErrorCode: selectError?.code
+    });
 
     if (existing) {
-      console.log('[trackUsage] Updating existing record:', existing.id);
-      const { error: updateError } = await supabase
+      console.log('[trackUsage] Updating existing record:', existing.id, 'from', existing.usage_count, 'to', existing.usage_count + 1);
+      const { data: updateData, error: updateError } = await supabase
         .from('ai_usage')
         .update({ usage_count: existing.usage_count + 1 })
-        .eq('id', existing.id);
-      if (updateError) {
-        console.error('[trackUsage] Update error:', updateError);
-      } else {
-        console.log('[trackUsage] Updated successfully');
-      }
+        .eq('id', existing.id)
+        .select();
+      console.log('[trackUsage] Update result:', { updateData, updateError: updateError?.message });
     } else {
-      console.log('[trackUsage] Inserting new record');
-      const { error: insertError } = await supabase
+      const insertPayload = { user_id: userId, feature, usage_date: today, usage_count: 1 };
+      console.log('[trackUsage] Inserting new record:', insertPayload);
+      const { data: insertData, error: insertError } = await supabase
         .from('ai_usage')
-        .insert({ user_id: userId, feature, usage_date: today, usage_count: 1 });
-      if (insertError) {
-        console.error('[trackUsage] Insert error:', insertError);
-      } else {
-        console.log('[trackUsage] Inserted successfully');
-      }
+        .insert(insertPayload)
+        .select();
+      console.log('[trackUsage] Insert result:', { insertData, insertError: insertError?.message, insertErrorDetails: insertError });
     }
+
+    // Verify the write worked
+    const { data: verifyRows } = await supabase
+      .from('ai_usage')
+      .select('*')
+      .eq('user_id', userId);
+    console.log('[trackUsage] AFTER write - rows for user:', { count: verifyRows?.length || 0, rows: verifyRows });
+
   } catch (error) {
     console.error('[trackUsage] Exception:', error);
   }

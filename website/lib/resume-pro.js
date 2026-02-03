@@ -91,30 +91,34 @@ async function getResumeProStatus(userId) {
 
     // Get AI usage
     let aiUsed = 0;
+    console.log('[getResumeProStatus] Checking AI usage for userId:', userId, 'isPro:', isPro);
     if (isPro) {
       // Pro: count this month's usage
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
-      const { data: monthlyUsage } = await supabase
+      const { data: monthlyUsage, error: usageError } = await supabase
         .from('ai_usage')
-        .select('usage_count')
+        .select('*')
         .eq('user_id', userId)
         .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter'])
         .gte('usage_date', startOfMonth.toISOString().split('T')[0]);
 
+      console.log('[getResumeProStatus] Pro monthly usage query result:', { monthlyUsage, error: usageError?.message });
       aiUsed = (monthlyUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
     } else {
       // Free: count total lifetime usage
-      const { data: totalUsage } = await supabase
+      const { data: totalUsage, error: usageError } = await supabase
         .from('ai_usage')
-        .select('usage_count')
+        .select('*')
         .eq('user_id', userId)
         .in('feature', ['resume_bullets', 'resume_summary', 'cover_letter']);
 
+      console.log('[getResumeProStatus] Free total usage query result:', { totalUsage, error: usageError?.message });
       aiUsed = (totalUsage || []).reduce((sum, row) => sum + (row.usage_count || 0), 0);
     }
+    console.log('[getResumeProStatus] Final aiUsed:', aiUsed);
 
     return {
       isPro,

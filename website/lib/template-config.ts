@@ -1,16 +1,16 @@
 // Resume Template Configuration
-// 5 Base Layouts × 5 Style Variants = 25 Templates
-// Each variant has DRAMATIC STRUCTURAL differences - not just colors
+// Based on REAL, well-known resume templates from Harvard, Reddit, Google Docs, Canva, etc.
+// Each template replicates the EXACT format of the original
 
 // Color theme options for Pro users
 export const COLOR_THEMES = {
-  default: { name: 'Default', color: null }, // Uses template's default color
+  default: { name: 'Default', color: null },
   navy: { name: 'Navy Blue', color: '#1e3a5f' },
   forest: { name: 'Forest Green', color: '#2d5a3d' },
   burgundy: { name: 'Burgundy', color: '#722f37' },
   teal: { name: 'Teal', color: '#0d9488' },
   purple: { name: 'Purple', color: '#5b21b6' },
-  black: { name: 'Black', color: '#1f2937' },
+  slate: { name: 'Slate', color: '#475569' },
 } as const;
 
 export type ColorThemeId = keyof typeof COLOR_THEMES;
@@ -18,7 +18,6 @@ export type ColorThemeId = keyof typeof COLOR_THEMES;
 export interface TemplateStyle {
   styleId: string;
   styleName: string;
-
   // COLORS
   primaryColor: string;
   secondaryColor: string;
@@ -28,52 +27,48 @@ export interface TemplateStyle {
   bgColor: string;
   sidebarBg?: string;
   headerBg?: string;
-
-  // FONTS - each style uses different font families
+  // FONTS
   headingFont: string;
   bodyFont: string;
   headingWeight: number;
-
   // NAME STYLING
-  nameSize: number;       // Font size for name
-  nameWeight: number;     // Font weight
+  nameSize: number;
+  nameWeight: number;
   nameLetterSpacing: number;
   nameUppercase: boolean;
-  nameUnderline: boolean;  // Line under name
+  nameUnderline: boolean;
   nameUnderlineThickness: number;
-
+  nameCentered?: boolean; // NEW: for Harvard-style centered name
   // SECTION HEADERS
   sectionSize: number;
   sectionUppercase: boolean;
   sectionLetterSpacing: number;
   sectionUnderline: boolean;
   sectionUnderlineThickness: number;
-  sectionBackground: boolean;  // Full background color on section headers
-  sectionDots: boolean;        // Decorative dots after section title
-
+  sectionBackground: boolean;
+  sectionDots: boolean;
   // DIVIDERS & DECORATIONS
-  headerDivider: boolean;      // Line after contact info
+  headerDivider: boolean;
   headerDividerThickness: number;
-  entryDividers: boolean;      // Lines between entries
-  useBullets: boolean;         // Bullet points for descriptions
-
+  entryDividers: boolean;
+  useBullets: boolean;
   // SPACING
   pageMargin: number;
   sectionGap: number;
   entryGap: number;
   lineHeight: number;
-
   // TWO-COLUMN SPECIFIC
-  sidebarWidth: number;        // Percentage width of sidebar (25-45)
-  sidebarFilled: boolean;      // Filled background vs border/minimal
-  sidebarBorderOnly: boolean;  // Just a border, no fill
-
+  sidebarWidth: number;
+  sidebarFilled: boolean;
+  sidebarBorderOnly: boolean;
   // SKILLS DISPLAY
   skillsStyle: 'chips' | 'inline' | 'bullets' | 'commas';
-
   // DATE DISPLAY
   datePosition: 'right' | 'below' | 'inline';
   dateItalic: boolean;
+  // SPECIAL FEATURES
+  helloHeader?: boolean; // For Coral-style "Hello, I'm..." header
+  skillsFirst?: boolean; // For Swiss-style skills-first layout
 }
 
 export interface TemplateLayout {
@@ -82,271 +77,25 @@ export interface TemplateLayout {
   description: string;
 }
 
-// 5 Base Layouts
 export const LAYOUTS: TemplateLayout[] = [
-  { id: 'single', name: 'Single Column', description: 'Classic vertical flow' },
+  { id: 'single', name: 'Single Column', description: 'Classic ATS-friendly format' },
   { id: 'twocolumn', name: 'Two Column', description: 'Sidebar with main content' },
   { id: 'header', name: 'Header Focus', description: 'Bold header design' },
-  { id: 'compact', name: 'Compact', description: 'Dense layout for more content' },
+  { id: 'compact', name: 'Compact', description: 'Dense, information-packed' },
   { id: 'split', name: 'Modern Split', description: 'Creative asymmetric design' },
 ];
 
 // ============================================================
-// 5 STYLE VARIANTS - Each dramatically different
+// REAL TEMPLATE STYLES - Based on actual well-known templates
 // ============================================================
 
 export const STYLES: Record<string, TemplateStyle> = {
-  // CLASSIC: Traditional, serif fonts, thin lines, conservative
-  classic: {
-    styleId: 'classic',
-    styleName: 'Classic',
-    primaryColor: '#1a1a1a',
-    secondaryColor: '#333333',
-    textColor: '#222222',
-    lightText: '#666666',
-    accentColor: '#1a1a1a',
-    bgColor: '#ffffff',
-    sidebarBg: '#f5f5f5',
-    headerBg: '#1a1a1a',
-    headingFont: 'Times-Bold',
-    bodyFont: 'Times-Roman',
-    headingWeight: 700,
-    // Name
-    nameSize: 22,
-    nameWeight: 700,
-    nameLetterSpacing: 0,
-    nameUppercase: false,
-    nameUnderline: true,
-    nameUnderlineThickness: 1,
-    // Sections
-    sectionSize: 11,
-    sectionUppercase: true,
-    sectionLetterSpacing: 1,
-    sectionUnderline: true,
-    sectionUnderlineThickness: 1,
-    sectionBackground: false,
-    sectionDots: false,
-    // Dividers
-    headerDivider: true,
-    headerDividerThickness: 1,
-    entryDividers: false,
-    useBullets: false,
-    // Spacing
-    pageMargin: 48,
-    sectionGap: 16,
-    entryGap: 10,
-    lineHeight: 1.4,
-    // Two-column
-    sidebarWidth: 30,
-    sidebarFilled: true,
-    sidebarBorderOnly: false,
-    // Skills
-    skillsStyle: 'commas',
-    datePosition: 'right',
-    dateItalic: false,
-  },
 
-  // MODERN: Clean sans-serif, bold headers, no decorative lines
-  modern: {
-    styleId: 'modern',
-    styleName: 'Modern',
-    primaryColor: '#1e3a5f',
-    secondaryColor: '#2d5a87',
-    textColor: '#1a1a1a',
-    lightText: '#555555',
-    accentColor: '#1e3a5f',
-    bgColor: '#ffffff',
-    sidebarBg: '#1e3a5f',
-    headerBg: '#1e3a5f',
-    headingFont: 'Helvetica-Bold',
-    bodyFont: 'Helvetica',
-    headingWeight: 700,
-    // Name
-    nameSize: 28,
-    nameWeight: 700,
-    nameLetterSpacing: -1,
-    nameUppercase: false,
-    nameUnderline: false,
-    nameUnderlineThickness: 0,
-    // Sections
-    sectionSize: 12,
-    sectionUppercase: true,
-    sectionLetterSpacing: 2,
-    sectionUnderline: false,
-    sectionUnderlineThickness: 0,
-    sectionBackground: false,
-    sectionDots: false,
-    // Dividers
-    headerDivider: false,
-    headerDividerThickness: 0,
-    entryDividers: false,
-    useBullets: true,
-    // Spacing
-    pageMargin: 48,
-    sectionGap: 20,
-    entryGap: 12,
-    lineHeight: 1.5,
-    // Two-column
-    sidebarWidth: 32,
-    sidebarFilled: true,
-    sidebarBorderOnly: false,
-    // Skills
-    skillsStyle: 'chips',
-    datePosition: 'right',
-    dateItalic: false,
-  },
-
-  // BOLD: Chunky elements, thick bars, large typography
-  bold: {
-    styleId: 'bold',
-    styleName: 'Bold',
-    primaryColor: '#0d9488',
-    secondaryColor: '#14b8a6',
-    textColor: '#1a1a1a',
-    lightText: '#555555',
-    accentColor: '#0d9488',
-    bgColor: '#ffffff',
-    sidebarBg: '#0d9488',
-    headerBg: '#0d9488',
-    headingFont: 'Helvetica-Bold',
-    bodyFont: 'Helvetica',
-    headingWeight: 700,
-    // Name
-    nameSize: 32,
-    nameWeight: 700,
-    nameLetterSpacing: -1,
-    nameUppercase: false,
-    nameUnderline: true,
-    nameUnderlineThickness: 4,
-    // Sections
-    sectionSize: 11,
-    sectionUppercase: true,
-    sectionLetterSpacing: 1,
-    sectionUnderline: false,
-    sectionUnderlineThickness: 0,
-    sectionBackground: true,
-    sectionDots: false,
-    // Dividers
-    headerDivider: true,
-    headerDividerThickness: 4,
-    entryDividers: true,
-    useBullets: true,
-    // Spacing
-    pageMargin: 44,
-    sectionGap: 18,
-    entryGap: 14,
-    lineHeight: 1.5,
-    // Two-column
-    sidebarWidth: 38,
-    sidebarFilled: true,
-    sidebarBorderOnly: false,
-    // Skills
-    skillsStyle: 'chips',
-    datePosition: 'inline',
-    dateItalic: false,
-  },
-
-  // ELEGANT: Refined, light weight, extra spacing, subtle accents
-  elegant: {
-    styleId: 'elegant',
-    styleName: 'Elegant',
-    primaryColor: '#7c2d36',
-    secondaryColor: '#d4a5ab',
-    textColor: '#2d2d2d',
-    lightText: '#888888',
-    accentColor: '#7c2d36',
-    bgColor: '#ffffff',
-    sidebarBg: '#faf8f8',
-    headerBg: '#7c2d36',
-    headingFont: 'Times-Bold',
-    bodyFont: 'Times-Roman',
-    headingWeight: 400,
-    // Name
-    nameSize: 26,
-    nameWeight: 400,
-    nameLetterSpacing: 4,
-    nameUppercase: true,
-    nameUnderline: false,
-    nameUnderlineThickness: 0,
-    // Sections
-    sectionSize: 9,
-    sectionUppercase: true,
-    sectionLetterSpacing: 4,
-    sectionUnderline: false,
-    sectionUnderlineThickness: 0,
-    sectionBackground: false,
-    sectionDots: true,
-    // Dividers
-    headerDivider: true,
-    headerDividerThickness: 1,
-    entryDividers: false,
-    useBullets: false,
-    // Spacing
-    pageMargin: 56,
-    sectionGap: 24,
-    entryGap: 14,
-    lineHeight: 1.6,
-    // Two-column
-    sidebarWidth: 28,
-    sidebarFilled: false,
-    sidebarBorderOnly: true,
-    // Skills
-    skillsStyle: 'inline',
-    datePosition: 'below',
-    dateItalic: true,
-  },
-
-  // MINIMAL: Maximum whitespace, no decoration, pure typography
-  minimal: {
-    styleId: 'minimal',
-    styleName: 'Minimal',
-    primaryColor: '#666666',
-    secondaryColor: '#999999',
-    textColor: '#333333',
-    lightText: '#999999',
-    accentColor: '#666666',
-    bgColor: '#ffffff',
-    sidebarBg: '#fafafa',
-    headerBg: '#f5f5f5',
-    headingFont: 'Helvetica',
-    bodyFont: 'Helvetica',
-    headingWeight: 400,
-    // Name
-    nameSize: 24,
-    nameWeight: 300,
-    nameLetterSpacing: 2,
-    nameUppercase: false,
-    nameUnderline: false,
-    nameUnderlineThickness: 0,
-    // Sections
-    sectionSize: 10,
-    sectionUppercase: false,
-    sectionLetterSpacing: 0,
-    sectionUnderline: false,
-    sectionUnderlineThickness: 0,
-    sectionBackground: false,
-    sectionDots: false,
-    // Dividers
-    headerDivider: false,
-    headerDividerThickness: 0,
-    entryDividers: false,
-    useBullets: false,
-    // Spacing
-    pageMargin: 56,
-    sectionGap: 28,
-    entryGap: 16,
-    lineHeight: 1.6,
-    // Two-column
-    sidebarWidth: 22,
-    sidebarFilled: false,
-    sidebarBorderOnly: false,
-    // Skills
-    skillsStyle: 'commas',
-    datePosition: 'right',
-    dateItalic: false,
-  },
-
-  // HARVARD: Official Harvard resume format - traditional, serif, ATS-friendly
+  // ========================================
+  // HARVARD RESUME - Official Harvard OCS format
+  // Serif font, centered name, thin underlines
+  // Source: careerservices.fas.harvard.edu
+  // ========================================
   harvard: {
     styleId: 'harvard',
     styleName: 'Harvard',
@@ -358,89 +107,532 @@ export const STYLES: Record<string, TemplateStyle> = {
     bgColor: '#ffffff',
     sidebarBg: '#ffffff',
     headerBg: '#ffffff',
+    // Times New Roman is the official Harvard font
     headingFont: 'Times-Bold',
     bodyFont: 'Times-Roman',
     headingWeight: 700,
-    // Name - centered, large, bold
+    // Name: centered, bold, NOT uppercase
     nameSize: 24,
     nameWeight: 700,
     nameLetterSpacing: 0,
     nameUppercase: false,
     nameUnderline: false,
     nameUnderlineThickness: 0,
-    // Sections - ALL CAPS, bold, underlined
+    nameCentered: true, // CENTERED name
+    // Sections: ALL CAPS with thin underline
     sectionSize: 11,
     sectionUppercase: true,
-    sectionLetterSpacing: 0,
+    sectionLetterSpacing: 0.5,
     sectionUnderline: true,
     sectionUnderlineThickness: 1,
     sectionBackground: false,
     sectionDots: false,
-    // Dividers
+    // Dividers: thin line under contact
     headerDivider: true,
     headerDividerThickness: 1,
     entryDividers: false,
     useBullets: true,
-    // Spacing - traditional
+    // Spacing: professional, not too tight
     pageMargin: 48,
     sectionGap: 14,
     entryGap: 8,
     lineHeight: 1.4,
-    // Two-column (not used for Harvard)
+    // Not applicable for single column
     sidebarWidth: 30,
     sidebarFilled: false,
     sidebarBorderOnly: false,
-    // Skills
     skillsStyle: 'commas',
     datePosition: 'right',
     dateItalic: false,
   },
 
-  // JAKES: Jake's Resume template - clean, modern, ATS-friendly (popular on Reddit/Overleaf)
+  // ========================================
+  // JAKE'S RESUME - Popular Reddit/Overleaf template
+  // Sans-serif, left-aligned LARGE name, thick underlines
+  // Source: overleaf.com/latex/templates/jakes-resume
+  // ========================================
   jakes: {
     styleId: 'jakes',
     styleName: "Jake's",
     primaryColor: '#000000',
     secondaryColor: '#000000',
     textColor: '#000000',
-    lightText: '#555555',
+    lightText: '#444444',
     accentColor: '#000000',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#ffffff',
+    // Helvetica/Computer Modern sans-serif
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    // Name: left-aligned, LARGE, bold
+    nameSize: 28, // Larger than Harvard
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false, // LEFT aligned
+    // Sections: ALL CAPS with THICK underline (full width)
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 2, // THICK line
+    sectionBackground: false,
+    sectionDots: false,
+    // NO line under contact (distinguishes from Harvard)
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    // Spacing: COMPACT
+    pageMargin: 36,
+    sectionGap: 10,
+    entryGap: 6,
+    lineHeight: 1.25,
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    skillsStyle: 'commas',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // GOOGLE DOCS SWISS - Skills-first, orange accent
+  // Source: Google Docs built-in templates
+  // ========================================
+  swiss: {
+    styleId: 'swiss',
+    styleName: 'Swiss',
+    primaryColor: '#ea580c', // Orange
+    secondaryColor: '#f97316',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#ea580c',
     bgColor: '#ffffff',
     sidebarBg: '#ffffff',
     headerBg: '#ffffff',
     headingFont: 'Helvetica-Bold',
     bodyFont: 'Helvetica',
     headingWeight: 700,
-    // Name - bold, left-aligned feel
-    nameSize: 26,
+    // Name: left-aligned, medium
+    nameSize: 24,
     nameWeight: 700,
     nameLetterSpacing: 0,
     nameUppercase: false,
     nameUnderline: false,
     nameUnderlineThickness: 0,
-    // Sections - bold, thin underline
+    nameCentered: false,
+    // Sections: simple with horizontal line dividers
+    sectionSize: 12,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 2,
+    sectionBackground: false,
+    sectionDots: false,
+    // Line dividers
+    headerDivider: true,
+    headerDividerThickness: 2,
+    entryDividers: false,
+    useBullets: false, // Swiss uses paragraphs, not bullets
+    // Moderate spacing
+    pageMargin: 48,
+    sectionGap: 16,
+    entryGap: 10,
+    lineHeight: 1.5,
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    skillsStyle: 'inline', // Skills inline with bullets
+    skillsFirst: true, // Skills section near top
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // GOOGLE DOCS CORAL - "Hello, I'm" header, coral accent
+  // Source: Google Docs built-in templates
+  // ========================================
+  coral: {
+    styleId: 'coral',
+    styleName: 'Coral',
+    primaryColor: '#f87171', // Coral color
+    secondaryColor: '#fca5a5',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#f87171',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#ffffff',
+    // Playfair Display style serif for name
+    headingFont: 'Times-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 400, // Lighter weight
+    // Name: "Hello, I'm [Name]" style
+    nameSize: 26,
+    nameWeight: 400,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    helloHeader: true, // Special "Hello, I'm" format
+    // Sections: coral colored titles
     sectionSize: 11,
+    sectionUppercase: false,
+    sectionLetterSpacing: 0,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: false,
+    sectionDots: false,
+    // No header divider
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    pageMargin: 48,
+    sectionGap: 18,
+    entryGap: 12,
+    lineHeight: 1.5,
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    skillsStyle: 'commas',
+    datePosition: 'below',
+    dateItalic: true,
+  },
+
+  // ========================================
+  // MIT RESUME - Clean, professional, quantitative
+  // Source: capd.mit.edu
+  // ========================================
+  mit: {
+    styleId: 'mit',
+    styleName: 'MIT',
+    primaryColor: '#1f2937',
+    secondaryColor: '#374151',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#1f2937',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#ffffff',
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    nameSize: 22,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 0.5,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 1,
+    sectionBackground: false,
+    sectionDots: false,
+    headerDivider: true,
+    headerDividerThickness: 1,
+    entryDividers: false,
+    useBullets: true,
+    pageMargin: 48,
+    sectionGap: 14,
+    entryGap: 8,
+    lineHeight: 1.4,
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    skillsStyle: 'commas',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // SIDEBAR DARK - Dark navy blue sidebar
+  // Canva-inspired two-column design
+  // ========================================
+  sidebarDark: {
+    styleId: 'sidebarDark',
+    styleName: 'Dark Sidebar',
+    primaryColor: '#1e3a5f', // Navy blue
+    secondaryColor: '#2d5a87',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#1e3a5f',
+    bgColor: '#ffffff',
+    sidebarBg: '#1e3a5f', // Dark navy
+    headerBg: '#1e3a5f',
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    nameSize: 20,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 10,
     sectionUppercase: true,
     sectionLetterSpacing: 1,
     sectionUnderline: true,
     sectionUnderlineThickness: 1,
     sectionBackground: false,
     sectionDots: false,
-    // Dividers
     headerDivider: false,
     headerDividerThickness: 0,
     entryDividers: false,
     useBullets: true,
-    // Spacing - tight/compact
-    pageMargin: 40,
-    sectionGap: 10,
-    entryGap: 6,
-    lineHeight: 1.3,
-    // Two-column (not used for Jake's)
+    pageMargin: 0,
+    sectionGap: 16,
+    entryGap: 10,
+    lineHeight: 1.4,
+    sidebarWidth: 32,
+    sidebarFilled: true,
+    sidebarBorderOnly: false,
+    skillsStyle: 'chips',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // SIDEBAR LIGHT - Light gray sidebar
+  // ========================================
+  sidebarLight: {
+    styleId: 'sidebarLight',
+    styleName: 'Light Sidebar',
+    primaryColor: '#374151',
+    secondaryColor: '#6b7280',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#374151',
+    bgColor: '#ffffff',
+    sidebarBg: '#f3f4f6', // Light gray
+    headerBg: '#f3f4f6',
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 600,
+    nameSize: 20,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 10,
+    sectionUppercase: true,
+    sectionLetterSpacing: 0.5,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 1,
+    sectionBackground: false,
+    sectionDots: false,
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    pageMargin: 0,
+    sectionGap: 14,
+    entryGap: 8,
+    lineHeight: 1.4,
+    sidebarWidth: 30,
+    sidebarFilled: true,
+    sidebarBorderOnly: false,
+    skillsStyle: 'commas',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // SIDEBAR TEAL - Teal/green sidebar
+  // ========================================
+  sidebarTeal: {
+    styleId: 'sidebarTeal',
+    styleName: 'Teal Sidebar',
+    primaryColor: '#0d9488',
+    secondaryColor: '#14b8a6',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#0d9488',
+    bgColor: '#ffffff',
+    sidebarBg: '#0d9488', // Teal
+    headerBg: '#0d9488',
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    nameSize: 20,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 10,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: true, // Filled section headers
+    sectionDots: false,
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    pageMargin: 0,
+    sectionGap: 16,
+    entryGap: 10,
+    lineHeight: 1.4,
+    sidebarWidth: 35,
+    sidebarFilled: true,
+    sidebarBorderOnly: false,
+    skillsStyle: 'chips',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // HEADER BOLD - Large colored header banner
+  // ========================================
+  headerBold: {
+    styleId: 'headerBold',
+    styleName: 'Bold Header',
+    primaryColor: '#1e3a5f',
+    secondaryColor: '#2d5a87',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#1e3a5f',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#1e3a5f', // Dark header
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    nameSize: 28,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: true,
+    sectionDots: false,
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    pageMargin: 0,
+    sectionGap: 16,
+    entryGap: 10,
+    lineHeight: 1.4,
     sidebarWidth: 30,
     sidebarFilled: false,
     sidebarBorderOnly: false,
-    // Skills
+    skillsStyle: 'chips',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // COMPACT DENSE - Maximum information density
+  // Academic CV style
+  // ========================================
+  compactDense: {
+    styleId: 'compactDense',
+    styleName: 'Dense',
+    primaryColor: '#1f2937',
+    secondaryColor: '#374151',
+    textColor: '#1f2937',
+    lightText: '#6b7280',
+    accentColor: '#1f2937',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#ffffff',
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    nameSize: 18,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 9,
+    sectionUppercase: true,
+    sectionLetterSpacing: 0.5,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 1,
+    sectionBackground: false,
+    sectionDots: false,
+    headerDivider: true,
+    headerDividerThickness: 1,
+    entryDividers: false,
+    useBullets: true,
+    pageMargin: 32,
+    sectionGap: 8,
+    entryGap: 4,
+    lineHeight: 1.2,
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    skillsStyle: 'commas',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // ========================================
+  // MINIMAL - Clean, lots of whitespace
+  // ========================================
+  minimal: {
+    styleId: 'minimal',
+    styleName: 'Minimal',
+    primaryColor: '#6b7280',
+    secondaryColor: '#9ca3af',
+    textColor: '#374151',
+    lightText: '#9ca3af',
+    accentColor: '#6b7280',
+    bgColor: '#ffffff',
+    sidebarBg: '#fafafa',
+    headerBg: '#fafafa',
+    headingFont: 'Helvetica',
+    bodyFont: 'Helvetica',
+    headingWeight: 400,
+    nameSize: 24,
+    nameWeight: 300,
+    nameLetterSpacing: 2,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    nameCentered: false,
+    sectionSize: 10,
+    sectionUppercase: false,
+    sectionLetterSpacing: 0,
+    sectionUnderline: false,
+    sectionUnderlineThickness: 0,
+    sectionBackground: false,
+    sectionDots: false,
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: false,
+    pageMargin: 56,
+    sectionGap: 28,
+    entryGap: 16,
+    lineHeight: 1.6,
+    sidebarWidth: 22,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
     skillsStyle: 'commas',
     datePosition: 'right',
     dateItalic: false,
@@ -460,120 +652,214 @@ export interface TemplateConfig {
   styleConfig: TemplateStyle;
   isPro: boolean;
   hasPhoto?: boolean;
-  isAtsFriendly?: boolean;  // Green badge for ATS-friendly templates
-  isCreative?: boolean;     // "Best for creative roles" for colorful/multi-column
+  isAtsFriendly?: boolean;
+  isCreative?: boolean;
 }
 
 export const TEMPLATES: TemplateConfig[] = [];
 
-// Helper to determine if a template is ATS-friendly
+// Helper functions
 function isAtsFriendlyTemplate(layout: string, style: string): boolean {
-  // Single column + simple styles are ATS-friendly
-  if (layout === 'single' && ['classic', 'minimal', 'harvard', 'jakes'].includes(style)) return true;
-  // Compact layout is also ATS-friendly (single column, dense)
-  if (layout === 'compact' && ['classic', 'minimal'].includes(style)) return true;
+  if (layout === 'single' && ['harvard', 'jakes', 'mit', 'swiss', 'coral'].includes(style)) return true;
+  if (layout === 'compact') return true;
   return false;
 }
 
-// Helper to determine if a template is "creative" (colors/multi-column)
 function isCreativeTemplate(layout: string, style: string): boolean {
-  // Two-column and header layouts are creative
   if (['twocolumn', 'header', 'split'].includes(layout)) return true;
-  // Bold and modern styles with colors
-  if (['bold', 'modern'].includes(style)) return true;
+  if (['coral'].includes(style)) return true;
   return false;
 }
 
-// Add Harvard and Jake's as special ATS-friendly templates first (these are featured)
-const harvardLayout = LAYOUTS.find(l => l.id === 'single')!;
-const jakesLayout = LAYOUTS.find(l => l.id === 'single')!;
+// Add ATS-friendly single column templates (FREE)
+const singleLayout = LAYOUTS.find(l => l.id === 'single')!;
 
 TEMPLATES.push({
-  id: 'single-harvard',
+  id: 'harvard',
   displayName: 'Harvard',
   layout: 'single',
   style: 'harvard',
-  layoutConfig: harvardLayout,
+  layoutConfig: singleLayout,
   styleConfig: STYLES.harvard,
-  isPro: false,  // Harvard is FREE (default template)
+  isPro: false,
   isAtsFriendly: true,
   isCreative: false,
 });
 
 TEMPLATES.push({
-  id: 'single-jakes',
+  id: 'jakes',
   displayName: "Jake's Resume",
   layout: 'single',
   style: 'jakes',
-  layoutConfig: jakesLayout,
+  layoutConfig: singleLayout,
   styleConfig: STYLES.jakes,
-  isPro: false,  // Jake's is also FREE
+  isPro: false,
   isAtsFriendly: true,
   isCreative: false,
 });
 
-// Generate remaining combinations (excluding harvard and jakes which are added above)
-LAYOUTS.forEach(layout => {
-  Object.entries(STYLES).forEach(([styleId, styleConfig]) => {
-    // Skip harvard and jakes for single layout (already added)
-    if (layout.id === 'single' && ['harvard', 'jakes'].includes(styleId)) return;
-    // Skip harvard and jakes for other layouts (they're single-column only)
-    if (['harvard', 'jakes'].includes(styleId)) return;
-
-    const templateId = `${layout.id}-${styleId}`;
-    TEMPLATES.push({
-      id: templateId,
-      displayName: `${layout.name} ${styleConfig.styleName}`,
-      layout: layout.id,
-      style: styleId,
-      layoutConfig: layout,
-      styleConfig: styleConfig,
-      // Harvard, Jake's, and single-classic are free
-      isPro: templateId !== 'single-classic',
-      isAtsFriendly: isAtsFriendlyTemplate(layout.id, styleId),
-      isCreative: isCreativeTemplate(layout.id, styleId),
-    });
-  });
+TEMPLATES.push({
+  id: 'mit',
+  displayName: 'MIT',
+  layout: 'single',
+  style: 'mit',
+  layoutConfig: singleLayout,
+  styleConfig: STYLES.mit,
+  isPro: false,
+  isAtsFriendly: true,
+  isCreative: false,
 });
 
-// Default template for new resumes
-export const DEFAULT_TEMPLATE = 'single-harvard';
+TEMPLATES.push({
+  id: 'swiss',
+  displayName: 'Swiss',
+  layout: 'single',
+  style: 'swiss',
+  layoutConfig: singleLayout,
+  styleConfig: STYLES.swiss,
+  isPro: true,
+  isAtsFriendly: true,
+  isCreative: false,
+});
 
-// Map old template names to new ones for backwards compatibility
+TEMPLATES.push({
+  id: 'coral',
+  displayName: 'Coral',
+  layout: 'single',
+  style: 'coral',
+  layoutConfig: singleLayout,
+  styleConfig: STYLES.coral,
+  isPro: true,
+  isAtsFriendly: true,
+  isCreative: true,
+});
+
+TEMPLATES.push({
+  id: 'minimal',
+  displayName: 'Minimal',
+  layout: 'single',
+  style: 'minimal',
+  layoutConfig: singleLayout,
+  styleConfig: STYLES.minimal,
+  isPro: true,
+  isAtsFriendly: true,
+  isCreative: false,
+});
+
+// Add two-column templates (PRO)
+const twocolumnLayout = LAYOUTS.find(l => l.id === 'twocolumn')!;
+
+TEMPLATES.push({
+  id: 'twocolumn-dark',
+  displayName: 'Dark Sidebar',
+  layout: 'twocolumn',
+  style: 'sidebarDark',
+  layoutConfig: twocolumnLayout,
+  styleConfig: STYLES.sidebarDark,
+  isPro: true,
+  hasPhoto: true,
+  isAtsFriendly: false,
+  isCreative: true,
+});
+
+TEMPLATES.push({
+  id: 'twocolumn-light',
+  displayName: 'Light Sidebar',
+  layout: 'twocolumn',
+  style: 'sidebarLight',
+  layoutConfig: twocolumnLayout,
+  styleConfig: STYLES.sidebarLight,
+  isPro: true,
+  hasPhoto: true,
+  isAtsFriendly: false,
+  isCreative: true,
+});
+
+TEMPLATES.push({
+  id: 'twocolumn-teal',
+  displayName: 'Teal Sidebar',
+  layout: 'twocolumn',
+  style: 'sidebarTeal',
+  layoutConfig: twocolumnLayout,
+  styleConfig: STYLES.sidebarTeal,
+  isPro: true,
+  hasPhoto: true,
+  isAtsFriendly: false,
+  isCreative: true,
+});
+
+// Add header focus templates (PRO)
+const headerLayout = LAYOUTS.find(l => l.id === 'header')!;
+
+TEMPLATES.push({
+  id: 'header-bold',
+  displayName: 'Bold Header',
+  layout: 'header',
+  style: 'headerBold',
+  layoutConfig: headerLayout,
+  styleConfig: STYLES.headerBold,
+  isPro: true,
+  hasPhoto: true,
+  isAtsFriendly: false,
+  isCreative: true,
+});
+
+// Add compact templates (PRO)
+const compactLayout = LAYOUTS.find(l => l.id === 'compact')!;
+
+TEMPLATES.push({
+  id: 'compact-dense',
+  displayName: 'Dense Compact',
+  layout: 'compact',
+  style: 'compactDense',
+  layoutConfig: compactLayout,
+  styleConfig: STYLES.compactDense,
+  isPro: true,
+  isAtsFriendly: true,
+  isCreative: false,
+});
+
+// Default template
+export const DEFAULT_TEMPLATE = 'harvard';
+
+// Legacy mapping for backwards compatibility
 export const LEGACY_TEMPLATE_MAP: Record<string, string> = {
-  'clean': 'single-classic',
-  'modern': 'twocolumn-modern',
-  'professional': 'single-elegant',
+  'clean': 'harvard',
+  'modern': 'twocolumn-dark',
+  'professional': 'mit',
   'bold': 'header-bold',
-  'minimal': 'single-minimal',
-  'compact': 'compact-classic',
-  'harvard': 'single-harvard',
-  'jakes': 'single-jakes',
+  'compact': 'compact-dense',
+  'single-classic': 'harvard',
+  'single-modern': 'swiss',
+  'single-bold': 'jakes',
+  'single-harvard': 'harvard',
+  'single-jakes': 'jakes',
+  'twocolumn-modern': 'twocolumn-dark',
+  'twocolumn-bold': 'twocolumn-teal',
+  'twocolumn-classic': 'twocolumn-light',
+  'header-modern': 'header-bold',
 };
 
-// Get template config by ID (handles legacy names)
+// Get template config by ID
 export function getTemplateConfig(templateId: string): TemplateConfig {
   const mappedId = LEGACY_TEMPLATE_MAP[templateId] || templateId;
   const config = TEMPLATES.find(t => t.id === mappedId);
-  return config || TEMPLATES.find(t => t.id === 'single-classic')!;
+  return config || TEMPLATES.find(t => t.id === 'harvard')!;
 }
 
-// Get all template IDs
+// Utility functions
 export function getAllTemplateIds(): string[] {
   return TEMPLATES.map(t => t.id);
 }
 
-// Get free template IDs
 export function getFreeTemplateIds(): string[] {
   return TEMPLATES.filter(t => !t.isPro).map(t => t.id);
 }
 
-// Get pro template IDs
 export function getProTemplateIds(): string[] {
   return TEMPLATES.filter(t => t.isPro).map(t => t.id);
 }
 
-// Get effective colors with custom color theme
 export function getEffectiveColors(templateId: string, colorTheme?: string | null): {
   primaryColor: string;
   secondaryColor: string;
@@ -606,7 +892,6 @@ export function getEffectiveColors(templateId: string, colorTheme?: string | nul
   };
 }
 
-// Group templates by layout for gallery view
 export function getTemplatesByLayout(): Record<string, TemplateConfig[]> {
   const grouped: Record<string, TemplateConfig[]> = {};
   LAYOUTS.forEach(layout => {

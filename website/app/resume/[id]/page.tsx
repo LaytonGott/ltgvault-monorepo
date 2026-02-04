@@ -11,7 +11,7 @@ import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
 import TemplateGallery from '@/components/TemplateGallery';
 import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
-import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId } from '@/lib/template-config';
+import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId, getEffectiveColors } from '@/lib/template-config';
 import PhotoCropper from '@/components/PhotoCropper';
 import styles from './editor.module.css';
 
@@ -133,6 +133,9 @@ export default function ResumeEditorPage() {
   // Template Gallery State
   const [showTemplateGallery, setShowTemplateGallery] = useState(false);
 
+  // Color Dropdown State
+  const [showColorDropdown, setShowColorDropdown] = useState(false);
+
   // Photo Cropper State
   const [showPhotoCropper, setShowPhotoCropper] = useState(false);
 
@@ -248,6 +251,19 @@ export default function ResumeEditorPage() {
       setSaveStatus('idle');
     }, 2000);
   }, []);
+
+  // Close color dropdown when clicking outside
+  useEffect(() => {
+    if (!showColorDropdown) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(`.${styles.colorSelector}`)) {
+        setShowColorDropdown(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showColorDropdown]);
 
   // Show error status temporarily then reset to idle
   const showErrorStatus = useCallback(() => {
@@ -937,20 +953,51 @@ export default function ResumeEditorPage() {
 
           {/* Color Theme Selector - Pro only */}
           <div className={styles.colorSelector}>
-            <select
-              value={resume.color_theme || 'default'}
-              onChange={(e) => handleUpdateColorTheme(e.target.value)}
-              className={styles.colorSelect}
+            <button
+              className={styles.colorDropdownButton}
+              onClick={() => setShowColorDropdown(!showColorDropdown)}
               title={!isPro ? 'Pro feature - Custom color themes' : 'Select color theme'}
             >
-              {Object.entries(COLOR_THEMES).map(([id, theme]) => (
-                <option key={id} value={id}>
-                  {theme.name}{id !== 'default' && !isPro ? ' 🔒' : ''}
-                </option>
-              ))}
-            </select>
-            {!isPro && resume.color_theme && resume.color_theme !== 'default' && (
-              <span className={styles.proIndicator}>PRO</span>
+              <span
+                className={styles.colorSwatch}
+                style={{
+                  backgroundColor: resume.color_theme && resume.color_theme !== 'default'
+                    ? COLOR_THEMES[resume.color_theme as ColorThemeId]?.color || getTemplateConfig(resume.template || 'clean').styleConfig.primaryColor
+                    : getTemplateConfig(resume.template || 'clean').styleConfig.primaryColor
+                }}
+              />
+              <span>{COLOR_THEMES[resume.color_theme as ColorThemeId]?.name || 'Default'}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {showColorDropdown && (
+              <div className={styles.colorDropdownMenu}>
+                {Object.entries(COLOR_THEMES).map(([id, theme]) => (
+                  <button
+                    key={id}
+                    className={`${styles.colorDropdownItem} ${resume.color_theme === id || (!resume.color_theme && id === 'default') ? styles.colorDropdownItemActive : ''}`}
+                    onClick={() => {
+                      handleUpdateColorTheme(id);
+                      setShowColorDropdown(false);
+                    }}
+                  >
+                    <span
+                      className={styles.colorSwatch}
+                      style={{
+                        backgroundColor: theme.color || getTemplateConfig(resume.template || 'clean').styleConfig.primaryColor
+                      }}
+                    />
+                    <span>{theme.name}</span>
+                    {id !== 'default' && !isPro && <span className={styles.colorLockIcon}>🔒</span>}
+                    {(resume.color_theme === id || (!resume.color_theme && id === 'default')) && (
+                      <svg className={styles.colorCheckIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
@@ -1437,8 +1484,8 @@ export default function ResumeEditorPage() {
         <div className={styles.previewPanel}>
           {/* Two Column Layout (twocolumn-* or legacy 'modern') */}
           {(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || resume.template === 'modern') && (
-            <div className={`${styles.resumePreview} ${styles.modernTemplate}`} style={{ '--accent-color': getTemplateConfig(resume.template || 'clean').styleConfig.primaryColor } as React.CSSProperties}>
-              <div className={styles.modernSidebar} style={{ backgroundColor: getTemplateConfig(resume.template || 'clean').styleConfig.sidebarBg }}>
+            <div className={`${styles.resumePreview} ${styles.modernTemplate}`} style={{ '--accent-color': getEffectiveColors(resume.template || 'clean', resume.color_theme).primaryColor } as React.CSSProperties}>
+              <div className={styles.modernSidebar} style={{ backgroundColor: getEffectiveColors(resume.template || 'clean', resume.color_theme).sidebarBg }}>
                 {personalInfo.photo_url && (
                   <div className={styles.modernPhotoWrapper}>
                     <img src={personalInfo.photo_url} alt="Profile" className={styles.modernPhoto} />
@@ -1525,7 +1572,7 @@ export default function ResumeEditorPage() {
           {/* Header Focus Layout (header-* or legacy 'bold') */}
           {(getTemplateConfig(resume.template || 'clean').layout === 'header' || resume.template === 'bold') && !(resume.template === 'modern') && (
             <div className={`${styles.resumePreview} ${styles.boldTemplate}`}>
-              <div className={styles.boldHeader}>
+              <div className={styles.boldHeader} style={{ backgroundColor: getEffectiveColors(resume.template || 'clean', resume.color_theme).headerBg }}>
                 {personalInfo.photo_url ? (
                   <div className={styles.boldHeaderWithPhoto}>
                     <img src={personalInfo.photo_url} alt="Profile" className={styles.boldPhoto} />

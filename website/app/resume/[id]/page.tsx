@@ -1916,7 +1916,9 @@ export default function ResumeEditorPage() {
           })()}
 
           {/* ============================================ */}
-          {/* HARVARD TEMPLATE - Centered, serif, traditional */}
+          {/* HARVARD TEMPLATE - Centered, serif, traditional, ATS-friendly */}
+          {/* Matches thumbnail: centered name, centered contact with pipes, */}
+          {/* line under contact, ALL CAPS section headers with underline */}
           {/* ============================================ */}
           {(resume.template === 'single-harvard' || resume.template === 'harvard') && (() => {
             const fullName = personalInfo.first_name || personalInfo.last_name
@@ -1926,124 +1928,135 @@ export default function ResumeEditorPage() {
             return (
             <div className={styles.resumePreview} style={{
               fontFamily: 'Georgia, "Times New Roman", serif',
-              padding: '32px 40px',
+              padding: '48px',
               lineHeight: 1.4,
               color: '#000',
+              backgroundColor: '#fff',
             }}>
-              {/* HARVARD: Centered name, large bold */}
-              <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+              {/* HARVARD: Name centered, bold, large - NO underline */}
+              <div style={{ textAlign: 'center', marginBottom: '8px' }}>
                 <h1 style={{
-                  fontSize: '1.8rem',
+                  fontSize: '1.9rem',
                   fontWeight: 700,
                   margin: 0,
-                  letterSpacing: '0.5px',
+                  color: '#000',
                 }}>{fullName}</h1>
               </div>
 
-              {/* HARVARD: Contact on one line with pipes, centered */}
+              {/* HARVARD: Contact centered, one line with pipes, LINE BELOW */}
               <div style={{
                 textAlign: 'center',
-                fontSize: '0.8rem',
+                fontSize: '0.85rem',
                 color: '#333',
-                marginBottom: '16px',
-                borderBottom: '1px solid #000',
+                marginBottom: '20px',
                 paddingBottom: '12px',
+                borderBottom: '1px solid #000',
               }}>
                 {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
               </div>
 
-              {/* HARVARD: Education section - ALL CAPS header with line */}
+              {/* HARVARD: Education - ALL CAPS header with thin underline */}
               {education.length > 0 && (
-                <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '14px' }}>
                   <h2 style={{
-                    fontSize: '0.85rem',
+                    fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '1px',
+                    letterSpacing: '0.5px',
                     borderBottom: '1px solid #000',
-                    paddingBottom: '4px',
+                    paddingBottom: '3px',
                     marginBottom: '10px',
+                    color: '#000',
                   }}>Education</h2>
                   {education.map((edu) => (
-                    <div key={edu.id} style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <strong style={{ fontSize: '0.9rem' }}>{edu.school_name || 'School Name'}</strong>
+                    <div key={edu.id} style={{ marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>{edu.school_name || 'School Name'}</strong>
                         <span style={{ fontSize: '0.85rem' }}>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
                       </div>
                       {(edu.degree || edu.field_of_study) && (
-                        <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
+                        <div style={{ fontSize: '0.9rem', fontStyle: 'italic' }}>
                           {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && ` | GPA: ${edu.gpa}`}
                         </div>
                       )}
-                      {edu.achievements && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{edu.achievements}</p>}
+                      {edu.achievements && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{edu.achievements}</p>}
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* HARVARD: Experience section */}
+              {/* HARVARD: Experience - ALL CAPS header with thin underline */}
               {experience.length > 0 && (
-                <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '14px' }}>
                   <h2 style={{
-                    fontSize: '0.85rem',
+                    fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '1px',
+                    letterSpacing: '0.5px',
                     borderBottom: '1px solid #000',
-                    paddingBottom: '4px',
+                    paddingBottom: '3px',
                     marginBottom: '10px',
+                    color: '#000',
                   }}>Experience</h2>
                   {experience.map((exp) => (
                     <div key={exp.id} style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <strong style={{ fontSize: '0.9rem' }}>{exp.job_title || 'Job Title'}</strong>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>{exp.job_title || 'Job Title'}</strong>
                         <span style={{ fontSize: '0.85rem' }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
-                      <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>{exp.company_name}{exp.location ? `, ${exp.location}` : ''}</div>
-                      {exp.description && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{exp.description}</p>}
+                      <div style={{ fontSize: '0.9rem', fontStyle: 'italic' }}>{exp.company_name}{exp.location ? `, ${exp.location}` : ''}</div>
+                      {exp.description && (
+                        <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                          {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                            <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* HARVARD: Skills section */}
+              {/* HARVARD: Skills - ALL CAPS header with thin underline */}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
-                <div style={{ marginBottom: '16px' }}>
+                <div style={{ marginBottom: '14px' }}>
                   <h2 style={{
-                    fontSize: '0.85rem',
+                    fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '1px',
+                    letterSpacing: '0.5px',
                     borderBottom: '1px solid #000',
-                    paddingBottom: '4px',
+                    paddingBottom: '3px',
                     marginBottom: '10px',
+                    color: '#000',
                   }}>Skills</h2>
-                  <p style={{ fontSize: '0.85rem', margin: 0 }}>
+                  <p style={{ fontSize: '0.9rem', margin: 0 }}>
                     {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
                   </p>
                 </div>
               )}
 
-              {/* HARVARD: Projects section */}
+              {/* HARVARD: Projects - ALL CAPS header with thin underline */}
               {projects.length > 0 && (
                 <div>
                   <h2 style={{
-                    fontSize: '0.85rem',
+                    fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '1px',
+                    letterSpacing: '0.5px',
                     borderBottom: '1px solid #000',
-                    paddingBottom: '4px',
+                    paddingBottom: '3px',
                     marginBottom: '10px',
+                    color: '#000',
                   }}>Activities & Projects</h2>
                   {projects.map((project) => (
                     <div key={project.id} style={{ marginBottom: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <strong style={{ fontSize: '0.9rem' }}>{project.project_name}</strong>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>{project.project_name}</strong>
                         {project.role && <span style={{ fontSize: '0.85rem' }}>{project.role}</span>}
                       </div>
-                      {project.organization && <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>{project.organization}</div>}
-                      {project.description && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{project.description}</p>}
+                      {project.organization && <div style={{ fontSize: '0.9rem', fontStyle: 'italic' }}>{project.organization}</div>}
+                      {project.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{project.description}</p>}
                     </div>
                   ))}
                 </div>
@@ -2053,7 +2066,9 @@ export default function ResumeEditorPage() {
           })()}
 
           {/* ============================================ */}
-          {/* JAKE'S TEMPLATE - Left-aligned, sans-serif, compact */}
+          {/* JAKE'S TEMPLATE - Left-aligned, sans-serif, compact, ATS-friendly */}
+          {/* Matches thumbnail: left-aligned LARGE name, contact with pipes */}
+          {/* NO line under contact, ALL CAPS section headers with thin underline */}
           {/* ============================================ */}
           {(resume.template === 'single-jakes' || resume.template === 'jakes') && (() => {
             const fullName = personalInfo.first_name || personalInfo.last_name
@@ -2063,49 +2078,51 @@ export default function ResumeEditorPage() {
             return (
             <div className={styles.resumePreview} style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-              padding: '24px 28px',
+              padding: '40px',
               lineHeight: 1.3,
               color: '#000',
+              backgroundColor: '#fff',
             }}>
-              {/* JAKE'S: Left-aligned name, very large bold */}
+              {/* JAKE'S: Left-aligned name, VERY LARGE bold */}
               <div style={{ marginBottom: '4px' }}>
                 <h1 style={{
-                  fontSize: '2.2rem',
+                  fontSize: '2.1rem',
                   fontWeight: 700,
                   margin: 0,
-                  letterSpacing: '-0.5px',
+                  color: '#000',
                 }}>{fullName}</h1>
               </div>
 
-              {/* JAKE'S: Contact left-aligned, small, compact */}
+              {/* JAKE'S: Contact left-aligned, one line with pipes, NO line below */}
               <div style={{
-                fontSize: '0.75rem',
-                color: '#444',
-                marginBottom: '12px',
+                fontSize: '0.85rem',
+                color: '#555',
+                marginBottom: '16px',
               }}>
-                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com | (555) 123-4567 | City, State'}
+                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
               </div>
 
-              {/* JAKE'S: Education - bold header, THICK line */}
+              {/* JAKE'S: Education - ALL CAPS header with thin underline */}
               {education.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
+                <div style={{ marginBottom: '10px' }}>
                   <h2 style={{
                     fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    borderBottom: '2px solid #000',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
                     paddingBottom: '2px',
                     marginBottom: '8px',
+                    color: '#000',
                   }}>Education</h2>
                   {education.map((edu) => (
                     <div key={edu.id} style={{ marginBottom: '6px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <strong style={{ fontSize: '0.85rem' }}>{edu.school_name}</strong>
-                        <span style={{ fontSize: '0.75rem', color: '#555' }}>{edu.start_date}{edu.end_date ? ` -- ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
+                        <strong style={{ fontSize: '0.9rem' }}>{edu.school_name || 'School Name'}</strong>
+                        <span style={{ fontSize: '0.8rem' }}>{edu.start_date}{edu.end_date ? ` -- ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
                       </div>
                       {(edu.degree || edu.field_of_study) && (
-                        <div style={{ fontSize: '0.8rem', color: '#333' }}>
+                        <div style={{ fontSize: '0.85rem', color: '#333' }}>
                           {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && ` (GPA: ${edu.gpa})`}
                         </div>
                       )}
@@ -2114,31 +2131,32 @@ export default function ResumeEditorPage() {
                 </div>
               )}
 
-              {/* JAKE'S: Experience - compact entries */}
+              {/* JAKE'S: Experience - compact entries with bullet points */}
               {experience.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
+                <div style={{ marginBottom: '10px' }}>
                   <h2 style={{
                     fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    borderBottom: '2px solid #000',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
                     paddingBottom: '2px',
                     marginBottom: '8px',
+                    color: '#000',
                   }}>Experience</h2>
                   {experience.map((exp) => (
                     <div key={exp.id} style={{ marginBottom: '8px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                         <div>
-                          <strong style={{ fontSize: '0.85rem' }}>{exp.job_title}</strong>
-                          <span style={{ fontSize: '0.8rem', color: '#555' }}> | {exp.company_name}{exp.location ? `, ${exp.location}` : ''}</span>
+                          <strong style={{ fontSize: '0.9rem' }}>{exp.job_title || 'Job Title'}</strong>
+                          <span style={{ fontSize: '0.85rem', color: '#555' }}> | {exp.company_name}{exp.location ? `, ${exp.location}` : ''}</span>
                         </div>
-                        <span style={{ fontSize: '0.75rem', color: '#555', whiteSpace: 'nowrap' }}>{exp.start_date}{exp.end_date ? ` -- ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                        <span style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{exp.start_date}{exp.end_date ? ` -- ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
                       {exp.description && (
-                        <ul style={{ margin: '4px 0 0 16px', padding: 0, fontSize: '0.8rem', color: '#333' }}>
+                        <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
                           {exp.description.split('\n').filter(Boolean).map((line, i) => (
-                            <li key={i} style={{ marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                            <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
                           ))}
                         </ul>
                       )}
@@ -2149,41 +2167,43 @@ export default function ResumeEditorPage() {
 
               {/* JAKE'S: Projects */}
               {projects.length > 0 && (
-                <div style={{ marginBottom: '12px' }}>
+                <div style={{ marginBottom: '10px' }}>
                   <h2 style={{
                     fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    borderBottom: '2px solid #000',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
                     paddingBottom: '2px',
                     marginBottom: '8px',
+                    color: '#000',
                   }}>Projects</h2>
                   {projects.map((project) => (
                     <div key={project.id} style={{ marginBottom: '6px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <strong style={{ fontSize: '0.85rem' }}>{project.project_name}</strong>
-                        {project.role && <span style={{ fontSize: '0.75rem', color: '#555' }}>{project.role}</span>}
+                        <strong style={{ fontSize: '0.9rem' }}>{project.project_name}</strong>
+                        {project.role && <span style={{ fontSize: '0.8rem' }}>{project.role}</span>}
                       </div>
-                      {project.description && <p style={{ fontSize: '0.8rem', margin: '2px 0 0', color: '#333' }}>{project.description}</p>}
+                      {project.description && <p style={{ fontSize: '0.85rem', margin: '2px 0 0', color: '#333' }}>{project.description}</p>}
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* JAKE'S: Skills - inline */}
+              {/* JAKE'S: Skills - inline with label */}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
                 <div>
                   <h2 style={{
                     fontSize: '0.9rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    borderBottom: '2px solid #000',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
                     paddingBottom: '2px',
                     marginBottom: '8px',
+                    color: '#000',
                   }}>Technical Skills</h2>
-                  <p style={{ fontSize: '0.8rem', margin: 0 }}>
+                  <p style={{ fontSize: '0.85rem', margin: 0 }}>
                     <strong>Languages & Tools:</strong> {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
                   </p>
                 </div>
@@ -2193,7 +2213,9 @@ export default function ResumeEditorPage() {
           })()}
 
           {/* ============================================ */}
-          {/* SINGLE COLUMN CLASSIC - Simple, no frills */}
+          {/* SINGLE COLUMN CLASSIC - Traditional serif, underlines */}
+          {/* Matches thumbnail: name with underline, contact with pipes + line below, */}
+          {/* ALL CAPS section headers with underline */}
           {/* ============================================ */}
           {(resume.template === 'single-classic' || resume.template === 'clean' || (!resume.template) ||
             (getTemplateConfig(resume.template || DEFAULT_TEMPLATE).layout === 'single' &&
@@ -2207,104 +2229,152 @@ export default function ResumeEditorPage() {
             const fullName = personalInfo.first_name || personalInfo.last_name
               ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
               : 'Your Name';
+            const contactParts = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
             return (
             <div className={styles.resumePreview} style={{
-              fontFamily: 'Arial, sans-serif',
-              padding: '28px 32px',
-              lineHeight: 1.5,
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              padding: '48px',
+              lineHeight: 1.4,
               color: '#222',
+              backgroundColor: '#fff',
             }}>
-              {/* CLASSIC: Left-aligned name, medium size */}
-              <div style={{ marginBottom: '16px' }}>
+              {/* CLASSIC: Name with thin UNDERLINE */}
+              <div style={{ marginBottom: '8px' }}>
                 <h1 style={{
-                  fontSize: '1.5rem',
+                  fontSize: '1.75rem',
                   fontWeight: 700,
-                  margin: '0 0 8px 0',
+                  margin: 0,
+                  display: 'inline-block',
+                  borderBottom: '1px solid #1a1a1a',
+                  paddingBottom: '4px',
+                  color: '#1a1a1a',
                 }}>{fullName}</h1>
+              </div>
 
-                {/* CLASSIC: Contact stacked vertically */}
-                <div style={{ fontSize: '0.85rem', color: '#555', lineHeight: 1.6 }}>
-                  {personalInfo.email && <div>{personalInfo.email}</div>}
-                  {personalInfo.phone && <div>{personalInfo.phone}</div>}
-                  {personalInfo.location && <div>{personalInfo.location}</div>}
-                  {personalInfo.linkedin_url && <div>{personalInfo.linkedin_url}</div>}
-                  {!personalInfo.email && !personalInfo.phone && !personalInfo.location && (
-                    <>
-                      <div>email@example.com</div>
-                      <div>(555) 123-4567</div>
-                      <div>City, State</div>
-                    </>
-                  )}
-                </div>
+              {/* CLASSIC: Contact on one line with pipes, LINE BELOW */}
+              <div style={{
+                fontSize: '0.85rem',
+                color: '#666',
+                marginBottom: '20px',
+                paddingBottom: '12px',
+                borderBottom: '1px solid #1a1a1a',
+              }}>
+                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
               </div>
 
               {/* CLASSIC: Summary */}
               {personalInfo.summary && (
-                <div style={{ marginBottom: '20px' }}>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px' }}>Summary</h2>
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #333',
+                    paddingBottom: '3px',
+                    marginBottom: '10px',
+                    color: '#1a1a1a',
+                  }}>Summary</h2>
                   <p style={{ fontSize: '0.9rem', margin: 0, color: '#333' }}>{personalInfo.summary}</p>
                 </div>
               )}
 
-              {/* CLASSIC: Experience - simple bold headers, no lines */}
+              {/* CLASSIC: Experience - ALL CAPS header with underline */}
               {experience.length > 0 && (
-                <div style={{ marginBottom: '20px' }}>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Experience</h2>
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #333',
+                    paddingBottom: '3px',
+                    marginBottom: '10px',
+                    color: '#1a1a1a',
+                  }}>Experience</h2>
                   {experience.map((exp) => (
-                    <div key={exp.id} style={{ marginBottom: '14px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{exp.job_title}</div>
-                      <div style={{ fontSize: '0.85rem', color: '#555' }}>
+                    <div key={exp.id} style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>{exp.job_title || 'Job Title'}</strong>
+                        <span style={{ fontSize: '0.85rem' }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                      </div>
+                      <div style={{ fontSize: '0.9rem', color: '#666' }}>
                         {exp.company_name}{exp.location ? ` - ${exp.location}` : ''}
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: '#777', marginBottom: '4px' }}>
-                        {exp.start_date}{exp.end_date ? ` to ${exp.is_current ? 'Present' : exp.end_date}` : ''}
-                      </div>
-                      {exp.description && <p style={{ fontSize: '0.85rem', margin: 0, color: '#333' }}>{exp.description}</p>}
+                      {exp.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{exp.description}</p>}
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* CLASSIC: Education */}
+              {/* CLASSIC: Education - ALL CAPS header with underline */}
               {education.length > 0 && (
-                <div style={{ marginBottom: '20px' }}>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Education</h2>
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #333',
+                    paddingBottom: '3px',
+                    marginBottom: '10px',
+                    color: '#1a1a1a',
+                  }}>Education</h2>
                   {education.map((edu) => (
-                    <div key={edu.id} style={{ marginBottom: '12px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{edu.school_name}</div>
+                    <div key={edu.id} style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>{edu.school_name || 'School Name'}</strong>
+                        <span style={{ fontSize: '0.85rem' }}>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
+                      </div>
                       {(edu.degree || edu.field_of_study) && (
-                        <div style={{ fontSize: '0.85rem', color: '#555' }}>
-                          {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
+                        <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                          {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && ` | GPA: ${edu.gpa}`}
                         </div>
                       )}
-                      <div style={{ fontSize: '0.8rem', color: '#777' }}>
-                        {edu.start_date}{edu.end_date ? ` to ${edu.is_current ? 'Present' : edu.end_date}` : ''}
-                        {edu.gpa && ` | GPA: ${edu.gpa}`}
-                      </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* CLASSIC: Skills - simple list */}
+              {/* CLASSIC: Skills - ALL CAPS header with underline */}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
-                <div style={{ marginBottom: '20px' }}>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px' }}>Skills</h2>
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #333',
+                    paddingBottom: '3px',
+                    marginBottom: '10px',
+                    color: '#1a1a1a',
+                  }}>Skills</h2>
                   <p style={{ fontSize: '0.9rem', margin: 0, color: '#333' }}>
                     {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
                   </p>
                 </div>
               )}
 
-              {/* CLASSIC: Projects */}
+              {/* CLASSIC: Projects - ALL CAPS header with underline */}
               {projects.length > 0 && (
                 <div>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Projects</h2>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #333',
+                    paddingBottom: '3px',
+                    marginBottom: '10px',
+                    color: '#1a1a1a',
+                  }}>Projects</h2>
                   {projects.map((project) => (
-                    <div key={project.id} style={{ marginBottom: '12px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{project.project_name}</div>
-                      {project.organization && <div style={{ fontSize: '0.85rem', color: '#555' }}>{project.organization}</div>}
-                      {project.role && <div style={{ fontSize: '0.8rem', color: '#777' }}>{project.role}</div>}
+                    <div key={project.id} style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.95rem' }}>{project.project_name}</strong>
+                        {project.role && <span style={{ fontSize: '0.85rem' }}>{project.role}</span>}
+                      </div>
+                      {project.organization && <div style={{ fontSize: '0.9rem', color: '#666' }}>{project.organization}</div>}
                       {project.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{project.description}</p>}
                     </div>
                   ))}

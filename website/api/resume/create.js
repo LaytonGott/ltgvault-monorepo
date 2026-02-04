@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = req.body || {};
-    const { title = 'Untitled Resume', template = 'clean' } = body;
+    const { title = 'Untitled Resume', template = 'single-harvard' } = body;
 
     const isPro = user.subscribed_resumebuilder === true;
     console.log('[Resume Create] User:', user.id, 'isPro:', isPro);

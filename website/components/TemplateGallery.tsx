@@ -539,7 +539,15 @@ function TemplateThumbnail({ template, isSelected, isLocked, onClick }: {
           </div>
         )}
       </div>
-      <div className={styles.templateName}>{template.displayName}</div>
+      <div className={styles.templateInfo}>
+        <div className={styles.templateName}>{template.displayName}</div>
+        {template.isAtsFriendly && (
+          <div className={styles.atsBadge}>ATS-Friendly ✓</div>
+        )}
+        {template.isCreative && (
+          <div className={styles.creativeBadge}>Best for creative roles</div>
+        )}
+      </div>
     </button>
   );
 }
@@ -570,7 +578,7 @@ export default function TemplateGallery({ currentTemplate, isPro, onSelect, onCl
             className={`${styles.filterButton} ${selectedLayout === null ? styles.active : ''}`}
             onClick={() => setSelectedLayout(null)}
           >
-            All (25)
+            All ({TEMPLATES.length})
           </button>
           {LAYOUTS.map(layout => (
             <button
@@ -586,7 +594,7 @@ export default function TemplateGallery({ currentTemplate, isPro, onSelect, onCl
         {!isPro && (
           <div className={styles.proHint}>
             <span className={styles.sparkle}>✨</span>
-            <span>Upgrade to Pro to unlock all 25 premium templates</span>
+            <span>Upgrade to Pro to unlock all premium templates</span>
           </div>
         )}
 
@@ -596,7 +604,8 @@ export default function TemplateGallery({ currentTemplate, isPro, onSelect, onCl
               key={template.id}
               template={template}
               isSelected={currentTemplate === template.id ||
-                (template.id === 'single-classic' && (currentTemplate === 'clean' || !currentTemplate))}
+                (template.id === 'single-harvard' && !currentTemplate) ||
+                (template.id === 'single-classic' && currentTemplate === 'clean')}
               isLocked={!isPro && template.isPro}
               onClick={() => {
                 if (!template.isPro || isPro) {

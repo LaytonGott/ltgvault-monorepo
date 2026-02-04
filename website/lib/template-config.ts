@@ -345,6 +345,106 @@ export const STYLES: Record<string, TemplateStyle> = {
     datePosition: 'right',
     dateItalic: false,
   },
+
+  // HARVARD: Official Harvard resume format - traditional, serif, ATS-friendly
+  harvard: {
+    styleId: 'harvard',
+    styleName: 'Harvard',
+    primaryColor: '#000000',
+    secondaryColor: '#000000',
+    textColor: '#000000',
+    lightText: '#333333',
+    accentColor: '#000000',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#ffffff',
+    headingFont: 'Times-Bold',
+    bodyFont: 'Times-Roman',
+    headingWeight: 700,
+    // Name - centered, large, bold
+    nameSize: 24,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    // Sections - ALL CAPS, bold, underlined
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 0,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 1,
+    sectionBackground: false,
+    sectionDots: false,
+    // Dividers
+    headerDivider: true,
+    headerDividerThickness: 1,
+    entryDividers: false,
+    useBullets: true,
+    // Spacing - traditional
+    pageMargin: 48,
+    sectionGap: 14,
+    entryGap: 8,
+    lineHeight: 1.4,
+    // Two-column (not used for Harvard)
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    // Skills
+    skillsStyle: 'commas',
+    datePosition: 'right',
+    dateItalic: false,
+  },
+
+  // JAKES: Jake's Resume template - clean, modern, ATS-friendly (popular on Reddit/Overleaf)
+  jakes: {
+    styleId: 'jakes',
+    styleName: "Jake's",
+    primaryColor: '#000000',
+    secondaryColor: '#000000',
+    textColor: '#000000',
+    lightText: '#555555',
+    accentColor: '#000000',
+    bgColor: '#ffffff',
+    sidebarBg: '#ffffff',
+    headerBg: '#ffffff',
+    headingFont: 'Helvetica-Bold',
+    bodyFont: 'Helvetica',
+    headingWeight: 700,
+    // Name - bold, left-aligned feel
+    nameSize: 26,
+    nameWeight: 700,
+    nameLetterSpacing: 0,
+    nameUppercase: false,
+    nameUnderline: false,
+    nameUnderlineThickness: 0,
+    // Sections - bold, thin underline
+    sectionSize: 11,
+    sectionUppercase: true,
+    sectionLetterSpacing: 1,
+    sectionUnderline: true,
+    sectionUnderlineThickness: 1,
+    sectionBackground: false,
+    sectionDots: false,
+    // Dividers
+    headerDivider: false,
+    headerDividerThickness: 0,
+    entryDividers: false,
+    useBullets: true,
+    // Spacing - tight/compact
+    pageMargin: 40,
+    sectionGap: 10,
+    entryGap: 6,
+    lineHeight: 1.3,
+    // Two-column (not used for Jake's)
+    sidebarWidth: 30,
+    sidebarFilled: false,
+    sidebarBorderOnly: false,
+    // Skills
+    skillsStyle: 'commas',
+    datePosition: 'right',
+    dateItalic: false,
+  },
 };
 
 // ============================================================
@@ -360,13 +460,66 @@ export interface TemplateConfig {
   styleConfig: TemplateStyle;
   isPro: boolean;
   hasPhoto?: boolean;
+  isAtsFriendly?: boolean;  // Green badge for ATS-friendly templates
+  isCreative?: boolean;     // "Best for creative roles" for colorful/multi-column
 }
 
 export const TEMPLATES: TemplateConfig[] = [];
 
-// Generate all 25 combinations
+// Helper to determine if a template is ATS-friendly
+function isAtsFriendlyTemplate(layout: string, style: string): boolean {
+  // Single column + simple styles are ATS-friendly
+  if (layout === 'single' && ['classic', 'minimal', 'harvard', 'jakes'].includes(style)) return true;
+  // Compact layout is also ATS-friendly (single column, dense)
+  if (layout === 'compact' && ['classic', 'minimal'].includes(style)) return true;
+  return false;
+}
+
+// Helper to determine if a template is "creative" (colors/multi-column)
+function isCreativeTemplate(layout: string, style: string): boolean {
+  // Two-column and header layouts are creative
+  if (['twocolumn', 'header', 'split'].includes(layout)) return true;
+  // Bold and modern styles with colors
+  if (['bold', 'modern'].includes(style)) return true;
+  return false;
+}
+
+// Add Harvard and Jake's as special ATS-friendly templates first (these are featured)
+const harvardLayout = LAYOUTS.find(l => l.id === 'single')!;
+const jakesLayout = LAYOUTS.find(l => l.id === 'single')!;
+
+TEMPLATES.push({
+  id: 'single-harvard',
+  displayName: 'Harvard',
+  layout: 'single',
+  style: 'harvard',
+  layoutConfig: harvardLayout,
+  styleConfig: STYLES.harvard,
+  isPro: false,  // Harvard is FREE (default template)
+  isAtsFriendly: true,
+  isCreative: false,
+});
+
+TEMPLATES.push({
+  id: 'single-jakes',
+  displayName: "Jake's Resume",
+  layout: 'single',
+  style: 'jakes',
+  layoutConfig: jakesLayout,
+  styleConfig: STYLES.jakes,
+  isPro: false,  // Jake's is also FREE
+  isAtsFriendly: true,
+  isCreative: false,
+});
+
+// Generate remaining combinations (excluding harvard and jakes which are added above)
 LAYOUTS.forEach(layout => {
   Object.entries(STYLES).forEach(([styleId, styleConfig]) => {
+    // Skip harvard and jakes for single layout (already added)
+    if (layout.id === 'single' && ['harvard', 'jakes'].includes(styleId)) return;
+    // Skip harvard and jakes for other layouts (they're single-column only)
+    if (['harvard', 'jakes'].includes(styleId)) return;
+
     const templateId = `${layout.id}-${styleId}`;
     TEMPLATES.push({
       id: templateId,
@@ -375,11 +528,16 @@ LAYOUTS.forEach(layout => {
       style: styleId,
       layoutConfig: layout,
       styleConfig: styleConfig,
-      // Only single-classic is free
+      // Harvard, Jake's, and single-classic are free
       isPro: templateId !== 'single-classic',
+      isAtsFriendly: isAtsFriendlyTemplate(layout.id, styleId),
+      isCreative: isCreativeTemplate(layout.id, styleId),
     });
   });
 });
+
+// Default template for new resumes
+export const DEFAULT_TEMPLATE = 'single-harvard';
 
 // Map old template names to new ones for backwards compatibility
 export const LEGACY_TEMPLATE_MAP: Record<string, string> = {
@@ -389,6 +547,8 @@ export const LEGACY_TEMPLATE_MAP: Record<string, string> = {
   'bold': 'header-bold',
   'minimal': 'single-minimal',
   'compact': 'compact-classic',
+  'harvard': 'single-harvard',
+  'jakes': 'single-jakes',
 };
 
 // Get template config by ID (handles legacy names)

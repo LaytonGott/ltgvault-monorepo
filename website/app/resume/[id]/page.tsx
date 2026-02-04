@@ -11,7 +11,7 @@ import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
 import TemplateGallery from '@/components/TemplateGallery';
 import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
-import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId, getEffectiveColors, TemplateStyle } from '@/lib/template-config';
+import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId, getEffectiveColors, TemplateStyle, DEFAULT_TEMPLATE } from '@/lib/template-config';
 
 // Helper to get font family for preview (map PDF font names to web fonts)
 function getWebFont(pdfFont: string): string {
@@ -208,7 +208,7 @@ export default function ResumeEditorPage() {
   function loadGuestResume() {
     const data = getGuestResumeData(resumeId);
     if (data) {
-      setResume(data.resume || { id: resumeId, title: 'Untitled Resume', template: 'clean' });
+      setResume(data.resume || { id: resumeId, title: 'Untitled Resume', template: DEFAULT_TEMPLATE });
       setPersonalInfo(data.personalInfo || {});
       setEducation(data.education || []);
       setExperience(data.experience || []);
@@ -216,7 +216,7 @@ export default function ResumeEditorPage() {
       setProjects(data.projects || []);
     } else {
       // New guest resume
-      setResume({ id: resumeId, title: 'Untitled Resume', template: 'clean' });
+      setResume({ id: resumeId, title: 'Untitled Resume', template: DEFAULT_TEMPLATE });
     }
     setLoading(false);
   }
@@ -391,7 +391,7 @@ export default function ResumeEditorPage() {
     if (!resume) return;
 
     // Check if template is locked for free users
-    const freeTemplates = ['clean', 'single-classic'];
+    const freeTemplates = ['clean', 'single-classic', 'single-harvard', 'single-jakes', 'harvard', 'jakes'];
     const templateConfig = getTemplateConfig(template);
     if (!isPro && templateConfig.isPro) {
       setUpgradeMessage('Unlock all 25 premium templates with Resume Builder Pro.');
@@ -414,7 +414,7 @@ export default function ResumeEditorPage() {
       if (err.message?.includes('TEMPLATE_LOCKED')) {
         setUpgradeMessage('Unlock all premium templates with Resume Builder Pro.');
         setShowUpgradeModal(true);
-        setResume({ ...resume, template: 'clean' }); // Revert to clean
+        setResume({ ...resume, template: DEFAULT_TEMPLATE }); // Revert to clean
         return;
       }
       console.error('Template update error:', err);

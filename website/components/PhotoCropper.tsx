@@ -112,18 +112,26 @@ export default function PhotoCropper({ isOpen, onClose, onSave }: PhotoCropperPr
     const img = imageRef.current;
     const cropAreaSize = 280; // Size of the visible crop area
 
-    // Calculate the scaled image dimensions
-    const scaledWidth = img.naturalWidth * scale;
-    const scaledHeight = img.naturalHeight * scale;
+    // The image is centered with translate(-50% + posX, -50% + posY) scale(s)
+    // We need to find which part of the source image is visible in the 280x280 crop area
 
-    // Calculate where to start drawing from the source image
-    const sourceX = (cropAreaSize / 2 - position.x) / scale - (img.naturalWidth / 2) + (img.naturalWidth / 2);
-    const sourceY = (cropAreaSize / 2 - position.y) / scale - (img.naturalHeight / 2) + (img.naturalHeight / 2);
+    // In the display:
+    // - Image center is at (cropAreaSize/2 + position.x, cropAreaSize/2 + position.y)
+    // - Image is scaled by 'scale'
 
-    // The crop area in source image coordinates
-    const cropInSourceX = (cropAreaSize / 2 - position.x - scaledWidth / 2) / scale * -1;
-    const cropInSourceY = (cropAreaSize / 2 - position.y - scaledHeight / 2) / scale * -1;
-    const cropInSourceSize = cropAreaSize / scale;
+    // The crop window is centered at (cropAreaSize/2, cropAreaSize/2)
+    // So the offset from image center to crop center is (-position.x, -position.y)
+
+    // In source image coordinates (before scaling):
+    const sourceOffsetX = -position.x / scale;
+    const sourceOffsetY = -position.y / scale;
+
+    // The crop area size in source coordinates
+    const sourceCropSize = cropAreaSize / scale;
+
+    // Top-left corner of crop in source coordinates (relative to image center)
+    const sourceX = (img.naturalWidth / 2) + sourceOffsetX - (sourceCropSize / 2);
+    const sourceY = (img.naturalHeight / 2) + sourceOffsetY - (sourceCropSize / 2);
 
     // Clear and draw circular clip
     ctx.clearRect(0, 0, outputSize, outputSize);
@@ -135,10 +143,10 @@ export default function PhotoCropper({ isOpen, onClose, onSave }: PhotoCropperPr
     // Draw the cropped portion
     ctx.drawImage(
       img,
-      cropInSourceX,
-      cropInSourceY,
-      cropInSourceSize,
-      cropInSourceSize,
+      sourceX,
+      sourceY,
+      sourceCropSize,
+      sourceCropSize,
       0,
       0,
       outputSize,
@@ -202,7 +210,7 @@ export default function PhotoCropper({ isOpen, onClose, onSave }: PhotoCropperPr
                     alt="Crop preview"
                     onLoad={handleImageLoad}
                     style={{
-                      transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                      transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${scale})`,
                       cursor: isDragging ? 'grabbing' : 'grab',
                     }}
                     draggable={false}

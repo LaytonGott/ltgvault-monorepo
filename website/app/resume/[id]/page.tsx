@@ -2067,62 +2067,69 @@ export default function ResumeEditorPage() {
 
           {/* ============================================ */}
           {/* JAKE'S TEMPLATE - Left-aligned, sans-serif, compact, ATS-friendly */}
-          {/* Matches thumbnail: left-aligned LARGE name, contact with pipes */}
-          {/* NO line under contact, ALL CAPS section headers with thin underline */}
+          {/* VISUAL ELEMENTS: */}
+          {/* - VERY LARGE bold name (2.4rem) */}
+          {/* - Contact: one line with pipes, NO line below */}
+          {/* - Section headers: ALL CAPS + THICK BLACK LINE (2px) */}
           {/* ============================================ */}
           {(resume.template === 'single-jakes' || resume.template === 'jakes') && (() => {
             const fullName = personalInfo.first_name || personalInfo.last_name
               ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
               : 'Your Name';
             const contactParts = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
+
+            // Jake's section header style - THICK BLACK LINE
+            const jakeSectionHeader: React.CSSProperties = {
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '1.5px',
+              borderBottom: '2px solid #000',  // THICK LINE
+              paddingBottom: '4px',
+              marginBottom: '10px',
+              color: '#000',
+            };
+
             return (
             <div className={styles.resumePreview} style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-              padding: '40px',
+              padding: '36px 40px',
               lineHeight: 1.3,
               color: '#000',
               backgroundColor: '#fff',
             }}>
-              {/* JAKE'S: Left-aligned name, VERY LARGE bold */}
-              <div style={{ marginBottom: '4px' }}>
+              {/* JAKE'S: VERY LARGE bold name */}
+              <div style={{ marginBottom: '2px' }}>
                 <h1 style={{
-                  fontSize: '2.1rem',
+                  fontSize: '2.4rem',
                   fontWeight: 700,
                   margin: 0,
                   color: '#000',
+                  letterSpacing: '-0.5px',
                 }}>{fullName}</h1>
               </div>
 
-              {/* JAKE'S: Contact left-aligned, one line with pipes, NO line below */}
+              {/* JAKE'S: Contact on one line with pipes */}
               <div style={{
-                fontSize: '0.85rem',
-                color: '#555',
-                marginBottom: '16px',
+                fontSize: '0.9rem',
+                color: '#333',
+                marginBottom: '14px',
               }}>
-                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
+                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State  |  linkedin.com/in/yourname'}
               </div>
 
-              {/* JAKE'S: Education - ALL CAPS header with thin underline */}
+              {/* JAKE'S: Education with THICK LINE */}
               {education.length > 0 && (
-                <div style={{ marginBottom: '10px' }}>
-                  <h2 style={{
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    borderBottom: '1px solid #000',
-                    paddingBottom: '2px',
-                    marginBottom: '8px',
-                    color: '#000',
-                  }}>Education</h2>
+                <div style={{ marginBottom: '12px' }}>
+                  <h2 style={jakeSectionHeader}>Education</h2>
                   {education.map((edu) => (
                     <div key={edu.id} style={{ marginBottom: '6px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <strong style={{ fontSize: '0.9rem' }}>{edu.school_name || 'School Name'}</strong>
-                        <span style={{ fontSize: '0.8rem' }}>{edu.start_date}{edu.end_date ? ` -- ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
+                        <strong style={{ fontSize: '0.95rem' }}>{edu.school_name || 'School Name'}</strong>
+                        <span style={{ fontSize: '0.85rem' }}>{edu.start_date}{edu.end_date ? ` -- ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
                       </div>
                       {(edu.degree || edu.field_of_study) && (
-                        <div style={{ fontSize: '0.85rem', color: '#333' }}>
+                        <div style={{ fontSize: '0.9rem', color: '#333' }}>
                           {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && ` (GPA: ${edu.gpa})`}
                         </div>
                       )}
@@ -2131,32 +2138,23 @@ export default function ResumeEditorPage() {
                 </div>
               )}
 
-              {/* JAKE'S: Experience - compact entries with bullet points */}
+              {/* JAKE'S: Experience with THICK LINE */}
               {experience.length > 0 && (
-                <div style={{ marginBottom: '10px' }}>
-                  <h2 style={{
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    borderBottom: '1px solid #000',
-                    paddingBottom: '2px',
-                    marginBottom: '8px',
-                    color: '#000',
-                  }}>Experience</h2>
+                <div style={{ marginBottom: '12px' }}>
+                  <h2 style={jakeSectionHeader}>Experience</h2>
                   {experience.map((exp) => (
-                    <div key={exp.id} style={{ marginBottom: '8px' }}>
+                    <div key={exp.id} style={{ marginBottom: '10px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                         <div>
-                          <strong style={{ fontSize: '0.9rem' }}>{exp.job_title || 'Job Title'}</strong>
-                          <span style={{ fontSize: '0.85rem', color: '#555' }}> | {exp.company_name}{exp.location ? `, ${exp.location}` : ''}</span>
+                          <strong style={{ fontSize: '0.95rem' }}>{exp.job_title || 'Job Title'}</strong>
+                          <span style={{ fontSize: '0.9rem', color: '#333' }}> | {exp.company_name}{exp.location ? `, ${exp.location}` : ''}</span>
                         </div>
-                        <span style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{exp.start_date}{exp.end_date ? ` -- ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                        <span style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{exp.start_date}{exp.end_date ? ` -- ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
                       {exp.description && (
-                        <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                        <ul style={{ margin: '4px 0 0 18px', paddingLeft: 0, listStylePosition: 'outside' }}>
                           {exp.description.split('\n').filter(Boolean).map((line, i) => (
-                            <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                            <li key={i} style={{ fontSize: '0.9rem', color: '#222', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
                           ))}
                         </ul>
                       )}
@@ -2165,45 +2163,27 @@ export default function ResumeEditorPage() {
                 </div>
               )}
 
-              {/* JAKE'S: Projects */}
+              {/* JAKE'S: Projects with THICK LINE */}
               {projects.length > 0 && (
-                <div style={{ marginBottom: '10px' }}>
-                  <h2 style={{
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    borderBottom: '1px solid #000',
-                    paddingBottom: '2px',
-                    marginBottom: '8px',
-                    color: '#000',
-                  }}>Projects</h2>
+                <div style={{ marginBottom: '12px' }}>
+                  <h2 style={jakeSectionHeader}>Projects</h2>
                   {projects.map((project) => (
-                    <div key={project.id} style={{ marginBottom: '6px' }}>
+                    <div key={project.id} style={{ marginBottom: '8px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <strong style={{ fontSize: '0.9rem' }}>{project.project_name}</strong>
-                        {project.role && <span style={{ fontSize: '0.8rem' }}>{project.role}</span>}
+                        <strong style={{ fontSize: '0.95rem' }}>{project.project_name}</strong>
+                        {project.role && <span style={{ fontSize: '0.85rem' }}>{project.role}</span>}
                       </div>
-                      {project.description && <p style={{ fontSize: '0.85rem', margin: '2px 0 0', color: '#333' }}>{project.description}</p>}
+                      {project.description && <p style={{ fontSize: '0.9rem', margin: '2px 0 0', color: '#222' }}>{project.description}</p>}
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* JAKE'S: Skills - inline with label */}
+              {/* JAKE'S: Skills with THICK LINE */}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
                 <div>
-                  <h2 style={{
-                    fontSize: '0.9rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    borderBottom: '1px solid #000',
-                    paddingBottom: '2px',
-                    marginBottom: '8px',
-                    color: '#000',
-                  }}>Technical Skills</h2>
-                  <p style={{ fontSize: '0.85rem', margin: 0 }}>
+                  <h2 style={jakeSectionHeader}>Technical Skills</h2>
+                  <p style={{ fontSize: '0.9rem', margin: 0 }}>
                     <strong>Languages & Tools:</strong> {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
                   </p>
                 </div>

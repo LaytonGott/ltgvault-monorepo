@@ -11,7 +11,54 @@ import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
 import TemplateGallery from '@/components/TemplateGallery';
 import { redirectToResumeProCheckout } from '@/lib/resume-checkout';
-import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId, getEffectiveColors } from '@/lib/template-config';
+import { getTemplateConfig, TEMPLATES, LEGACY_TEMPLATE_MAP, COLOR_THEMES, ColorThemeId, getEffectiveColors, TemplateStyle } from '@/lib/template-config';
+
+// Helper to get font family for preview (map PDF font names to web fonts)
+function getWebFont(pdfFont: string): string {
+  if (pdfFont.includes('Times')) return 'Georgia, "Times New Roman", serif';
+  return '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+}
+
+// Generate preview styles from template config
+function getPreviewStyles(style: TemplateStyle, colors: ReturnType<typeof getEffectiveColors>) {
+  return {
+    name: {
+      fontSize: `${style.nameSize * 0.08}rem`,
+      fontWeight: style.nameWeight,
+      fontFamily: getWebFont(style.headingFont),
+      letterSpacing: style.nameLetterSpacing ? `${style.nameLetterSpacing}px` : undefined,
+      textTransform: style.nameUppercase ? 'uppercase' as const : undefined,
+      borderBottom: style.nameUnderline ? `${style.nameUnderlineThickness}px solid ${colors.primaryColor}` : undefined,
+      paddingBottom: style.nameUnderline ? '4px' : undefined,
+      display: 'inline-block',
+    },
+    sectionHeader: {
+      fontSize: `${style.sectionSize * 0.075}rem`,
+      fontWeight: 600,
+      fontFamily: getWebFont(style.headingFont),
+      letterSpacing: style.sectionLetterSpacing ? `${style.sectionLetterSpacing}px` : undefined,
+      textTransform: style.sectionUppercase ? 'uppercase' as const : undefined,
+      borderBottom: style.sectionUnderline ? `${style.sectionUnderlineThickness}px solid ${colors.primaryColor}` : undefined,
+      backgroundColor: style.sectionBackground ? colors.primaryColor : undefined,
+      color: style.sectionBackground ? '#fff' : colors.primaryColor,
+      padding: style.sectionBackground ? '4px 8px' : undefined,
+      marginBottom: '12px',
+    },
+    body: {
+      fontFamily: getWebFont(style.bodyFont),
+      lineHeight: style.lineHeight,
+    },
+    sidebar: {
+      width: `${style.sidebarWidth}%`,
+      backgroundColor: style.sidebarFilled ? colors.sidebarBg : (style.sidebarBorderOnly ? 'transparent' : colors.sidebarBg),
+      borderRight: style.sidebarBorderOnly ? `1px solid ${colors.primaryColor}` : undefined,
+      color: style.sidebarFilled && !style.sidebarBorderOnly ? '#fff' : undefined,
+    },
+    sectionGap: `${style.sectionGap}px`,
+    entryGap: `${style.entryGap}px`,
+    accentColor: colors.primaryColor,
+  };
+}
 import PhotoCropper from '@/components/PhotoCropper';
 import styles from './editor.module.css';
 
@@ -1483,21 +1530,47 @@ export default function ResumeEditorPage() {
         {/* Right Panel - Preview */}
         <div className={styles.previewPanel}>
           {/* Two Column Layout (twocolumn-* or legacy 'modern') */}
-          {(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || resume.template === 'modern') && (
-            <div className={`${styles.resumePreview} ${styles.modernTemplate}`} style={{ '--accent-color': getEffectiveColors(resume.template || 'clean', resume.color_theme).primaryColor } as React.CSSProperties}>
-              <div className={styles.modernSidebar} style={{ backgroundColor: getEffectiveColors(resume.template || 'clean', resume.color_theme).sidebarBg }}>
+          {(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || resume.template === 'modern') && (() => {
+            const tplConfig = getTemplateConfig(resume.template || 'clean');
+            const tplStyle = tplConfig.styleConfig;
+            const tplColors = getEffectiveColors(resume.template || 'clean', resume.color_theme);
+            const ps = getPreviewStyles(tplStyle, tplColors);
+            const sidebarTextColor = tplStyle.sidebarFilled && !tplStyle.sidebarBorderOnly ? '#fff' : '#333';
+            const sidebarLightColor = tplStyle.sidebarFilled && !tplStyle.sidebarBorderOnly ? 'rgba(255,255,255,0.7)' : '#666';
+            const firstName = personalInfo.first_name || 'Your';
+            const lastName = personalInfo.last_name || 'Name';
+            return (
+            <div className={`${styles.resumePreview} ${styles.modernTemplate}`} style={{ fontFamily: ps.body.fontFamily }}>
+              <div className={styles.modernSidebar} style={{
+                width: ps.sidebar.width,
+                backgroundColor: ps.sidebar.backgroundColor,
+                borderRight: ps.sidebar.borderRight,
+                color: sidebarTextColor,
+              }}>
                 {personalInfo.photo_url && (
                   <div className={styles.modernPhotoWrapper}>
                     <img src={personalInfo.photo_url} alt="Profile" className={styles.modernPhoto} />
                   </div>
                 )}
                 <div className={styles.modernNameSection}>
-                  <h1 className={styles.modernName}>{personalInfo.first_name || 'Your'}</h1>
-                  <h1 className={styles.modernName}>{personalInfo.last_name || 'Name'}</h1>
+                  <h1 className={styles.modernName} style={{
+                    fontFamily: ps.name.fontFamily,
+                    fontWeight: ps.name.fontWeight,
+                    letterSpacing: ps.name.letterSpacing,
+                    color: sidebarTextColor,
+                  }}>{tplStyle.nameUppercase ? firstName.toUpperCase() : firstName}</h1>
+                  <h1 className={styles.modernName} style={{
+                    fontFamily: ps.name.fontFamily,
+                    fontWeight: ps.name.fontWeight,
+                    letterSpacing: ps.name.letterSpacing,
+                    color: sidebarTextColor,
+                  }}>{tplStyle.nameUppercase ? lastName.toUpperCase() : lastName}</h1>
                 </div>
                 <div className={styles.modernSidebarSection}>
-                  <h3>Contact</h3>
-                  <div className={styles.modernContactList}>
+                  <h3 style={{ color: sidebarLightColor, letterSpacing: tplStyle.sectionLetterSpacing ? `${tplStyle.sectionLetterSpacing}px` : undefined }}>
+                    {tplStyle.sectionUppercase ? 'CONTACT' : 'Contact'}
+                  </h3>
+                  <div className={styles.modernContactList} style={{ color: sidebarTextColor }}>
                     {personalInfo.email && <p>{personalInfo.email}</p>}
                     {personalInfo.phone && <p>{personalInfo.phone}</p>}
                     {personalInfo.location && <p>{personalInfo.location}</p>}
@@ -1507,22 +1580,38 @@ export default function ResumeEditorPage() {
                 </div>
                 {skills.length > 0 && skills.some(s => s.skill_name) && (
                   <div className={styles.modernSidebarSection}>
-                    <h3>Skills</h3>
+                    <h3 style={{ color: sidebarLightColor, letterSpacing: tplStyle.sectionLetterSpacing ? `${tplStyle.sectionLetterSpacing}px` : undefined }}>
+                      {tplStyle.sectionUppercase ? 'SKILLS' : 'Skills'}
+                    </h3>
                     <div className={styles.modernSkillsList}>
                       {skills.filter(s => s.skill_name).map((skill) => (
-                        <span key={skill.id} className={styles.modernSkill}>{skill.skill_name}</span>
+                        <span key={skill.id} className={styles.modernSkill} style={{
+                          backgroundColor: tplStyle.skillsStyle === 'chips' ? 'rgba(255,255,255,0.15)' : 'transparent',
+                          padding: tplStyle.skillsStyle === 'chips' ? '2px 8px' : '0',
+                          borderRadius: tplStyle.skillsStyle === 'chips' ? '4px' : '0',
+                          color: sidebarTextColor,
+                        }}>{skill.skill_name}</span>
                       ))}
                     </div>
                   </div>
                 )}
               </div>
-              <div className={styles.modernMain}>
-                {personalInfo.summary && <div className={styles.modernSection}><h2>Summary</h2><p>{personalInfo.summary}</p></div>}
+              <div className={styles.modernMain} style={{ lineHeight: ps.body.lineHeight }}>
+                {personalInfo.summary && (
+                  <div className={styles.modernSection} style={{ marginBottom: ps.sectionGap }}>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SUMMARY' : 'Summary'}{tplStyle.sectionDots && ' •••'}</h2>
+                    <p>{personalInfo.summary}</p>
+                  </div>
+                )}
                 {experience.length > 0 && (
-                  <div className={styles.modernSection}>
-                    <h2>Experience</h2>
-                    {experience.map((exp) => (
-                      <div key={exp.id} className={styles.modernEntry}>
+                  <div className={styles.modernSection} style={{ marginBottom: ps.sectionGap }}>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EXPERIENCE' : 'Experience'}{tplStyle.sectionDots && ' •••'}</h2>
+                    {experience.map((exp, i) => (
+                      <div key={exp.id} className={styles.modernEntry} style={{
+                        marginBottom: ps.entryGap,
+                        paddingBottom: tplStyle.entryDividers && i < experience.length - 1 ? ps.entryGap : undefined,
+                        borderBottom: tplStyle.entryDividers && i < experience.length - 1 ? `1px solid #e5e5e5` : undefined,
+                      }}>
                         <div className={styles.modernEntryHeader}>
                           <strong>{exp.job_title || 'Job Title'}</strong>
                           <span>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
@@ -1534,10 +1623,10 @@ export default function ResumeEditorPage() {
                   </div>
                 )}
                 {education.length > 0 && (
-                  <div className={styles.modernSection}>
-                    <h2>Education</h2>
+                  <div className={styles.modernSection} style={{ marginBottom: ps.sectionGap }}>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EDUCATION' : 'Education'}{tplStyle.sectionDots && ' •••'}</h2>
                     {education.map((edu) => (
-                      <div key={edu.id} className={styles.modernEntry}>
+                      <div key={edu.id} className={styles.modernEntry} style={{ marginBottom: ps.entryGap }}>
                         <div className={styles.modernEntryHeader}>
                           <strong>{edu.school_name || 'School Name'}</strong>
                           <span>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
@@ -1552,9 +1641,9 @@ export default function ResumeEditorPage() {
                 )}
                 {projects.length > 0 && (
                   <div className={styles.modernSection}>
-                    <h2>Projects & Activities</h2>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'PROJECTS & ACTIVITIES' : 'Projects & Activities'}{tplStyle.sectionDots && ' •••'}</h2>
                     {projects.map((project) => (
-                      <div key={project.id} className={styles.modernEntry}>
+                      <div key={project.id} className={styles.modernEntry} style={{ marginBottom: ps.entryGap }}>
                         <div className={styles.modernEntryHeader}>
                           <strong>{project.project_name || 'Project Name'}</strong>
                           {project.role && <span>{project.role}</span>}
@@ -1567,21 +1656,31 @@ export default function ResumeEditorPage() {
                 )}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* Header Focus Layout (header-* or legacy 'bold') */}
-          {(getTemplateConfig(resume.template || 'clean').layout === 'header' || resume.template === 'bold') && !(resume.template === 'modern') && (
-            <div className={`${styles.resumePreview} ${styles.boldTemplate}`}>
-              <div className={styles.boldHeader} style={{ backgroundColor: getEffectiveColors(resume.template || 'clean', resume.color_theme).headerBg }}>
+          {(getTemplateConfig(resume.template || 'clean').layout === 'header' || resume.template === 'bold') && !(resume.template === 'modern') && (() => {
+            const tplConfig = getTemplateConfig(resume.template || 'clean');
+            const tplStyle = tplConfig.styleConfig;
+            const tplColors = getEffectiveColors(resume.template || 'clean', resume.color_theme);
+            const ps = getPreviewStyles(tplStyle, tplColors);
+            const fullName = personalInfo.first_name || personalInfo.last_name
+              ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+              : 'Your Name';
+            const displayName = tplStyle.nameUppercase ? fullName.toUpperCase() : fullName;
+            return (
+            <div className={`${styles.resumePreview} ${styles.boldTemplate}`} style={{ fontFamily: ps.body.fontFamily }}>
+              <div className={styles.boldHeader} style={{ backgroundColor: tplColors.headerBg }}>
                 {personalInfo.photo_url ? (
                   <div className={styles.boldHeaderWithPhoto}>
                     <img src={personalInfo.photo_url} alt="Profile" className={styles.boldPhoto} />
                     <div className={styles.boldHeaderContent}>
-                      <h1 className={styles.boldName}>
-                        {personalInfo.first_name || personalInfo.last_name
-                          ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                          : 'Your Name'}
-                      </h1>
+                      <h1 className={styles.boldName} style={{
+                        fontSize: `${tplStyle.nameSize * 0.07}rem`,
+                        fontWeight: tplStyle.nameWeight,
+                        letterSpacing: tplStyle.nameLetterSpacing ? `${tplStyle.nameLetterSpacing}px` : undefined,
+                      }}>{displayName}</h1>
                       <div className={styles.boldContact}>
                         {personalInfo.email && <span>{personalInfo.email}</span>}
                         {personalInfo.phone && <span>{personalInfo.phone}</span>}
@@ -1591,11 +1690,11 @@ export default function ResumeEditorPage() {
                   </div>
                 ) : (
                   <>
-                    <h1 className={styles.boldName}>
-                      {personalInfo.first_name || personalInfo.last_name
-                        ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                        : 'Your Name'}
-                    </h1>
+                    <h1 className={styles.boldName} style={{
+                      fontSize: `${tplStyle.nameSize * 0.07}rem`,
+                      fontWeight: tplStyle.nameWeight,
+                      letterSpacing: tplStyle.nameLetterSpacing ? `${tplStyle.nameLetterSpacing}px` : undefined,
+                    }}>{displayName}</h1>
                     <div className={styles.boldContact}>
                       {personalInfo.email && <span>{personalInfo.email}</span>}
                       {personalInfo.phone && <span>{personalInfo.phone}</span>}
@@ -1604,16 +1703,25 @@ export default function ResumeEditorPage() {
                   </>
                 )}
               </div>
-              <div className={styles.boldBody}>
-                {personalInfo.summary && <div className={styles.boldSection}><h2>About Me</h2><p>{personalInfo.summary}</p></div>}
+              <div className={styles.boldBody} style={{ lineHeight: ps.body.lineHeight }}>
+                {personalInfo.summary && (
+                  <div className={styles.boldSection} style={{ marginBottom: ps.sectionGap }}>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'ABOUT ME' : 'About Me'}{tplStyle.sectionDots && ' •••'}</h2>
+                    <p>{personalInfo.summary}</p>
+                  </div>
+                )}
                 {experience.length > 0 && (
-                  <div className={styles.boldSection}>
-                    <h2>Work Experience</h2>
-                    {experience.map((exp) => (
-                      <div key={exp.id} className={styles.boldEntry}>
+                  <div className={styles.boldSection} style={{ marginBottom: ps.sectionGap }}>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'WORK EXPERIENCE' : 'Work Experience'}{tplStyle.sectionDots && ' •••'}</h2>
+                    {experience.map((exp, i) => (
+                      <div key={exp.id} className={styles.boldEntry} style={{
+                        marginBottom: ps.entryGap,
+                        paddingBottom: tplStyle.entryDividers && i < experience.length - 1 ? ps.entryGap : undefined,
+                        borderBottom: tplStyle.entryDividers && i < experience.length - 1 ? `1px solid #e5e5e5` : undefined,
+                      }}>
                         <div className={styles.boldEntryHeader}>
                           <strong>{exp.job_title || 'Job Title'}</strong>
-                          <span className={styles.boldDate}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                          <span className={styles.boldDate} style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                         </div>
                         <div className={styles.boldEntrySubtitle}>{exp.company_name}{exp.location ? ` • ${exp.location}` : ''}</div>
                         {exp.description && <p>{exp.description}</p>}
@@ -1622,13 +1730,13 @@ export default function ResumeEditorPage() {
                   </div>
                 )}
                 {education.length > 0 && (
-                  <div className={styles.boldSection}>
-                    <h2>Education</h2>
+                  <div className={styles.boldSection} style={{ marginBottom: ps.sectionGap }}>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EDUCATION' : 'Education'}{tplStyle.sectionDots && ' •••'}</h2>
                     {education.map((edu) => (
-                      <div key={edu.id} className={styles.boldEntry}>
+                      <div key={edu.id} className={styles.boldEntry} style={{ marginBottom: ps.entryGap }}>
                         <div className={styles.boldEntryHeader}>
                           <strong>{edu.school_name || 'School Name'}</strong>
-                          <span className={styles.boldDate}>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
+                          <span className={styles.boldDate} style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
                         </div>
                         {(edu.degree || edu.field_of_study) && (
                           <div className={styles.boldEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}</div>
@@ -1639,40 +1747,61 @@ export default function ResumeEditorPage() {
                 )}
                 {skills.length > 0 && skills.some(s => s.skill_name) && (
                   <div className={styles.boldSection}>
-                    <h2>Skills</h2>
+                    <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SKILLS' : 'Skills'}{tplStyle.sectionDots && ' •••'}</h2>
                     <div className={styles.boldSkills}>
                       {skills.filter(s => s.skill_name).map((skill) => (
-                        <span key={skill.id} className={styles.boldSkill}>{skill.skill_name}</span>
+                        <span key={skill.id} className={styles.boldSkill} style={{
+                          backgroundColor: tplStyle.skillsStyle === 'chips' ? `${tplColors.primaryColor}20` : 'transparent',
+                          border: tplStyle.skillsStyle === 'chips' ? `1px solid ${tplColors.primaryColor}` : 'none',
+                          padding: tplStyle.skillsStyle === 'chips' ? '4px 10px' : '0',
+                          borderRadius: tplStyle.skillsStyle === 'chips' ? '4px' : '0',
+                        }}>{skill.skill_name}</span>
                       ))}
                     </div>
                   </div>
                 )}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* Split Layout (split-*) - use minimal styling for preview */}
-          {getTemplateConfig(resume.template || 'clean').layout === 'split' && (
-            <div className={`${styles.resumePreview} ${styles.minimalTemplate}`}>
-              <h1 className={styles.minimalName}>
-                {personalInfo.first_name || personalInfo.last_name
-                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                  : 'Your Name'}
-              </h1>
+          {getTemplateConfig(resume.template || 'clean').layout === 'split' && (() => {
+            const tplConfig = getTemplateConfig(resume.template || 'clean');
+            const tplStyle = tplConfig.styleConfig;
+            const tplColors = getEffectiveColors(resume.template || 'clean', resume.color_theme);
+            const ps = getPreviewStyles(tplStyle, tplColors);
+            const fullName = personalInfo.first_name || personalInfo.last_name
+              ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+              : 'Your Name';
+            const displayName = tplStyle.nameUppercase ? fullName.toUpperCase() : fullName;
+            return (
+            <div className={`${styles.resumePreview} ${styles.minimalTemplate}`} style={{ fontFamily: ps.body.fontFamily, lineHeight: ps.body.lineHeight }}>
+              <h1 className={styles.minimalName} style={{
+                fontSize: `${tplStyle.nameSize * 0.08}rem`,
+                fontWeight: tplStyle.nameWeight,
+                letterSpacing: tplStyle.nameLetterSpacing ? `${tplStyle.nameLetterSpacing}px` : undefined,
+                color: tplColors.primaryColor,
+              }}>{displayName}</h1>
               <div className={styles.minimalContact}>
                 {personalInfo.email && <span>{personalInfo.email}</span>}
                 {personalInfo.phone && <span>{personalInfo.phone}</span>}
                 {personalInfo.location && <span>{personalInfo.location}</span>}
               </div>
-              {personalInfo.summary && <div className={styles.minimalSection}><h2>Profile</h2><p>{personalInfo.summary}</p></div>}
+              {personalInfo.summary && (
+                <div className={styles.minimalSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'PROFILE' : 'Profile'}{tplStyle.sectionDots && ' •••'}</h2>
+                  <p>{personalInfo.summary}</p>
+                </div>
+              )}
               {experience.length > 0 && (
-                <div className={styles.minimalSection}>
-                  <h2>Experience</h2>
+                <div className={styles.minimalSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EXPERIENCE' : 'Experience'}{tplStyle.sectionDots && ' •••'}</h2>
                   {experience.map((exp, idx) => (
-                    <div key={exp.id} className={`${styles.minimalEntry} ${idx === experience.length - 1 ? styles.minimalEntryLast : ''}`}>
+                    <div key={exp.id} className={`${styles.minimalEntry} ${idx === experience.length - 1 ? styles.minimalEntryLast : ''}`} style={{ marginBottom: ps.entryGap }}>
                       <div className={styles.minimalEntryHeader}>
                         <strong>{exp.job_title || 'Job Title'}</strong>
-                        <span>{exp.start_date}{exp.end_date ? ` — ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{exp.start_date}{exp.end_date ? ` — ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
                       <div className={styles.minimalEntrySubtitle}>{exp.company_name}</div>
                       {exp.description && <p>{exp.description}</p>}
@@ -1681,13 +1810,13 @@ export default function ResumeEditorPage() {
                 </div>
               )}
               {education.length > 0 && (
-                <div className={styles.minimalSection}>
-                  <h2>Education</h2>
+                <div className={styles.minimalSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EDUCATION' : 'Education'}{tplStyle.sectionDots && ' •••'}</h2>
                   {education.map((edu, idx) => (
-                    <div key={edu.id} className={`${styles.minimalEntry} ${idx === education.length - 1 ? styles.minimalEntryLast : ''}`}>
+                    <div key={edu.id} className={`${styles.minimalEntry} ${idx === education.length - 1 ? styles.minimalEntryLast : ''}`} style={{ marginBottom: ps.entryGap }}>
                       <div className={styles.minimalEntryHeader}>
                         <strong>{edu.school_name || 'School Name'}</strong>
-                        <span>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
+                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
                       </div>
                       {(edu.degree || edu.field_of_study) && (
                         <div className={styles.minimalEntrySubtitle}>{edu.degree}{edu.field_of_study ? `, ${edu.field_of_study}` : ''}</div>
@@ -1698,36 +1827,56 @@ export default function ResumeEditorPage() {
               )}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
                 <div className={styles.minimalSection}>
-                  <h2>Skills</h2>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SKILLS' : 'Skills'}{tplStyle.sectionDots && ' •••'}</h2>
                   <p className={styles.minimalSkills}>{skills.filter(s => s.skill_name).map(s => s.skill_name).join('  /  ')}</p>
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {/* Compact Layout (compact-* or legacy 'compact') */}
-          {(getTemplateConfig(resume.template || 'clean').layout === 'compact' || resume.template === 'compact') && !(getTemplateConfig(resume.template || 'clean').layout === 'split') && (
-            <div className={`${styles.resumePreview} ${styles.compactTemplate}`}>
-              <h1 className={styles.compactName}>
-                {personalInfo.first_name || personalInfo.last_name
-                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                  : 'Your Name'}
-              </h1>
+          {(getTemplateConfig(resume.template || 'clean').layout === 'compact' || resume.template === 'compact') && !(getTemplateConfig(resume.template || 'clean').layout === 'split') && (() => {
+            const tplConfig = getTemplateConfig(resume.template || 'clean');
+            const tplStyle = tplConfig.styleConfig;
+            const tplColors = getEffectiveColors(resume.template || 'clean', resume.color_theme);
+            const ps = getPreviewStyles(tplStyle, tplColors);
+            const fullName = personalInfo.first_name || personalInfo.last_name
+              ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+              : 'Your Name';
+            const displayName = tplStyle.nameUppercase ? fullName.toUpperCase() : fullName;
+            return (
+            <div className={`${styles.resumePreview} ${styles.compactTemplate}`} style={{ fontFamily: ps.body.fontFamily, lineHeight: ps.body.lineHeight }}>
+              <h1 className={styles.compactName} style={{
+                fontSize: `${tplStyle.nameSize * 0.065}rem`,
+                fontWeight: tplStyle.nameWeight,
+                letterSpacing: tplStyle.nameLetterSpacing ? `${tplStyle.nameLetterSpacing}px` : undefined,
+                color: tplColors.primaryColor,
+              }}>{displayName}</h1>
               <div className={styles.compactContact}>
                 {personalInfo.email && <span>{personalInfo.email}</span>}
                 {personalInfo.phone && <span>{personalInfo.phone}</span>}
                 {personalInfo.location && <span>{personalInfo.location}</span>}
                 {personalInfo.linkedin_url && <span>{personalInfo.linkedin_url}</span>}
               </div>
-              {personalInfo.summary && <div className={styles.compactSection}><h2>Summary</h2><p>{personalInfo.summary}</p></div>}
+              {personalInfo.summary && (
+                <div className={styles.compactSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SUMMARY' : 'Summary'}{tplStyle.sectionDots && ' •••'}</h2>
+                  <p>{personalInfo.summary}</p>
+                </div>
+              )}
               {experience.length > 0 && (
-                <div className={styles.compactSection}>
-                  <h2>Experience</h2>
-                  {experience.map((exp) => (
-                    <div key={exp.id} className={styles.compactEntry}>
+                <div className={styles.compactSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EXPERIENCE' : 'Experience'}{tplStyle.sectionDots && ' •••'}</h2>
+                  {experience.map((exp, i) => (
+                    <div key={exp.id} className={styles.compactEntry} style={{
+                      marginBottom: ps.entryGap,
+                      paddingBottom: tplStyle.entryDividers && i < experience.length - 1 ? ps.entryGap : undefined,
+                      borderBottom: tplStyle.entryDividers && i < experience.length - 1 ? `1px solid #e5e5e5` : undefined,
+                    }}>
                       <div className={styles.compactEntryHeader}>
                         <strong>{exp.job_title} — {exp.company_name}</strong>
-                        <span>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
                       {exp.description && <p>{exp.description}</p>}
                     </div>
@@ -1735,13 +1884,13 @@ export default function ResumeEditorPage() {
                 </div>
               )}
               {education.length > 0 && (
-                <div className={styles.compactSection}>
-                  <h2>Education</h2>
+                <div className={styles.compactSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EDUCATION' : 'Education'}{tplStyle.sectionDots && ' •••'}</h2>
                   {education.map((edu) => (
-                    <div key={edu.id} className={styles.compactEntry}>
+                    <div key={edu.id} className={styles.compactEntry} style={{ marginBottom: ps.entryGap }}>
                       <div className={styles.compactEntryHeader}>
                         <strong>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''} — {edu.school_name}</strong>
-                        <span>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
+                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{edu.end_date ? (edu.is_current ? 'Present' : edu.end_date) : ''}</span>
                       </div>
                     </div>
                   ))}
@@ -1749,44 +1898,73 @@ export default function ResumeEditorPage() {
               )}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
                 <div className={styles.compactSection}>
-                  <h2>Skills</h2>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SKILLS' : 'Skills'}{tplStyle.sectionDots && ' •••'}</h2>
                   <div className={styles.compactSkills}>
                     {skills.filter(s => s.skill_name).map((skill) => (
-                      <span key={skill.id} className={styles.compactSkill}>{skill.skill_name}</span>
+                      <span key={skill.id} className={styles.compactSkill} style={{
+                        backgroundColor: tplStyle.skillsStyle === 'chips' ? `${tplColors.primaryColor}15` : 'transparent',
+                        border: tplStyle.skillsStyle === 'chips' ? `1px solid ${tplColors.primaryColor}40` : 'none',
+                        padding: tplStyle.skillsStyle === 'chips' ? '2px 8px' : '0',
+                        borderRadius: tplStyle.skillsStyle === 'chips' ? '4px' : '0',
+                      }}>{skill.skill_name}</span>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {/* Single Column Layout (single-* or legacy 'clean'/'professional'/'minimal') - Default */}
-          {(getTemplateConfig(resume.template || 'clean').layout === 'single' || !resume.template || resume.template === 'clean' || resume.template === 'professional' || resume.template === 'minimal') && !(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || getTemplateConfig(resume.template || 'clean').layout === 'header' || getTemplateConfig(resume.template || 'clean').layout === 'compact' || getTemplateConfig(resume.template || 'clean').layout === 'split' || resume.template === 'modern' || resume.template === 'bold' || resume.template === 'compact') && (
-            <div className={styles.resumePreview}>
-              <h1 className={styles.previewName}>
-                {personalInfo.first_name || personalInfo.last_name
-                  ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                  : 'Your Name'}
-              </h1>
-              <div className={styles.previewContact}>
-                {personalInfo.email && <span>{personalInfo.email}</span>}
-                {personalInfo.phone && <span>{personalInfo.phone}</span>}
-                {personalInfo.location && <span>{personalInfo.location}</span>}
-                {personalInfo.linkedin_url && <span>{personalInfo.linkedin_url}</span>}
-                {personalInfo.website_url && <span>{personalInfo.website_url}</span>}
-                {!personalInfo.email && !personalInfo.phone && !personalInfo.location && (
-                  <span className={styles.placeholder}>email@example.com | (555) 123-4567 | City, State</span>
+          {(getTemplateConfig(resume.template || 'clean').layout === 'single' || !resume.template || resume.template === 'clean' || resume.template === 'professional' || resume.template === 'minimal') && !(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || getTemplateConfig(resume.template || 'clean').layout === 'header' || getTemplateConfig(resume.template || 'clean').layout === 'compact' || getTemplateConfig(resume.template || 'clean').layout === 'split' || resume.template === 'modern' || resume.template === 'bold' || resume.template === 'compact') && (() => {
+            const tplConfig = getTemplateConfig(resume.template || 'clean');
+            const tplStyle = tplConfig.styleConfig;
+            const tplColors = getEffectiveColors(resume.template || 'clean', resume.color_theme);
+            const ps = getPreviewStyles(tplStyle, tplColors);
+            const fullName = personalInfo.first_name || personalInfo.last_name
+              ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+              : 'Your Name';
+            const displayName = tplStyle.nameUppercase ? fullName.toUpperCase() : fullName;
+            return (
+            <div className={styles.resumePreview} style={{ fontFamily: ps.body.fontFamily, lineHeight: ps.body.lineHeight }}>
+              <div style={{ textAlign: 'center', marginBottom: tplStyle.headerDivider ? '16px' : '20px' }}>
+                <h1 style={{
+                  ...ps.name,
+                  color: tplColors.primaryColor,
+                  marginBottom: '8px',
+                }}>{displayName}</h1>
+                {tplStyle.headerDivider && (
+                  <div style={{ height: `${tplStyle.headerDividerThickness}px`, backgroundColor: tplColors.primaryColor, margin: '12px auto', width: '60%' }} />
                 )}
+                <div className={styles.previewContact}>
+                  {personalInfo.email && <span>{personalInfo.email}</span>}
+                  {personalInfo.phone && <span>{personalInfo.phone}</span>}
+                  {personalInfo.location && <span>{personalInfo.location}</span>}
+                  {personalInfo.linkedin_url && <span>{personalInfo.linkedin_url}</span>}
+                  {personalInfo.website_url && <span>{personalInfo.website_url}</span>}
+                  {!personalInfo.email && !personalInfo.phone && !personalInfo.location && (
+                    <span className={styles.placeholder}>email@example.com | (555) 123-4567 | City, State</span>
+                  )}
+                </div>
               </div>
-              {personalInfo.summary && <div className={styles.previewSection}><h2>Summary</h2><p>{personalInfo.summary}</p></div>}
+              {personalInfo.summary && (
+                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SUMMARY' : 'Summary'}{tplStyle.sectionDots && ' •••'}</h2>
+                  <p>{personalInfo.summary}</p>
+                </div>
+              )}
               {education.length > 0 && (
-                <div className={styles.previewSection}>
-                  <h2>Education</h2>
-                  {education.map((edu) => (
-                    <div key={edu.id} className={styles.previewEntry}>
+                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EDUCATION' : 'Education'}{tplStyle.sectionDots && ' •••'}</h2>
+                  {education.map((edu, i) => (
+                    <div key={edu.id} className={styles.previewEntry} style={{
+                      marginBottom: ps.entryGap,
+                      paddingBottom: tplStyle.entryDividers && i < education.length - 1 ? ps.entryGap : undefined,
+                      borderBottom: tplStyle.entryDividers && i < education.length - 1 ? `1px solid #e5e5e5` : undefined,
+                    }}>
                       <div className={styles.previewEntryHeader}>
                         <strong>{edu.school_name || 'School Name'}</strong>
-                        <span>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
+                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
                       </div>
                       {(edu.degree || edu.field_of_study) && (
                         <div className={styles.previewEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && <span className={styles.gpa}> | GPA: {edu.gpa}</span>}</div>
@@ -1797,13 +1975,17 @@ export default function ResumeEditorPage() {
                 </div>
               )}
               {experience.length > 0 && (
-                <div className={styles.previewSection}>
-                  <h2>Experience</h2>
-                  {experience.map((exp) => (
-                    <div key={exp.id} className={styles.previewEntry}>
+                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EXPERIENCE' : 'Experience'}{tplStyle.sectionDots && ' •••'}</h2>
+                  {experience.map((exp, i) => (
+                    <div key={exp.id} className={styles.previewEntry} style={{
+                      marginBottom: ps.entryGap,
+                      paddingBottom: tplStyle.entryDividers && i < experience.length - 1 ? ps.entryGap : undefined,
+                      borderBottom: tplStyle.entryDividers && i < experience.length - 1 ? `1px solid #e5e5e5` : undefined,
+                    }}>
                       <div className={styles.previewEntryHeader}>
                         <strong>{exp.job_title || 'Job Title'}</strong>
-                        <span>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                       </div>
                       <div className={styles.previewEntrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</div>
                       {exp.description && <p className={styles.previewDescription}>{exp.description}</p>}
@@ -1812,20 +1994,30 @@ export default function ResumeEditorPage() {
                 </div>
               )}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
-                <div className={styles.previewSection}>
-                  <h2>Skills</h2>
+                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SKILLS' : 'Skills'}{tplStyle.sectionDots && ' •••'}</h2>
                   <div className={styles.previewSkills}>
                     {skills.filter(s => s.skill_name).map((skill) => (
-                      <span key={skill.id} className={styles.previewSkill}>{skill.skill_name}</span>
+                      <span key={skill.id} className={styles.previewSkill} style={{
+                        backgroundColor: tplStyle.skillsStyle === 'chips' ? `${tplColors.primaryColor}15` : 'transparent',
+                        border: tplStyle.skillsStyle === 'chips' ? `1px solid ${tplColors.primaryColor}40` : 'none',
+                        padding: tplStyle.skillsStyle === 'chips' ? '4px 10px' : '0',
+                        borderRadius: tplStyle.skillsStyle === 'chips' ? '4px' : '0',
+                        margin: tplStyle.skillsStyle === 'chips' ? '0 6px 6px 0' : '0 8px 0 0',
+                      }}>{skill.skill_name}{tplStyle.skillsStyle === 'commas' && ', '}</span>
                     ))}
                   </div>
                 </div>
               )}
               {projects.length > 0 && (
                 <div className={styles.previewSection}>
-                  <h2>Projects & Activities</h2>
-                  {projects.map((project) => (
-                    <div key={project.id} className={styles.previewEntry}>
+                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'PROJECTS & ACTIVITIES' : 'Projects & Activities'}{tplStyle.sectionDots && ' •••'}</h2>
+                  {projects.map((project, i) => (
+                    <div key={project.id} className={styles.previewEntry} style={{
+                      marginBottom: ps.entryGap,
+                      paddingBottom: tplStyle.entryDividers && i < projects.length - 1 ? ps.entryGap : undefined,
+                      borderBottom: tplStyle.entryDividers && i < projects.length - 1 ? `1px solid #e5e5e5` : undefined,
+                    }}>
                       <div className={styles.previewEntryHeader}>
                         <strong>{project.project_name || 'Project Name'}</strong>
                         {project.role && <span>{project.role}</span>}
@@ -1840,7 +2032,8 @@ export default function ResumeEditorPage() {
                 <div className={styles.previewEmpty}><p>Start filling out the form to see your resume preview</p></div>
               )}
             </div>
-          )}
+            );
+          })()}
         </div>
       </div>
 

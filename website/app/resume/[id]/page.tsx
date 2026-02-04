@@ -1915,119 +1915,402 @@ export default function ResumeEditorPage() {
             );
           })()}
 
-          {/* Single Column Layout (single-* or legacy 'clean'/'professional'/'minimal') - Default */}
-          {(getTemplateConfig(resume.template || 'clean').layout === 'single' || !resume.template || resume.template === 'clean' || resume.template === 'professional' || resume.template === 'minimal') && !(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || getTemplateConfig(resume.template || 'clean').layout === 'header' || getTemplateConfig(resume.template || 'clean').layout === 'compact' || getTemplateConfig(resume.template || 'clean').layout === 'split' || resume.template === 'modern' || resume.template === 'bold' || resume.template === 'compact') && (() => {
-            const tplConfig = getTemplateConfig(resume.template || 'clean');
-            const tplStyle = tplConfig.styleConfig;
-            const tplColors = getEffectiveColors(resume.template || 'clean', resume.color_theme);
-            const ps = getPreviewStyles(tplStyle, tplColors);
+          {/* ============================================ */}
+          {/* HARVARD TEMPLATE - Centered, serif, traditional */}
+          {/* ============================================ */}
+          {(resume.template === 'single-harvard' || resume.template === 'harvard') && (() => {
             const fullName = personalInfo.first_name || personalInfo.last_name
               ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
               : 'Your Name';
-            const displayName = tplStyle.nameUppercase ? fullName.toUpperCase() : fullName;
+            const contactParts = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
             return (
-            <div className={styles.resumePreview} style={{ fontFamily: ps.body.fontFamily, lineHeight: ps.body.lineHeight }}>
-              <div style={{ textAlign: 'center', marginBottom: tplStyle.headerDivider ? '16px' : '20px' }}>
+            <div className={styles.resumePreview} style={{
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              padding: '32px 40px',
+              lineHeight: 1.4,
+              color: '#000',
+            }}>
+              {/* HARVARD: Centered name, large bold */}
+              <div style={{ textAlign: 'center', marginBottom: '12px' }}>
                 <h1 style={{
-                  ...ps.name,
-                  color: tplColors.primaryColor,
-                  marginBottom: '8px',
-                }}>{displayName}</h1>
-                {tplStyle.headerDivider && (
-                  <div style={{ height: `${tplStyle.headerDividerThickness}px`, backgroundColor: tplColors.primaryColor, margin: '12px auto', width: '60%' }} />
-                )}
-                <div className={styles.previewContact}>
-                  {personalInfo.email && <span>{personalInfo.email}</span>}
-                  {personalInfo.phone && <span>{personalInfo.phone}</span>}
-                  {personalInfo.location && <span>{personalInfo.location}</span>}
-                  {personalInfo.linkedin_url && <span>{personalInfo.linkedin_url}</span>}
-                  {personalInfo.website_url && <span>{personalInfo.website_url}</span>}
+                  fontSize: '1.8rem',
+                  fontWeight: 700,
+                  margin: 0,
+                  letterSpacing: '0.5px',
+                }}>{fullName}</h1>
+              </div>
+
+              {/* HARVARD: Contact on one line with pipes, centered */}
+              <div style={{
+                textAlign: 'center',
+                fontSize: '0.8rem',
+                color: '#333',
+                marginBottom: '16px',
+                borderBottom: '1px solid #000',
+                paddingBottom: '12px',
+              }}>
+                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
+              </div>
+
+              {/* HARVARD: Education section - ALL CAPS header with line */}
+              {education.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
+                    paddingBottom: '4px',
+                    marginBottom: '10px',
+                  }}>Education</h2>
+                  {education.map((edu) => (
+                    <div key={edu.id} style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <strong style={{ fontSize: '0.9rem' }}>{edu.school_name || 'School Name'}</strong>
+                        <span style={{ fontSize: '0.85rem' }}>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
+                      </div>
+                      {(edu.degree || edu.field_of_study) && (
+                        <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
+                          {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && ` | GPA: ${edu.gpa}`}
+                        </div>
+                      )}
+                      {edu.achievements && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{edu.achievements}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* HARVARD: Experience section */}
+              {experience.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
+                    paddingBottom: '4px',
+                    marginBottom: '10px',
+                  }}>Experience</h2>
+                  {experience.map((exp) => (
+                    <div key={exp.id} style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <strong style={{ fontSize: '0.9rem' }}>{exp.job_title || 'Job Title'}</strong>
+                        <span style={{ fontSize: '0.85rem' }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>{exp.company_name}{exp.location ? `, ${exp.location}` : ''}</div>
+                      {exp.description && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{exp.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* HARVARD: Skills section */}
+              {skills.length > 0 && skills.some(s => s.skill_name) && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h2 style={{
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
+                    paddingBottom: '4px',
+                    marginBottom: '10px',
+                  }}>Skills</h2>
+                  <p style={{ fontSize: '0.85rem', margin: 0 }}>
+                    {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
+                  </p>
+                </div>
+              )}
+
+              {/* HARVARD: Projects section */}
+              {projects.length > 0 && (
+                <div>
+                  <h2 style={{
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: '1px solid #000',
+                    paddingBottom: '4px',
+                    marginBottom: '10px',
+                  }}>Activities & Projects</h2>
+                  {projects.map((project) => (
+                    <div key={project.id} style={{ marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <strong style={{ fontSize: '0.9rem' }}>{project.project_name}</strong>
+                        {project.role && <span style={{ fontSize: '0.85rem' }}>{project.role}</span>}
+                      </div>
+                      {project.organization && <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>{project.organization}</div>}
+                      {project.description && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{project.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            );
+          })()}
+
+          {/* ============================================ */}
+          {/* JAKE'S TEMPLATE - Left-aligned, sans-serif, compact */}
+          {/* ============================================ */}
+          {(resume.template === 'single-jakes' || resume.template === 'jakes') && (() => {
+            const fullName = personalInfo.first_name || personalInfo.last_name
+              ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+              : 'Your Name';
+            const contactParts = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
+            return (
+            <div className={styles.resumePreview} style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+              padding: '24px 28px',
+              lineHeight: 1.3,
+              color: '#000',
+            }}>
+              {/* JAKE'S: Left-aligned name, very large bold */}
+              <div style={{ marginBottom: '4px' }}>
+                <h1 style={{
+                  fontSize: '2.2rem',
+                  fontWeight: 700,
+                  margin: 0,
+                  letterSpacing: '-0.5px',
+                }}>{fullName}</h1>
+              </div>
+
+              {/* JAKE'S: Contact left-aligned, small, compact */}
+              <div style={{
+                fontSize: '0.75rem',
+                color: '#444',
+                marginBottom: '12px',
+              }}>
+                {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com | (555) 123-4567 | City, State'}
+              </div>
+
+              {/* JAKE'S: Education - bold header, THICK line */}
+              {education.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: '2px solid #000',
+                    paddingBottom: '2px',
+                    marginBottom: '8px',
+                  }}>Education</h2>
+                  {education.map((edu) => (
+                    <div key={edu.id} style={{ marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.85rem' }}>{edu.school_name}</strong>
+                        <span style={{ fontSize: '0.75rem', color: '#555' }}>{edu.start_date}{edu.end_date ? ` -- ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
+                      </div>
+                      {(edu.degree || edu.field_of_study) && (
+                        <div style={{ fontSize: '0.8rem', color: '#333' }}>
+                          {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && ` (GPA: ${edu.gpa})`}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* JAKE'S: Experience - compact entries */}
+              {experience.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: '2px solid #000',
+                    paddingBottom: '2px',
+                    marginBottom: '8px',
+                  }}>Experience</h2>
+                  {experience.map((exp) => (
+                    <div key={exp.id} style={{ marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <div>
+                          <strong style={{ fontSize: '0.85rem' }}>{exp.job_title}</strong>
+                          <span style={{ fontSize: '0.8rem', color: '#555' }}> | {exp.company_name}{exp.location ? `, ${exp.location}` : ''}</span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#555', whiteSpace: 'nowrap' }}>{exp.start_date}{exp.end_date ? ` -- ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                      </div>
+                      {exp.description && (
+                        <ul style={{ margin: '4px 0 0 16px', padding: 0, fontSize: '0.8rem', color: '#333' }}>
+                          {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                            <li key={i} style={{ marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* JAKE'S: Projects */}
+              {projects.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: '2px solid #000',
+                    paddingBottom: '2px',
+                    marginBottom: '8px',
+                  }}>Projects</h2>
+                  {projects.map((project) => (
+                    <div key={project.id} style={{ marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                        <strong style={{ fontSize: '0.85rem' }}>{project.project_name}</strong>
+                        {project.role && <span style={{ fontSize: '0.75rem', color: '#555' }}>{project.role}</span>}
+                      </div>
+                      {project.description && <p style={{ fontSize: '0.8rem', margin: '2px 0 0', color: '#333' }}>{project.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* JAKE'S: Skills - inline */}
+              {skills.length > 0 && skills.some(s => s.skill_name) && (
+                <div>
+                  <h2 style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    borderBottom: '2px solid #000',
+                    paddingBottom: '2px',
+                    marginBottom: '8px',
+                  }}>Technical Skills</h2>
+                  <p style={{ fontSize: '0.8rem', margin: 0 }}>
+                    <strong>Languages & Tools:</strong> {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
+                  </p>
+                </div>
+              )}
+            </div>
+            );
+          })()}
+
+          {/* ============================================ */}
+          {/* SINGLE COLUMN CLASSIC - Simple, no frills */}
+          {/* ============================================ */}
+          {(resume.template === 'single-classic' || resume.template === 'clean' || (!resume.template) ||
+            (getTemplateConfig(resume.template || DEFAULT_TEMPLATE).layout === 'single' &&
+             resume.template !== 'single-harvard' && resume.template !== 'harvard' &&
+             resume.template !== 'single-jakes' && resume.template !== 'jakes')) &&
+           !(getTemplateConfig(resume.template || DEFAULT_TEMPLATE).layout === 'twocolumn' ||
+             getTemplateConfig(resume.template || DEFAULT_TEMPLATE).layout === 'header' ||
+             getTemplateConfig(resume.template || DEFAULT_TEMPLATE).layout === 'compact' ||
+             getTemplateConfig(resume.template || DEFAULT_TEMPLATE).layout === 'split' ||
+             resume.template === 'modern' || resume.template === 'bold' || resume.template === 'compact') && (() => {
+            const fullName = personalInfo.first_name || personalInfo.last_name
+              ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+              : 'Your Name';
+            return (
+            <div className={styles.resumePreview} style={{
+              fontFamily: 'Arial, sans-serif',
+              padding: '28px 32px',
+              lineHeight: 1.5,
+              color: '#222',
+            }}>
+              {/* CLASSIC: Left-aligned name, medium size */}
+              <div style={{ marginBottom: '16px' }}>
+                <h1 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 700,
+                  margin: '0 0 8px 0',
+                }}>{fullName}</h1>
+
+                {/* CLASSIC: Contact stacked vertically */}
+                <div style={{ fontSize: '0.85rem', color: '#555', lineHeight: 1.6 }}>
+                  {personalInfo.email && <div>{personalInfo.email}</div>}
+                  {personalInfo.phone && <div>{personalInfo.phone}</div>}
+                  {personalInfo.location && <div>{personalInfo.location}</div>}
+                  {personalInfo.linkedin_url && <div>{personalInfo.linkedin_url}</div>}
                   {!personalInfo.email && !personalInfo.phone && !personalInfo.location && (
-                    <span className={styles.placeholder}>email@example.com | (555) 123-4567 | City, State</span>
+                    <>
+                      <div>email@example.com</div>
+                      <div>(555) 123-4567</div>
+                      <div>City, State</div>
+                    </>
                   )}
                 </div>
               </div>
+
+              {/* CLASSIC: Summary */}
               {personalInfo.summary && (
-                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
-                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SUMMARY' : 'Summary'}{tplStyle.sectionDots && ' •••'}</h2>
-                  <p>{personalInfo.summary}</p>
+                <div style={{ marginBottom: '20px' }}>
+                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px' }}>Summary</h2>
+                  <p style={{ fontSize: '0.9rem', margin: 0, color: '#333' }}>{personalInfo.summary}</p>
                 </div>
               )}
-              {education.length > 0 && (
-                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
-                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EDUCATION' : 'Education'}{tplStyle.sectionDots && ' •••'}</h2>
-                  {education.map((edu, i) => (
-                    <div key={edu.id} className={styles.previewEntry} style={{
-                      marginBottom: ps.entryGap,
-                      paddingBottom: tplStyle.entryDividers && i < education.length - 1 ? ps.entryGap : undefined,
-                      borderBottom: tplStyle.entryDividers && i < education.length - 1 ? `1px solid #e5e5e5` : undefined,
-                    }}>
-                      <div className={styles.previewEntryHeader}>
-                        <strong>{edu.school_name || 'School Name'}</strong>
-                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{edu.start_date}{edu.end_date ? ` - ${edu.is_current ? 'Present' : edu.end_date}` : ''}</span>
-                      </div>
-                      {(edu.degree || edu.field_of_study) && (
-                        <div className={styles.previewEntrySubtitle}>{edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}{edu.gpa && <span className={styles.gpa}> | GPA: {edu.gpa}</span>}</div>
-                      )}
-                      {edu.achievements && <p className={styles.previewDescription}>{edu.achievements}</p>}
-                    </div>
-                  ))}
-                </div>
-              )}
+
+              {/* CLASSIC: Experience - simple bold headers, no lines */}
               {experience.length > 0 && (
-                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
-                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'EXPERIENCE' : 'Experience'}{tplStyle.sectionDots && ' •••'}</h2>
-                  {experience.map((exp, i) => (
-                    <div key={exp.id} className={styles.previewEntry} style={{
-                      marginBottom: ps.entryGap,
-                      paddingBottom: tplStyle.entryDividers && i < experience.length - 1 ? ps.entryGap : undefined,
-                      borderBottom: tplStyle.entryDividers && i < experience.length - 1 ? `1px solid #e5e5e5` : undefined,
-                    }}>
-                      <div className={styles.previewEntryHeader}>
-                        <strong>{exp.job_title || 'Job Title'}</strong>
-                        <span style={{ fontStyle: tplStyle.dateItalic ? 'italic' : undefined }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
+                <div style={{ marginBottom: '20px' }}>
+                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Experience</h2>
+                  {experience.map((exp) => (
+                    <div key={exp.id} style={{ marginBottom: '14px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{exp.job_title}</div>
+                      <div style={{ fontSize: '0.85rem', color: '#555' }}>
+                        {exp.company_name}{exp.location ? ` - ${exp.location}` : ''}
                       </div>
-                      <div className={styles.previewEntrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</div>
-                      {exp.description && <p className={styles.previewDescription}>{exp.description}</p>}
+                      <div style={{ fontSize: '0.8rem', color: '#777', marginBottom: '4px' }}>
+                        {exp.start_date}{exp.end_date ? ` to ${exp.is_current ? 'Present' : exp.end_date}` : ''}
+                      </div>
+                      {exp.description && <p style={{ fontSize: '0.85rem', margin: 0, color: '#333' }}>{exp.description}</p>}
                     </div>
                   ))}
                 </div>
               )}
+
+              {/* CLASSIC: Education */}
+              {education.length > 0 && (
+                <div style={{ marginBottom: '20px' }}>
+                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Education</h2>
+                  {education.map((edu) => (
+                    <div key={edu.id} style={{ marginBottom: '12px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{edu.school_name}</div>
+                      {(edu.degree || edu.field_of_study) && (
+                        <div style={{ fontSize: '0.85rem', color: '#555' }}>
+                          {edu.degree}{edu.field_of_study ? ` in ${edu.field_of_study}` : ''}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '0.8rem', color: '#777' }}>
+                        {edu.start_date}{edu.end_date ? ` to ${edu.is_current ? 'Present' : edu.end_date}` : ''}
+                        {edu.gpa && ` | GPA: ${edu.gpa}`}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* CLASSIC: Skills - simple list */}
               {skills.length > 0 && skills.some(s => s.skill_name) && (
-                <div className={styles.previewSection} style={{ marginBottom: ps.sectionGap }}>
-                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'SKILLS' : 'Skills'}{tplStyle.sectionDots && ' •••'}</h2>
-                  <div className={styles.previewSkills}>
-                    {skills.filter(s => s.skill_name).map((skill) => (
-                      <span key={skill.id} className={styles.previewSkill} style={{
-                        backgroundColor: tplStyle.skillsStyle === 'chips' ? `${tplColors.primaryColor}15` : 'transparent',
-                        border: tplStyle.skillsStyle === 'chips' ? `1px solid ${tplColors.primaryColor}40` : 'none',
-                        padding: tplStyle.skillsStyle === 'chips' ? '4px 10px' : '0',
-                        borderRadius: tplStyle.skillsStyle === 'chips' ? '4px' : '0',
-                        margin: tplStyle.skillsStyle === 'chips' ? '0 6px 6px 0' : '0 8px 0 0',
-                      }}>{skill.skill_name}{tplStyle.skillsStyle === 'commas' && ', '}</span>
-                    ))}
-                  </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px' }}>Skills</h2>
+                  <p style={{ fontSize: '0.9rem', margin: 0, color: '#333' }}>
+                    {skills.filter(s => s.skill_name).map(s => s.skill_name).join(', ')}
+                  </p>
                 </div>
               )}
+
+              {/* CLASSIC: Projects */}
               {projects.length > 0 && (
-                <div className={styles.previewSection}>
-                  <h2 style={ps.sectionHeader}>{tplStyle.sectionUppercase ? 'PROJECTS & ACTIVITIES' : 'Projects & Activities'}{tplStyle.sectionDots && ' •••'}</h2>
-                  {projects.map((project, i) => (
-                    <div key={project.id} className={styles.previewEntry} style={{
-                      marginBottom: ps.entryGap,
-                      paddingBottom: tplStyle.entryDividers && i < projects.length - 1 ? ps.entryGap : undefined,
-                      borderBottom: tplStyle.entryDividers && i < projects.length - 1 ? `1px solid #e5e5e5` : undefined,
-                    }}>
-                      <div className={styles.previewEntryHeader}>
-                        <strong>{project.project_name || 'Project Name'}</strong>
-                        {project.role && <span>{project.role}</span>}
-                      </div>
-                      {project.organization && <div className={styles.previewEntrySubtitle}>{project.organization}</div>}
-                      {project.description && <p className={styles.previewDescription}>{project.description}</p>}
+                <div>
+                  <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '12px' }}>Projects</h2>
+                  {projects.map((project) => (
+                    <div key={project.id} style={{ marginBottom: '12px' }}>
+                      <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{project.project_name}</div>
+                      {project.organization && <div style={{ fontSize: '0.85rem', color: '#555' }}>{project.organization}</div>}
+                      {project.role && <div style={{ fontSize: '0.8rem', color: '#777' }}>{project.role}</div>}
+                      {project.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{project.description}</p>}
                     </div>
                   ))}
                 </div>
               )}
+
               {!personalInfo.summary && education.length === 0 && experience.length === 0 && skills.length === 0 && projects.length === 0 && (
                 <div className={styles.previewEmpty}><p>Start filling out the form to see your resume preview</p></div>
               )}

@@ -1439,6 +1439,11 @@ export default function ResumeEditorPage() {
           {(getTemplateConfig(resume.template || 'clean').layout === 'twocolumn' || resume.template === 'modern') && (
             <div className={`${styles.resumePreview} ${styles.modernTemplate}`} style={{ '--accent-color': getTemplateConfig(resume.template || 'clean').styleConfig.primaryColor } as React.CSSProperties}>
               <div className={styles.modernSidebar} style={{ backgroundColor: getTemplateConfig(resume.template || 'clean').styleConfig.sidebarBg }}>
+                {personalInfo.photo_url && (
+                  <div className={styles.modernPhotoWrapper}>
+                    <img src={personalInfo.photo_url} alt="Profile" className={styles.modernPhoto} />
+                  </div>
+                )}
                 <div className={styles.modernNameSection}>
                   <h1 className={styles.modernName}>{personalInfo.first_name || 'Your'}</h1>
                   <h1 className={styles.modernName}>{personalInfo.last_name || 'Name'}</h1>
@@ -1521,16 +1526,36 @@ export default function ResumeEditorPage() {
           {(getTemplateConfig(resume.template || 'clean').layout === 'header' || resume.template === 'bold') && !(resume.template === 'modern') && (
             <div className={`${styles.resumePreview} ${styles.boldTemplate}`}>
               <div className={styles.boldHeader}>
-                <h1 className={styles.boldName}>
-                  {personalInfo.first_name || personalInfo.last_name
-                    ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
-                    : 'Your Name'}
-                </h1>
-                <div className={styles.boldContact}>
-                  {personalInfo.email && <span>{personalInfo.email}</span>}
-                  {personalInfo.phone && <span>{personalInfo.phone}</span>}
-                  {personalInfo.location && <span>{personalInfo.location}</span>}
-                </div>
+                {personalInfo.photo_url ? (
+                  <div className={styles.boldHeaderWithPhoto}>
+                    <img src={personalInfo.photo_url} alt="Profile" className={styles.boldPhoto} />
+                    <div className={styles.boldHeaderContent}>
+                      <h1 className={styles.boldName}>
+                        {personalInfo.first_name || personalInfo.last_name
+                          ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                          : 'Your Name'}
+                      </h1>
+                      <div className={styles.boldContact}>
+                        {personalInfo.email && <span>{personalInfo.email}</span>}
+                        {personalInfo.phone && <span>{personalInfo.phone}</span>}
+                        {personalInfo.location && <span>{personalInfo.location}</span>}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h1 className={styles.boldName}>
+                      {personalInfo.first_name || personalInfo.last_name
+                        ? `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                        : 'Your Name'}
+                    </h1>
+                    <div className={styles.boldContact}>
+                      {personalInfo.email && <span>{personalInfo.email}</span>}
+                      {personalInfo.phone && <span>{personalInfo.phone}</span>}
+                      {personalInfo.location && <span>{personalInfo.location}</span>}
+                    </div>
+                  </>
+                )}
               </div>
               <div className={styles.boldBody}>
                 {personalInfo.summary && <div className={styles.boldSection}><h2>About Me</h2><p>{personalInfo.summary}</p></div>}

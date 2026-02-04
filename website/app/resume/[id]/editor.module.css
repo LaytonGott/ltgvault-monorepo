@@ -1013,6 +1013,20 @@
   gap: 24px;
 }
 
+.modernPhotoWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.modernPhoto {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
 .modernNameSection {
   margin-bottom: 8px;
 }
@@ -1237,6 +1251,25 @@
   gap: 16px;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.9);
+}
+
+.boldHeaderWithPhoto {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.boldPhoto {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.boldHeaderContent {
+  flex: 1;
 }
 
 .boldBody {

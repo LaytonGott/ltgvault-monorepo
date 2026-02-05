@@ -1075,20 +1075,18 @@ function SplitTemplate({ style, personalInfo, education, experience, skills, pro
 export default function ResumePDF({ template, colorTheme, personalInfo, education, experience, skills, projects }: ResumePDFProps) {
   const config = getTemplateConfig(template);
 
-  // Apply custom color theme if specified
+  // Apply color theme (default is Black #000000)
   let effectiveStyle = { ...config.styleConfig };
-  if (colorTheme && colorTheme !== 'default') {
-    const theme = COLOR_THEMES[colorTheme as ColorThemeId];
-    if (theme?.color) {
-      effectiveStyle = {
-        ...effectiveStyle,
-        primaryColor: theme.color,
-        secondaryColor: theme.color,
-        accentColor: theme.color,
-        sidebarBg: theme.color,
-        headerBg: theme.color,
-      };
-    }
+  const themeId = colorTheme || 'default';
+  const theme = COLOR_THEMES[themeId as ColorThemeId];
+  if (theme?.color) {
+    effectiveStyle = {
+      ...effectiveStyle,
+      primaryColor: theme.color,
+      secondaryColor: theme.color,
+      accentColor: theme.color,
+      ...(themeId !== 'default' ? { sidebarBg: theme.color, headerBg: theme.color } : {}),
+    };
   }
 
   const templateProps = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TEMPLATES, LAYOUTS, getTemplatesByLayout, TemplateConfig, TemplateStyle } from '@/lib/template-config';
+import { TEMPLATES, TemplateSpec } from '@/lib/template-config';
 import styles from './TemplateGallery.module.css';
 
 interface TemplateGalleryProps {
@@ -11,508 +11,238 @@ interface TemplateGalleryProps {
   onClose: () => void;
 }
 
+// Mini-resume thumbnail component for each template
 function TemplateThumbnail({ template, isSelected, isLocked, onClick }: {
-  template: TemplateConfig;
+  template: TemplateSpec;
   isSelected: boolean;
   isLocked: boolean;
   onClick: () => void;
 }) {
-  const s = template.styleConfig;
-
-  // Helper to determine if style uses serif font
-  const isSerif = s.headingFont.includes('Times');
-
-  // Render structurally distinct mini-resume thumbnails
   const renderThumbnail = () => {
-    switch (template.layout) {
-      case 'single':
-        return renderSingleColumn(s);
-      case 'twocolumn':
-        return renderTwoColumn(s);
-      case 'header':
-        return renderHeader(s);
-      case 'compact':
-        return renderCompact(s);
-      case 'split':
-        return renderSplit(s);
-      default:
-        return null;
-    }
-  };
+    const t = template;
+    const fontFamily = t.fontFamily === 'serif' ? 'Georgia, serif' : 'Arial, sans-serif';
+    const isCentered = t.nameAlignment === 'center';
 
-  // SINGLE COLUMN - 5 distinct variants based on style properties
-  const renderSingleColumn = (s: TemplateStyle) => {
-    const nameText = s.nameUppercase ? 'JOHN SMITH' : 'John Smith';
-    const fontFamily = isSerif ? 'Georgia, serif' : 'Arial, sans-serif';
-
-    return (
-      <div className={styles.miniResume} style={{
-        padding: s.pageMargin > 50 ? '8px 10px' : '6px 8px',
-        fontFamily
-      }}>
-        {/* Name - varies by style properties */}
-        <div className={styles.miniName} style={{
-          color: s.primaryColor,
-          fontSize: s.nameSize > 26 ? '8px' : s.nameSize < 24 ? '6px' : '7px',
-          fontWeight: s.nameWeight > 500 ? 700 : 400,
-          letterSpacing: s.nameLetterSpacing > 1 ? '1px' : s.nameLetterSpacing < 0 ? '-0.5px' : '0',
-        }}>
-          {nameText}
-        </div>
-
-        {/* Name underline */}
-        {s.nameUnderline && (
+    // Modern Split - special two-column with photo circle and timeline
+    if (t.id === 'modern-split') {
+      return (
+        <div style={{ display: 'flex', height: '100%', fontFamily }}>
           <div style={{
-            height: s.nameUnderlineThickness > 2 ? '2px' : '1px',
-            backgroundColor: s.primaryColor,
-            width: s.styleId === 'bold' ? '40%' : '100%',
-            marginBottom: '3px',
-          }} />
-        )}
-
-        {/* Contact - with divider based on style */}
-        <div className={styles.miniContact} style={{
-          color: s.lightText,
-          borderBottomWidth: s.headerDivider ? (s.headerDividerThickness > 2 ? '2px' : '1px') : '0',
-          borderBottomStyle: 'solid',
-          borderBottomColor: s.primaryColor,
-          paddingBottom: s.headerDivider ? '3px' : '2px',
-          marginBottom: s.headerDivider ? '4px' : '3px',
-        }}>
-          email@example.com | (555) 123-4567
-        </div>
-
-        {/* Section Header - varies by style properties */}
-        <div className={styles.miniSection}>
-          {s.sectionBackground ? (
-            <div className={styles.miniSectionTitle} style={{
-              backgroundColor: s.primaryColor,
-              color: '#fff',
-              padding: '2px 4px',
-              margin: '0 -4px',
-              fontSize: '4px',
-              letterSpacing: '0.3px',
-            }}>EXPERIENCE</div>
-          ) : s.sectionUnderline ? (
-            <div className={styles.miniSectionTitle} style={{
-              color: s.primaryColor,
-              borderBottomWidth: '0.5px',
-              borderBottomStyle: 'solid',
-              borderBottomColor: s.secondaryColor,
-              paddingBottom: '1px',
-              fontSize: '4px',
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          ) : s.sectionDots ? (
-            <>
-              <div className={styles.miniSectionTitle} style={{
-                color: s.primaryColor,
-                letterSpacing: s.sectionLetterSpacing > 2 ? '1.5px' : '0.5px',
-                fontSize: '4px',
-              }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-              <div style={{ fontSize: '3px', color: s.secondaryColor, letterSpacing: '2px', marginBottom: '2px' }}>...</div>
-            </>
-          ) : s.styleId === 'minimal' ? (
-            <div className={styles.miniSectionTitle} style={{
-              color: s.lightText,
-              fontSize: '3.5px',
-              fontWeight: 400,
-            }}>Experience</div>
-          ) : (
-            <div className={styles.miniSectionTitle} style={{
-              color: s.primaryColor,
-              fontWeight: 700,
-              fontSize: '4px',
-              letterSpacing: s.sectionLetterSpacing > 1 ? '0.5px' : '0',
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          )}
-
-          <div className={styles.miniEntry}>
-            <span className={styles.miniJobTitle} style={{ color: s.textColor }}>Software Developer</span>
-            {s.datePosition === 'right' && (
-              <span className={styles.miniDate} style={{ color: s.primaryColor }}>2022-Present</span>
-            )}
-          </div>
-          {s.datePosition === 'below' && (
-            <div className={styles.miniDate} style={{ color: s.lightText, fontStyle: s.dateItalic ? 'italic' : 'normal', fontSize: '3px' }}>2022-Present</div>
-          )}
-          <div className={styles.miniCompany} style={{
-            color: s.lightText,
-            fontStyle: s.styleId === 'elegant' ? 'italic' : 'normal',
+            width: '35%',
+            backgroundColor: '#f5f5f5',
+            padding: '6px 4px',
+            color: '#333',
+            borderRight: `1.5px solid ${t.primaryColor}`,
           }}>
-            Tech Company Inc.
-            {s.datePosition === 'inline' && ' | 2022-Present'}
+            {/* Photo circle */}
+            <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#ddd', margin: '0 auto 4px', border: `1px solid ${t.primaryColor}` }} />
+            <div style={{ fontSize: '3px', color: t.primaryColor, fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px', marginTop: '4px' }}>Language</div>
+            <div style={{ fontSize: '2.5px' }}>English</div>
+            <div style={{ fontSize: '2.5px' }}>Spanish</div>
+            <div style={{ fontSize: '3px', color: t.primaryColor, fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px', marginTop: '4px' }}>Skills</div>
+            <div style={{ fontSize: '2.5px' }}>Leadership</div>
+            <div style={{ fontSize: '2.5px' }}>Strategy</div>
           </div>
-          <div className={styles.miniDesc} style={{ color: s.textColor }}>Built web apps using React</div>
-        </div>
-
-        {/* Skills - varies by skillsStyle */}
-        <div className={styles.miniSection} style={{ marginTop: '3px' }}>
-          {s.skillsStyle === 'chips' ? (
-            <div style={{ display: 'flex', gap: '2px', flexWrap: 'wrap' }}>
-              <span style={{
-                backgroundColor: `${s.primaryColor}20`,
-                padding: '1px 3px',
-                borderRadius: '2px',
-                fontSize: '3px',
-                color: s.primaryColor,
-              }}>JS</span>
-              <span style={{
-                backgroundColor: `${s.primaryColor}20`,
-                padding: '1px 3px',
-                borderRadius: '2px',
-                fontSize: '3px',
-                color: s.primaryColor,
-              }}>React</span>
-            </div>
-          ) : s.skillsStyle === 'inline' ? (
-            <div style={{ fontSize: '3px', color: s.textColor }}>JavaScript - React - Node.js</div>
-          ) : s.skillsStyle === 'bullets' ? (
-            <div style={{ fontSize: '3px', color: s.textColor }}>- JS - React - Node</div>
-          ) : (
-            <div style={{ fontSize: '3px', color: s.textColor }}>JavaScript, React, Node.js</div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // TWO COLUMN - 5 distinct sidebar variants
-  const renderTwoColumn = (s: TemplateStyle) => {
-    const fontFamily = isSerif ? 'Georgia, serif' : 'Arial, sans-serif';
-    const sidebarIsFilled = s.sidebarFilled && !s.sidebarBorderOnly;
-    const sidebarIsDark = sidebarIsFilled && s.styleId !== 'classic';
-    const sidebarWidthPct = `${s.sidebarWidth}%`;
-
-    return (
-      <div className={styles.miniResumeTwoCol} style={{ fontFamily }}>
-        {/* Sidebar - different styles */}
-        <div className={styles.miniSidebar} style={{
-          width: sidebarWidthPct,
-          backgroundColor: sidebarIsFilled ? s.sidebarBg : (s.sidebarBorderOnly ? '#fff' : '#fafafa'),
-          borderRight: s.sidebarBorderOnly ? `1px solid ${s.primaryColor}` : 'none',
-          color: sidebarIsDark ? '#fff' : s.textColor,
-        }}>
-          <div className={styles.miniSidebarName} style={{
-            color: sidebarIsDark ? '#fff' : s.primaryColor,
-            textTransform: s.nameUppercase ? 'uppercase' : 'none',
-            letterSpacing: s.nameUppercase ? '0.5px' : '0',
-          }}>John</div>
-          <div className={styles.miniSidebarName} style={{
-            color: sidebarIsDark ? '#fff' : s.primaryColor,
-            textTransform: s.nameUppercase ? 'uppercase' : 'none',
-          }}>Smith</div>
-
-          <div className={styles.miniSidebarSection}>
-            <div className={styles.miniSidebarTitle} style={{
-              color: sidebarIsDark ? 'rgba(255,255,255,0.7)' : s.primaryColor,
-              borderBottom: s.sectionUnderline ? `0.5px solid ${sidebarIsDark ? 'rgba(255,255,255,0.3)' : s.secondaryColor}` : 'none',
-              letterSpacing: '0.3px',
-            }}>CONTACT</div>
-            <div className={styles.miniSidebarText} style={{ color: sidebarIsDark ? 'rgba(255,255,255,0.9)' : s.lightText }}>
-              email@example.com
-            </div>
-          </div>
-
-          <div className={styles.miniSidebarSection}>
-            <div className={styles.miniSidebarTitle} style={{
-              color: sidebarIsDark ? 'rgba(255,255,255,0.7)' : s.primaryColor,
-            }}>SKILLS</div>
-            {s.skillsStyle === 'chips' ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1px' }}>
-                <span style={{
-                  backgroundColor: sidebarIsDark ? 'rgba(255,255,255,0.15)' : '#e5e7eb',
-                  padding: '1px 2px',
-                  borderRadius: '1px',
-                  fontSize: '2.5px',
-                  color: sidebarIsDark ? '#fff' : s.textColor,
-                }}>JS</span>
-                <span style={{
-                  backgroundColor: sidebarIsDark ? 'rgba(255,255,255,0.15)' : '#e5e7eb',
-                  padding: '1px 2px',
-                  borderRadius: '1px',
-                  fontSize: '2.5px',
-                  color: sidebarIsDark ? '#fff' : s.textColor,
-                }}>React</span>
+          <div style={{ flex: 1, padding: '6px 6px', backgroundColor: '#fff' }}>
+            <div style={{ fontSize: '6px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'Georgia, serif' }}>John Smith</div>
+            <div style={{ fontSize: '2.5px', color: '#888', marginBottom: '5px' }}>Marketing Professional</div>
+            <div style={{ fontSize: '3.5px', color: t.primaryColor, fontWeight: 600, marginBottom: '2px', borderBottom: `0.5px solid ${t.primaryColor}`, paddingBottom: '1px' }}>PROFILE</div>
+            <div style={{ fontSize: '2.5px', color: '#555', marginBottom: '4px' }}>Brief bio here...</div>
+            <div style={{ fontSize: '3.5px', color: t.primaryColor, fontWeight: 600, marginBottom: '2px', borderBottom: `0.5px solid ${t.primaryColor}`, paddingBottom: '1px' }}>EXPERIENCE</div>
+            <div style={{ display: 'flex', gap: '3px' }}>
+              <div style={{ fontSize: '2.5px', color: '#888', minWidth: '14px' }}>2022</div>
+              <div>
+                <div style={{ fontSize: '3px', fontWeight: 600 }}>Software Engineer</div>
+                <div style={{ fontSize: '2.5px', color: '#666' }}>Tech Co.</div>
               </div>
-            ) : (
-              <>
-                <div className={styles.miniSidebarText} style={{ color: sidebarIsDark ? 'rgba(255,255,255,0.9)' : s.textColor }}>
-                  JavaScript
-                </div>
-                <div className={styles.miniSidebarText} style={{ color: sidebarIsDark ? 'rgba(255,255,255,0.9)' : s.textColor }}>
-                  React
-                </div>
-              </>
-            )}
+            </div>
           </div>
         </div>
+      );
+    }
 
-        {/* Main content */}
-        <div className={styles.miniMain} style={{ padding: '6px' }}>
-          {/* Section header style */}
-          {s.sectionBackground ? (
-            <div style={{
-              backgroundColor: s.primaryColor,
-              color: '#fff',
-              padding: '1px 3px',
-              margin: '0 -3px 3px',
-              fontSize: '3.5px',
-            }}>EXPERIENCE</div>
-          ) : (
-            <div className={styles.miniSectionTitle} style={{
-              color: s.primaryColor,
-              borderBottom: s.sectionUnderline ? `1px solid ${s.primaryColor}` : 'none',
-              paddingBottom: '1px',
-              marginBottom: '3px',
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          )}
-
-          <div className={styles.miniEntry}>
-            <span className={styles.miniJobTitle} style={{ color: s.textColor }}>Software Developer</span>
+    // Clean Classic - centered name, icon contact, accent-only lines
+    if (t.id === 'clean-classic') {
+      return (
+        <div style={{ height: '100%', padding: '6px 8px', fontFamily: 'Arial, sans-serif', backgroundColor: '#fff' }}>
+          <div style={{ textAlign: 'center', marginBottom: '1px' }}>
+            <div style={{ fontSize: '7px', fontWeight: 700 }}>JOHN SMITH</div>
+            <div style={{ fontSize: '2.5px', color: '#888', marginBottom: '3px' }}>Marketing Professional</div>
+            <div style={{ fontSize: '2.5px', color: '#555' }}>📍 New York  |  📧 email  |  📱 phone</div>
           </div>
-          <div className={styles.miniCompany} style={{
-            color: s.lightText,
-            fontStyle: s.styleId === 'elegant' ? 'italic' : 'normal',
-          }}>Tech Company | 2022-Present</div>
+          <div style={{ fontSize: '3.5px', fontWeight: 700, marginTop: '5px', marginBottom: '1px', paddingBottom: '1.5px', borderBottom: `1px solid ${t.primaryColor}` }}>EDUCATION</div>
+          <div style={{ fontSize: '3px', fontWeight: 600 }}>B.A. Computer Science</div>
+          <div style={{ fontSize: '2.5px', color: '#666' }}>Harvard University • 2022</div>
+          <div style={{ fontSize: '3.5px', fontWeight: 700, marginTop: '4px', marginBottom: '1px', paddingBottom: '1.5px', borderBottom: `1px solid ${t.primaryColor}` }}>EXPERIENCE</div>
+          <div style={{ fontSize: '3px', fontWeight: 600 }}>Software Engineer</div>
+          <div style={{ fontSize: '2.5px', color: '#666' }}>Tech Company • 2022-Present</div>
+          <div style={{ fontSize: '2.5px', marginTop: '1px' }}>• Built web apps</div>
         </div>
-      </div>
-    );
-  };
+      );
+    }
 
-  // HEADER FOCUS - 5 distinct header variants
-  const renderHeader = (s: TemplateStyle) => {
-    const fontFamily = isSerif ? 'Georgia, serif' : 'Arial, sans-serif';
-    const headerIsFilled = s.styleId === 'modern' || s.styleId === 'bold';
-    const nameText = s.nameUppercase ? 'JOHN SMITH' : 'John Smith';
+    // Bold Banner - colored header with bracketed name
+    if (t.id === 'bold-banner') {
+      return (
+        <div style={{ height: '100%', fontFamily: 'Arial, sans-serif' }}>
+          <div style={{ backgroundColor: t.headerBg || t.primaryColor, padding: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: '5.5px', fontWeight: 700, color: '#fff' }}>[ JOHN SMITH ]</div>
+              <div style={{ fontSize: '2.5px', color: 'rgba(255,255,255,0.8)', fontStyle: 'italic' }}>Software Engineer</div>
+            </div>
+          </div>
+          <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '2px 6px', fontSize: '2.5px', color: '#555' }}>email@example.com  |  (555) 123-4567</div>
+          <div style={{ padding: '4px 6px', backgroundColor: '#fff' }}>
+            <div style={{ fontSize: '3.5px', color: t.primaryColor, fontWeight: 700, marginBottom: '2px', borderBottom: `0.5px solid ${t.primaryColor}`, paddingBottom: '1px' }}>OBJECTIVE</div>
+            <div style={{ fontSize: '2.5px', color: '#555', marginBottom: '3px' }}>Seeking a role...</div>
+            <div style={{ fontSize: '3.5px', color: t.primaryColor, fontWeight: 700, marginBottom: '2px', borderBottom: `0.5px solid ${t.primaryColor}`, paddingBottom: '1px' }}>EXPERIENCE</div>
+            <div style={{ fontSize: '3px', fontWeight: 600 }}>Software Engineer</div>
+            <div style={{ fontSize: '2.5px', color: '#666' }}>Tech Company</div>
+          </div>
+        </div>
+      );
+    }
 
-    return (
-      <div className={styles.miniResumeHeader} style={{ fontFamily }}>
-        {/* Header - dark or light with border */}
-        <div className={styles.miniHeaderBg} style={{
-          backgroundColor: headerIsFilled ? s.headerBg : '#f8f8f8',
-          borderBottom: !headerIsFilled ? `1.5px solid ${s.primaryColor}` : 'none',
-          padding: s.nameSize > 26 ? '8px' : '6px 8px',
-        }}>
-          <div className={styles.miniHeaderName} style={{
-            color: headerIsFilled ? '#fff' : s.primaryColor,
-            fontSize: s.nameSize > 26 ? '8px' : s.nameSize < 24 ? '6px' : '7px',
-            fontWeight: s.nameWeight > 500 ? 700 : 400,
-            letterSpacing: s.nameLetterSpacing > 2 ? '1.5px' : '0.5px',
-          }}>{nameText}</div>
-          <div className={styles.miniHeaderContact} style={{
-            color: headerIsFilled ? 'rgba(255,255,255,0.8)' : s.lightText,
+    // Two-column layout (generic)
+    if (t.layout === 'twocolumn') {
+      return (
+        <div style={{ display: 'flex', height: '100%', fontFamily }}>
+          {/* Sidebar */}
+          <div style={{
+            width: '35%',
+            backgroundColor: t.sidebarBg || '#f5f5f5',
+            padding: '6px 4px',
+            color: '#333',
           }}>
-            email@example.com | (555) 123-4567
+            <div style={{ fontSize: '5px', fontWeight: 700, marginBottom: '4px' }}>John</div>
+            <div style={{ fontSize: '5px', fontWeight: 700, marginBottom: '6px' }}>Smith</div>
+            <div style={{ fontSize: '3px', color: t.primaryColor, fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px', borderBottom: `0.5px solid ${t.primaryColor}`, paddingBottom: '1px' }}>Contact</div>
+            <div style={{ fontSize: '2.5px', marginBottom: '4px' }}>email@example.com</div>
+            <div style={{ fontSize: '3px', color: t.primaryColor, fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px', borderBottom: `0.5px solid ${t.primaryColor}`, paddingBottom: '1px' }}>Skills</div>
+            <div style={{ fontSize: '2.5px' }}>JavaScript</div>
+            <div style={{ fontSize: '2.5px' }}>React</div>
+          </div>
+          {/* Main content */}
+          <div style={{ flex: 1, padding: '6px', backgroundColor: '#fff' }}>
+            <div style={{ fontSize: '3.5px', color: t.primaryColor, fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px', borderBottom: `1px solid ${t.primaryColor}`, paddingBottom: '1px' }}>Experience</div>
+            <div style={{ fontSize: '3px', fontWeight: 600 }}>Software Engineer</div>
+            <div style={{ fontSize: '2.5px', color: '#666' }}>Tech Company</div>
           </div>
         </div>
+      );
+    }
 
-        {/* Body with section headers */}
-        <div className={styles.miniHeaderBody}>
-          {s.sectionBackground ? (
-            <div className={styles.miniHeaderSectionBar} style={{
-              backgroundColor: s.primaryColor,
-              color: '#fff',
-              marginTop: '2px',
-            }}>EXPERIENCE</div>
-          ) : s.sectionDots ? (
-            <>
-              <div style={{
-                fontSize: '3.5px',
-                color: s.primaryColor,
-                letterSpacing: s.sectionLetterSpacing > 2 ? '1px' : '0.5px',
-                marginTop: '4px',
-                marginBottom: '1px',
-              }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-              <div style={{ fontSize: '2.5px', color: s.secondaryColor, letterSpacing: '1.5px', marginBottom: '2px' }}>...</div>
-            </>
-          ) : s.sectionUnderline ? (
-            <div style={{
-              fontSize: '3.5px',
-              color: s.primaryColor,
-              borderBottom: `0.5px solid ${s.secondaryColor}`,
-              paddingBottom: '1px',
-              marginTop: '4px',
-              marginBottom: '2px',
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          ) : (
-            <div style={{
-              fontSize: '3.5px',
-              fontWeight: 700,
-              color: s.primaryColor,
-              marginTop: '4px',
-              marginBottom: '2px',
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          )}
-
-          <div className={styles.miniEntry} style={{ marginTop: '2px' }}>
-            <span className={styles.miniJobTitle} style={{ color: s.textColor }}>Software Developer</span>
-            <span className={styles.miniDate} style={{ color: s.primaryColor }}>2022-Present</span>
-          </div>
-          <div className={styles.miniCompany} style={{
-            color: s.lightText,
-            fontStyle: s.styleId === 'elegant' ? 'italic' : 'normal',
-          }}>Tech Company Inc.</div>
-        </div>
-      </div>
-    );
-  };
-
-  // COMPACT - 5 dense but distinct variants
-  const renderCompact = (s: TemplateStyle) => {
-    const fontFamily = isSerif ? 'Georgia, serif' : 'Arial, sans-serif';
-    const nameText = s.nameUppercase ? 'JOHN SMITH' : 'John Smith';
-
-    return (
-      <div className={styles.miniResumeCompact} style={{ fontFamily }}>
-        <div className={styles.miniCompactName} style={{
-          color: s.primaryColor,
-          fontSize: s.nameSize > 26 ? '6px' : s.nameSize < 24 ? '4.5px' : '5px',
-          fontWeight: s.nameWeight > 500 ? 700 : 400,
-          letterSpacing: s.nameUppercase ? '0.5px' : '0',
-        }}>{nameText}</div>
-
-        <div className={styles.miniCompactContact} style={{
-          color: s.lightText,
-          borderBottom: s.headerDivider ? `${s.headerDividerThickness > 2 ? '1px' : '0.5px'} solid ${s.primaryColor}` : 'none',
-        }}>
-          email@example.com | (555) 123-4567
-        </div>
-
-        <div className={styles.miniCompactSection}>
-          {s.sectionBackground ? (
-            <div className={styles.miniCompactLabel} style={{
-              backgroundColor: s.primaryColor,
-              color: '#fff',
-            }}>EXPERIENCE</div>
-          ) : s.styleId === 'minimal' ? (
-            <div className={styles.miniCompactLabel} style={{
-              backgroundColor: 'transparent',
-              color: s.lightText,
-              fontWeight: 400,
-              padding: 0,
-            }}>Experience</div>
-          ) : s.sectionUnderline ? (
-            <div className={styles.miniCompactLabel} style={{
-              backgroundColor: 'transparent',
-              color: s.primaryColor,
-              borderBottom: `0.5px solid ${s.secondaryColor}`,
-              padding: '0 0 1px 0',
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          ) : (
-            <div className={styles.miniCompactLabel} style={{
-              backgroundColor: '#f5f5f5',
-              color: s.textColor,
-            }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-          )}
-          <div className={styles.miniCompactEntry} style={{ color: s.textColor }}>Software Developer - Tech Co.</div>
-          <div className={styles.miniCompactDesc} style={{ color: s.lightText }}>Built web apps</div>
-        </div>
-
-        <div className={styles.miniCompactSection}>
-          {s.sectionBackground ? (
-            <div className={styles.miniCompactLabel} style={{ backgroundColor: s.primaryColor, color: '#fff' }}>SKILLS</div>
-          ) : s.styleId === 'minimal' ? (
-            <div className={styles.miniCompactLabel} style={{ backgroundColor: 'transparent', color: s.lightText, fontWeight: 400, padding: 0 }}>Skills</div>
-          ) : (
-            <div className={styles.miniCompactLabel} style={{ backgroundColor: '#f5f5f5', color: s.textColor }}>{s.sectionUppercase ? 'SKILLS' : 'Skills'}</div>
-          )}
-          {s.skillsStyle === 'chips' ? (
-            <div className={styles.miniCompactSkills}>
-              <span style={{ backgroundColor: `${s.primaryColor}20`, color: s.textColor }}>JS</span>
-              <span style={{ backgroundColor: `${s.primaryColor}20`, color: s.textColor }}>React</span>
-            </div>
-          ) : (
-            <div style={{ fontSize: '2.5px', color: s.textColor }}>JavaScript, React, Node.js</div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // SPLIT - 5 distinct accent bar variants
-  const renderSplit = (s: TemplateStyle) => {
-    const fontFamily = isSerif ? 'Georgia, serif' : 'Arial, sans-serif';
-    const firstName = s.nameUppercase ? 'JOHN' : 'John';
-    const lastName = s.nameUppercase ? 'SMITH' : 'Smith';
-
-    return (
-      <div className={styles.miniResumeSplit} style={{ fontFamily }}>
-        {/* Accent bar */}
-        <div className={styles.miniSplitBar} style={{
-          width: '3px',
-          backgroundColor: s.primaryColor,
-        }} />
-
-        <div className={styles.miniSplitContent} style={{ paddingLeft: '4px' }}>
-          {/* Split name styling */}
-          <div className={styles.miniSplitName}>
-            <span style={{
-              color: s.primaryColor,
-              fontWeight: s.nameWeight > 500 ? 700 : 400,
-              letterSpacing: s.nameUppercase ? '0.5px' : '0',
-            }}>{firstName}</span>
-            <span style={{
-              color: s.textColor,
-              fontWeight: s.nameWeight > 500 ? undefined : 400,
-            }}> {lastName}</span>
-          </div>
-
-          <div className={styles.miniSplitContact} style={{
-            color: s.lightText,
+    // Header layout (bold header bar)
+    if (t.layout === 'header') {
+      return (
+        <div style={{ height: '100%', fontFamily }}>
+          {/* Header bar */}
+          <div style={{
+            backgroundColor: t.headerBg || t.primaryColor,
+            padding: '8px 6px',
+            textAlign: 'center',
           }}>
-            email@example.com
+            <div style={{ fontSize: '7px', fontWeight: 700, color: '#fff' }}>John Smith</div>
+            <div style={{ fontSize: '3px', color: 'rgba(255,255,255,0.8)' }}>email@example.com | (555) 123-4567</div>
           </div>
-
-          <div className={styles.miniSplitColumns}>
-            {/* Left column */}
-            <div className={styles.miniSplitLeft}>
-              {s.sectionBackground ? (
-                <div style={{
-                  backgroundColor: s.primaryColor,
-                  color: '#fff',
-                  fontSize: '3px',
-                  padding: '1px 2px',
-                  marginBottom: '2px',
-                }}>SKILLS</div>
-              ) : (
-                <div className={styles.miniSectionTitle} style={{
-                  color: s.primaryColor,
-                  borderBottom: s.sectionUnderline ? `1px solid ${s.primaryColor}` : 'none',
-                  fontSize: '3.5px',
-                  letterSpacing: s.sectionLetterSpacing > 2 ? '1px' : '0.3px',
-                }}>{s.sectionUppercase ? 'SKILLS' : 'Skills'}</div>
-              )}
-
-              <div style={{ fontSize: '3px', color: s.textColor }}>- JavaScript</div>
-              <div style={{ fontSize: '3px', color: s.textColor }}>- React</div>
-            </div>
-
-            {/* Right column */}
-            <div className={styles.miniSplitRight}>
-              {s.sectionBackground ? (
-                <div style={{
-                  backgroundColor: s.primaryColor,
-                  color: '#fff',
-                  fontSize: '3px',
-                  padding: '1px 2px',
-                  marginBottom: '2px',
-                }}>EXPERIENCE</div>
-              ) : (
-                <div className={styles.miniSectionTitle} style={{
-                  color: s.primaryColor,
-                  borderBottom: s.sectionUnderline ? `1px solid ${s.primaryColor}` : 'none',
-                  fontSize: '3.5px',
-                }}>{s.sectionUppercase ? 'EXPERIENCE' : 'Experience'}</div>
-              )}
-              <div className={styles.miniJobTitle} style={{ color: s.textColor, fontSize: '4px' }}>Software Developer</div>
-              <div className={styles.miniCompany} style={{
-                color: s.lightText,
-                fontSize: '3px',
-                fontStyle: s.styleId === 'elegant' ? 'italic' : 'normal',
-              }}>Tech Company</div>
-            </div>
+          {/* Body */}
+          <div style={{ padding: '6px 8px', backgroundColor: '#fff' }}>
+            <div style={{ fontSize: '4px', color: t.primaryColor, fontWeight: 600, marginBottom: '3px', borderBottom: `1px solid ${t.primaryColor}`, paddingBottom: '1px' }}>EXPERIENCE</div>
+            <div style={{ fontSize: '3.5px', fontWeight: 600 }}>Software Engineer</div>
+            <div style={{ fontSize: '3px', color: '#666' }}>Tech Company | 2022-Present</div>
           </div>
         </div>
+      );
+    }
+
+    // Single column layouts - differentiate by style
+    const nameSize = t.nameFontSize > 20 ? '8px' : t.nameFontSize > 16 ? '7px' : '6px';
+    const isThickLine = t.sectionHeaderStyle === 'caps-thick-underline';
+    const hasUnderline = ['caps-underline', 'caps-thick-underline', 'bold-gray-underline'].includes(t.sectionHeaderStyle);
+    const isCapsHeader = ['caps-underline', 'caps-thick-underline', 'minimal'].includes(t.sectionHeaderStyle);
+    const headerColor = t.sectionHeaderStyle === 'colored' ? t.primaryColor : t.sectionHeaderStyle === 'minimal' ? '#999' : '#000';
+
+    return (
+      <div style={{
+        height: '100%',
+        padding: t.margins > 0.8 ? '8px 10px' : t.margins > 0.6 ? '6px 8px' : '4px 6px',
+        fontFamily,
+        backgroundColor: '#fff',
+      }}>
+        {/* Name */}
+        <div style={{
+          textAlign: isCentered ? 'center' : 'left',
+          marginBottom: '2px',
+        }}>
+          {/* Accent bar for Creative template */}
+          {t.hasAccentBar && (
+            <div style={{
+              display: 'inline-block',
+              width: '2px',
+              height: '10px',
+              backgroundColor: t.primaryColor,
+              marginRight: '3px',
+              verticalAlign: 'middle',
+            }} />
+          )}
+          <span style={{
+            fontSize: nameSize,
+            fontWeight: t.nameFontWeight,
+            color: t.primaryColor === '#000000' ? '#000' : t.primaryColor,
+            letterSpacing: t.sectionHeaderStyle === 'minimal' ? '0.5px' : '0',
+          }}>
+            John Smith
+          </span>
+        </div>
+
+        {/* Contact */}
+        <div style={{
+          fontSize: '3px',
+          color: '#666',
+          textAlign: isCentered ? 'center' : 'left',
+          marginBottom: t.contactDivider ? '3px' : '4px',
+          paddingBottom: t.contactDivider ? '3px' : '0',
+          borderBottom: t.contactDivider ? '0.5px solid #000' : 'none',
+        }}>
+          {t.contactLayout === 'icons' ? (
+            <span>📧 email | 📱 phone | 📍 city</span>
+          ) : (
+            <span>email@example.com | (555) 123-4567</span>
+          )}
+        </div>
+
+        {/* Section header */}
+        <div style={{
+          fontSize: '4px',
+          fontWeight: t.sectionHeaderStyle === 'minimal' ? 400 : 700,
+          color: headerColor,
+          textTransform: isCapsHeader ? 'uppercase' : 'none',
+          letterSpacing: t.sectionHeaderStyle === 'minimal' ? '1px' : '0.3px',
+          marginBottom: '2px',
+          marginTop: '4px',
+          textAlign: t.sectionHeaderStyle === 'small-caps-center' ? 'center' : 'left',
+          borderBottom: hasUnderline ? `${isThickLine ? '1.5px' : '0.5px'} solid ${t.sectionHeaderStyle === 'bold-gray-underline' ? '#999' : '#000'}` : 'none',
+          paddingBottom: hasUnderline ? '1px' : '0',
+        }}>
+          {t.educationFirst ? 'Education' : 'Experience'}
+        </div>
+
+        {/* Entry */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <span style={{ fontSize: '3.5px', fontWeight: 600 }}>
+            {t.educationFirst ? 'Harvard University' : 'Software Engineer'}
+          </span>
+          <span style={{ fontSize: '3px', color: '#666' }}>2022</span>
+        </div>
+        <div style={{ fontSize: '3px', color: '#666' }}>
+          {t.educationFirst ? 'B.A. Computer Science' : 'Tech Company'}
+        </div>
+        {!t.educationFirst && (
+          <div style={{ fontSize: '2.5px', marginTop: '1px' }}>
+            {t.useDashBullets ? '- Built web apps' : '• Built web apps'}
+          </div>
+        )}
       </div>
     );
   };
@@ -540,7 +270,7 @@ function TemplateThumbnail({ template, isSelected, isLocked, onClick }: {
         )}
       </div>
       <div className={styles.templateInfo}>
-        <div className={styles.templateName}>{template.displayName}</div>
+        <div className={styles.templateName}>{template.name}</div>
         {template.isAtsFriendly && (
           <div className={styles.atsBadge}>ATS-Friendly ✓</div>
         )}
@@ -553,13 +283,6 @@ function TemplateThumbnail({ template, isSelected, isLocked, onClick }: {
 }
 
 export default function TemplateGallery({ currentTemplate, isPro, onSelect, onClose }: TemplateGalleryProps) {
-  const [selectedLayout, setSelectedLayout] = useState<string | null>(null);
-  const templatesByLayout = getTemplatesByLayout();
-
-  const filteredTemplates = selectedLayout
-    ? templatesByLayout[selectedLayout]
-    : TEMPLATES;
-
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -573,24 +296,6 @@ export default function TemplateGallery({ currentTemplate, isPro, onSelect, onCl
           </button>
         </div>
 
-        <div className={styles.filters}>
-          <button
-            className={`${styles.filterButton} ${selectedLayout === null ? styles.active : ''}`}
-            onClick={() => setSelectedLayout(null)}
-          >
-            All ({TEMPLATES.length})
-          </button>
-          {LAYOUTS.map(layout => (
-            <button
-              key={layout.id}
-              className={`${styles.filterButton} ${selectedLayout === layout.id ? styles.active : ''}`}
-              onClick={() => setSelectedLayout(layout.id)}
-            >
-              {layout.name}
-            </button>
-          ))}
-        </div>
-
         {!isPro && (
           <div className={styles.proHint}>
             <span className={styles.sparkle}>✨</span>
@@ -599,13 +304,11 @@ export default function TemplateGallery({ currentTemplate, isPro, onSelect, onCl
         )}
 
         <div className={styles.grid}>
-          {filteredTemplates.map(template => (
+          {TEMPLATES.map(template => (
             <TemplateThumbnail
               key={template.id}
               template={template}
-              isSelected={currentTemplate === template.id ||
-                (template.id === 'single-harvard' && !currentTemplate) ||
-                (template.id === 'single-classic' && currentTemplate === 'clean')}
+              isSelected={currentTemplate === template.id}
               isLocked={!isPro && template.isPro}
               onClick={() => {
                 if (!template.isPro || isPro) {

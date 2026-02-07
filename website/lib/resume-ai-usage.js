@@ -6,6 +6,7 @@
 // Each row = 1 generation. Count rows to get usage.
 
 const { supabase } = require('./supabase');
+const { debugLog } = require('./debug');
 
 const FREE_LIMIT = 5;
 const PRO_MONTHLY_LIMIT = 100;
@@ -37,7 +38,7 @@ async function checkResumeAIUsage(userId) {
         .gte('created_at', startOfMonth.toISOString());
 
       const used = count || 0;
-      console.log('[checkResumeAIUsage] Pro user, monthly count:', used);
+      debugLog('aiUsage', 'Pro user, monthly count:', used);
 
       if (used >= PRO_MONTHLY_LIMIT) {
         return {
@@ -64,7 +65,7 @@ async function checkResumeAIUsage(userId) {
         .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter']);
 
       const used = count || 0;
-      console.log('[checkResumeAIUsage] Free user, total count:', used);
+      debugLog('aiUsage', 'Free user, total count:', used);
 
       if (used >= FREE_LIMIT) {
         return {

@@ -4,8 +4,20 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import UpgradeModal from '@/components/UpgradeModal';
+import MobileNav from '@/components/MobileNav';
+import Footer from '@/components/Footer';
 import styles from './jobs.module.css';
+
+const NAV_LINKS = [
+  { href: '/postup.html', label: 'PostUp' },
+  { href: '/threadgen.html', label: 'ThreadGen' },
+  { href: '/chaptergen.html', label: 'ChapterGen' },
+  { href: '/resume', label: 'Resume', active: true },
+  { href: '/pricing.html', label: 'Pricing' },
+  { href: '/dashboard.html', label: 'Dashboard' },
+];
 
 interface Job {
   id: string;
@@ -253,9 +265,9 @@ export default function JobTrackerPage() {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link href="/" className={styles.logo}>
-            <img src="/logo.png" alt="LTG Vault" className={styles.logoImg} />
+            <Image src="/logo.png" alt="LTG Vault" width={400} height={236} className={styles.logoImg} priority />
           </Link>
-          <nav className={styles.nav}>
+          <nav className={styles.nav} aria-label="Main navigation">
             <Link href="/postup.html">PostUp</Link>
             <Link href="/threadgen.html">ThreadGen</Link>
             <Link href="/chaptergen.html">ChapterGen</Link>
@@ -263,6 +275,7 @@ export default function JobTrackerPage() {
             <Link href="/pricing.html">Pricing</Link>
             <Link href="/dashboard.html">Dashboard</Link>
           </nav>
+          <MobileNav links={NAV_LINKS} />
         </div>
       </header>
 
@@ -482,6 +495,7 @@ export default function JobTrackerPage() {
         title="Upgrade to Track More Jobs"
         message="Free users can track up to 3 job applications. Upgrade to Pro for unlimited job tracking."
       />
+      <Footer />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 const { supabase } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
 const { checkResumeAIUsage } = require('../../lib/resume-ai-usage');
+const { debugLog } = require('../../lib/debug');
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];
@@ -14,7 +15,7 @@ async function getUser(req) {
 // Schema: ai_usage(id, user_id, tool, action, tokens_used, model, created_at)
 async function trackUsage(userId, tool) {
   try {
-    console.log('[trackUsage] Recording usage:', { userId, tool });
+    debugLog('trackUsage', 'Recording usage for tool:', tool);
 
     const { data: insertData, error: insertError } = await supabase
       .from('ai_usage')
@@ -30,7 +31,7 @@ async function trackUsage(userId, tool) {
     if (insertError) {
       console.error('[trackUsage] Insert error:', insertError);
     } else {
-      console.log('[trackUsage] Inserted successfully:', insertData);
+      debugLog('trackUsage', 'Inserted successfully');
     }
   } catch (error) {
     console.error('[trackUsage] Exception:', error);

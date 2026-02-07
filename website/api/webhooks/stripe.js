@@ -1,6 +1,7 @@
 const { stripe, getToolFromPriceId, isOneTimePayment } = require('../../lib/stripe');
 const { supabase } = require('../../lib/supabase');
 const { createApiKeyForUser } = require('../../lib/auth');
+const { debugLog } = require('../../lib/debug');
 
 // Disable body parsing - we need raw body for webhook verification
 module.exports.config = {
@@ -42,7 +43,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log('Received Stripe webhook:', event.type);
+  debugLog('stripe', 'Received webhook:', event.type);
 
   try {
     switch (event.type) {
@@ -63,7 +64,7 @@ module.exports = async function handler(req, res) {
         break;
 
       default:
-        console.log('Unhandled event type:', event.type);
+        debugLog('stripe', 'Unhandled event type:', event.type);
     }
 
     return res.status(200).json({ received: true });
@@ -74,12 +75,7 @@ module.exports = async function handler(req, res) {
 };
 
 async function handleCheckoutCompleted(session) {
-  console.log('=== CHECKOUT SESSION COMPLETED ===');
-  console.log('Session ID:', session.id);
-  console.log('Session mode:', session.mode);
-  console.log('Session metadata:', JSON.stringify(session.metadata));
-  console.log('Customer email:', session.customer_email);
-  console.log('Customer ID:', session.customer);
+  debugLog('stripe', 'Checkout completed, session:', session.id, 'mode:', session.mode);
 
   const customerId = session.customer;
   const subscriptionId = session.subscription;
@@ -96,14 +92,14 @@ async function handleCheckoutCompleted(session) {
     // Get email from customer_details if not already set
     if (!userEmail) {
       userEmail = fullSession.customer_details?.email;
-      console.log('Got email from customer_details:', userEmail);
+      debugLog('stripe', 'Got email from customer_details');
     }
 
     // Get tool from line items if not in metadata (fallback)
     if (!tool && fullSession.line_items?.data?.length > 0) {
       const priceId = fullSession.line_items.data[0].price?.id;
       tool = getToolFromPriceId(priceId);
-      console.log('Got tool from line_items price ID:', tool, '(price:', priceId, ')');
+      debugLog('stripe', 'Got tool from line_items:', tool);
     }
   } catch (e) {
     console.error('Could not fetch full session:', e.message);
@@ -114,13 +110,13 @@ async function handleCheckoutCompleted(session) {
     try {
       const customer = await stripe.customers.retrieve(customerId);
       userEmail = customer.email;
-      console.log('Got email from customer:', userEmail);
+      debugLog('stripe', 'Got email from customer object');
     } catch (e) {
-      console.log('Could not fetch customer email:', e.message);
+      debugLog('stripe', 'Could not fetch customer email:', e.message);
     }
   }
 
-  console.log('Final values - email:', userEmail, 'tool:', tool, 'mode:', session.mode);
+  debugLog('stripe', 'Final values - tool:', tool, 'mode:', session.mode);
 
   if (!userEmail) {
     console.error('FAILED: No email found in checkout session after all attempts');
@@ -131,7 +127,7 @@ async function handleCheckoutCompleted(session) {
   // Check: mode is 'payment' AND we have a tool AND it's a one-time tool
   if (session.mode === 'payment') {
     if (tool && isOneTimePayment(tool)) {
-      console.log(`Processing one-time purchase: ${userEmail}, tool: ${tool}`);
+      debugLog('stripe', 'Processing one-time purchase, tool:', tool);
       await handleOneTimePayment(session, userEmail, tool, customerId);
       return;
     } else if (!subscriptionId) {
@@ -157,7 +153,7 @@ async function handleCheckoutCompleted(session) {
     return;
   }
 
-  console.log(`Subscription checkout completed: ${userEmail}, tool: ${subscribedTool}`);
+  debugLog('stripe', 'Subscription checkout completed, tool:', subscribedTool);
 
   // Update or create user
   let { data: user } = await supabase
@@ -204,12 +200,12 @@ async function handleCheckoutCompleted(session) {
 
   if (!existingKey) {
     await createApiKeyForUser(user.id);
-    console.log(`Created API key for user: ${user.email}`);
+    debugLog('stripe', 'Created API key for user');
   }
 }
 
 async function handleOneTimePayment(session, userEmail, tool, customerId) {
-  console.log(`handleOneTimePayment: email=${userEmail}, tool=${tool}, customerId=${customerId}`);
+  debugLog('stripe', 'handleOneTimePayment, tool:', tool);
 
   // Update or create user
   let { data: user, error: findError } = await supabase
@@ -218,7 +214,7 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
     .eq('email', userEmail.toLowerCase())
     .single();
 
-  console.log('Find user result:', user ? `found (id: ${user.id})` : 'not found', findError?.message || '');
+  debugLog('stripe', 'Find user result:', user ? 'found' : 'not found');
 
   // Prepare update - set the specific tool as purchased (lifetime access)
   const updateData = {
@@ -234,7 +230,7 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
   // Set the tool as subscribed (e.g., subscribed_resumebuilder = true)
   updateData[`subscribed_${tool}`] = true;
 
-  console.log('Update data:', JSON.stringify(updateData));
+  debugLog('stripe', 'Updating user with Pro status');
 
   if (user) {
     // Update existing user
@@ -246,7 +242,7 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
     if (updateError) {
       console.error('Error updating user:', updateError);
     } else {
-      console.log(`Updated user ${user.id} with Pro status`);
+      debugLog('stripe', 'Updated user with Pro status');
     }
   } else {
     // Create new user
@@ -263,7 +259,7 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
       console.error('Error creating user:', insertError);
     } else {
       user = newUser;
-      console.log(`Created new user ${user.id} with Pro status`);
+      debugLog('stripe', 'Created new user with Pro status');
     }
   }
 
@@ -282,14 +278,14 @@ async function handleOneTimePayment(session, userEmail, tool, customerId) {
 
   if (!existingKey) {
     await createApiKeyForUser(user.id);
-    console.log(`Created API key for user: ${user.email}`);
+    debugLog('stripe', 'Created API key for new user');
   }
 
-  console.log(`SUCCESS: Activated ${tool} for ${userEmail} (one-time purchase)`);
+  debugLog('stripe', 'SUCCESS: Activated tool:', tool);
 }
 
 async function handleSubscriptionUpdated(subscription) {
-  console.log('Processing customer.subscription.updated');
+  debugLog('stripe', 'Processing subscription.updated');
 
   const customerId = subscription.customer;
   const priceId = subscription.items.data[0]?.price?.id;
@@ -313,7 +309,7 @@ async function handleSubscriptionUpdated(subscription) {
     return;
   }
 
-  console.log(`Subscription updated: ${user.email}, tool: ${tool}, status: ${status}`);
+  debugLog('stripe', 'Subscription updated, tool:', tool, 'status:', status);
 
   const updateData = {
     updated_at: new Date().toISOString()
@@ -328,7 +324,7 @@ async function handleSubscriptionUpdated(subscription) {
 }
 
 async function handleSubscriptionDeleted(subscription) {
-  console.log('Processing customer.subscription.deleted');
+  debugLog('stripe', 'Processing subscription.deleted');
 
   const customerId = subscription.customer;
   const priceId = subscription.items.data[0]?.price?.id;
@@ -346,7 +342,7 @@ async function handleSubscriptionDeleted(subscription) {
     return;
   }
 
-  console.log(`Subscription canceled: ${user.email}, tool: ${tool || 'unknown'}`);
+  debugLog('stripe', 'Subscription canceled, tool:', tool || 'unknown');
 
   // If we can determine the tool, unsubscribe from it
   if (tool) {
@@ -364,7 +360,7 @@ async function handleSubscriptionDeleted(subscription) {
 }
 
 async function handlePaymentFailed(invoice) {
-  console.log('Processing invoice.payment_failed');
+  debugLog('stripe', 'Processing payment_failed');
 
   const customerId = invoice.customer;
 
@@ -380,7 +376,7 @@ async function handlePaymentFailed(invoice) {
     return;
   }
 
-  console.log(`Payment failed: ${user.email}`);
+  debugLog('stripe', 'Payment failed for user');
 
   await supabase
     .from('users')

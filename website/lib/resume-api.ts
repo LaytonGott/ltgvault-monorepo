@@ -31,7 +31,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     const err = new Error(errorMessage);
     (err as any).code = error.error;  // This will be 'RESUME_LIMIT', 'JOB_LIMIT', etc.
     (err as any).status = response.status;
-    console.log('Resume API error:', response.status, error.error, errorMessage);
+    console.warn('Resume API error:', response.status, errorMessage);
     throw err;
   }
 

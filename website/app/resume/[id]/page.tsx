@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { pdf } from '@react-pdf/renderer';
 import { getResume, updateResume, updateSection, deleteFromSection } from '@/lib/resume-api';
+import { debugLog } from '@/lib/debug';
 import ResumePDF, { getResumeFilename } from '@/components/ResumePDF';
 import UpgradeModal from '@/components/UpgradeModal';
 import TemplateGallery from '@/components/TemplateGallery';
@@ -193,7 +194,7 @@ export default function ResumeEditorPage() {
   }
 
   async function loadAIUsage() {
-    console.log('[loadAIUsage] Starting...');
+    debugLog('loadAIUsage', 'Starting');
     try {
       const headers: Record<string, string> = {
         'Cache-Control': 'no-cache',
@@ -206,16 +207,9 @@ export default function ResumeEditorPage() {
       // Use pro-status endpoint which includes AI usage data
       // Add timestamp to prevent browser caching
       const response = await fetch(`/api/resume/status?_t=${Date.now()}`, { headers, cache: 'no-store' });
-      console.log('[loadAIUsage] Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        console.log('[loadAIUsage] Full API response:', data);
-        console.log('[loadAIUsage] Extracted values:', {
-          'data.usage?.aiGenerations': data.usage?.aiGenerations,
-          'data.aiLimit': data.aiLimit,
-          'data.aiRemaining': data.aiRemaining,
-          'data.isPro': data.isPro
-        });
+        debugLog('loadAIUsage', 'isPro:', data.isPro, 'aiRemaining:', data.aiRemaining);
         // Transform pro-status response to ai-usage format
         const newUsage = {
           used: data.usage?.aiGenerations || 0,
@@ -223,7 +217,6 @@ export default function ResumeEditorPage() {
           remaining: data.aiRemaining || 0,
           isPro: data.isPro || false
         };
-        console.log('[loadAIUsage] Setting aiUsage to:', newUsage);
         setAiUsage(newUsage);
         setIsPro(data.isPro || false);
       }
@@ -758,7 +751,7 @@ export default function ResumeEditorPage() {
   async function handleGenerateSummary() {
     setAiGenerating(true);
     setAiError(null);
-    console.log('[handleGenerateSummary] Starting generation...');
+    debugLog('generateSummary', 'Starting');
 
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -767,7 +760,6 @@ export default function ResumeEditorPage() {
         headers['x-api-key'] = apiKey;
       }
 
-      console.log('[handleGenerateSummary] Calling /api/resume/generate with type=summary');
       const response = await fetch('/api/resume/generate', {
         method: 'POST',
         headers,
@@ -775,7 +767,7 @@ export default function ResumeEditorPage() {
       });
 
       const data = await response.json();
-      console.log('[handleGenerateSummary] API Response:', { status: response.status, data });
+      debugLog('generateSummary', 'Response status:', response.status);
 
       if (!response.ok) {
         if (data.error === 'LIMIT_EXCEEDED') {
@@ -790,13 +782,8 @@ export default function ResumeEditorPage() {
 
       setAiGeneratedSummary(data.summary);
       // Update AI usage from response immediately (no need to re-fetch)
-      console.log('[handleGenerateSummary] aiUsage from response:', data.aiUsage);
-      console.log('[handleGenerateSummary] Current aiUsage state:', aiUsage);
       if (data.aiUsage) {
-        console.log('[handleGenerateSummary] Setting aiUsage to:', data.aiUsage);
         setAiUsage(data.aiUsage);
-      } else {
-        console.log('[handleGenerateSummary] WARNING: No aiUsage in response!');
       }
     } catch (err: any) {
       console.error('Generate summary error:', err);

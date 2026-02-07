@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { stripe } = require('../lib/stripe');
 const { supabase } = require('../lib/supabase');
 const { createApiKeyForUser } = require('../lib/auth');
+const { debugLog } = require('../lib/debug');
 
 const TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || process.env.STRIPE_WEBHOOK_SECRET || 'ltgv-access-token-secret';
 
@@ -52,7 +53,7 @@ module.exports = async function handler(req, res) {
       const apiKey = await createApiKeyForUser(user.id);
       if (!apiKey) return res.status(500).json({ error: 'Failed to generate API key' });
 
-      console.log(`Access synced for ${user.email}`);
+      debugLog('activate', 'Access synced for user');
 
       return res.status(200).json({
         success: true,
@@ -90,7 +91,7 @@ module.exports = async function handler(req, res) {
       const apiKey = await createApiKeyForUser(user.id);
       if (!apiKey) return res.status(500).json({ error: 'Failed to generate API key' });
 
-      console.log(`API key claimed for ${user.email} via session ${sessionId}`);
+      debugLog('activate', 'API key claimed via session');
 
       return res.status(200).json({
         success: true,
@@ -124,7 +125,7 @@ module.exports = async function handler(req, res) {
       const apiKey = await createApiKeyForUser(user.id);
       if (!apiKey) return res.status(500).json({ error: 'Failed to generate access key' });
 
-      console.log(`Access activated for ${user.email} via magic link`);
+      debugLog('activate', 'Access activated via magic link');
 
       return res.status(200).json({
         success: true,

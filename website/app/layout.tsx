@@ -21,7 +21,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://buloxodfitxczyfmvxbu.supabase.co" />
+        <link rel="dns-prefetch" href="https://buloxodfitxczyfmvxbu.supabase.co" />
+      </head>
       <body className={inter.className}>
+        <a href="#main-content" className="skipLink">
+          Skip to main content
+        </a>
         {children}
         <Analytics />
       </body>

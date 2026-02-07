@@ -3,6 +3,7 @@
 // Pro users ($19 one-time): Unlimited everything, 100 AI/month, 25 templates
 
 const { supabase } = require('./supabase');
+const { debugLog } = require('./debug');
 
 // All 25 templates (5 layouts × 5 styles)
 const ALL_TEMPLATES = [
@@ -47,23 +48,16 @@ const PRO_LIMITS = {
 // Check if user is Pro (has purchased Resume Builder)
 async function isResumeProUser(userId) {
   try {
-    console.log('[isResumeProUser] Checking userId:', userId);
+    debugLog('resumePro', 'Checking userId:', userId);
     const { data: user, error } = await supabase
       .from('users')
       .select('id, email, subscribed_resumebuilder')
       .eq('id', userId)
       .single();
 
-    console.log('[isResumeProUser] Query result:', {
-      userId: user?.id,
-      email: user?.email,
-      subscribed_resumebuilder: user?.subscribed_resumebuilder,
-      error: error?.message
-    });
-
     if (error || !user) return false;
     const isPro = user.subscribed_resumebuilder === true;
-    console.log('[isResumeProUser] Final isPro:', isPro);
+    debugLog('resumePro', 'isPro:', isPro);
     return isPro;
   } catch (error) {
     console.error('[isResumeProUser] Error:', error);
@@ -92,7 +86,7 @@ async function getResumeProStatus(userId) {
     // Get AI usage - count rows in ai_usage table
     // Schema: ai_usage(id, user_id, tool, action, tokens_used, model, created_at)
     let aiUsed = 0;
-    console.log('[getResumeProStatus] Checking AI usage for userId:', userId, 'isPro:', isPro);
+    debugLog('resumePro', 'Checking AI usage, isPro:', isPro);
     if (isPro) {
       // Pro: count this month's usage (count rows)
       const startOfMonth = new Date();
@@ -106,7 +100,7 @@ async function getResumeProStatus(userId) {
         .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter'])
         .gte('created_at', startOfMonth.toISOString());
 
-      console.log('[getResumeProStatus] Pro monthly usage count:', count, 'error:', usageError?.message);
+      debugLog('resumePro', 'Pro monthly usage count:', count);
       aiUsed = count || 0;
     } else {
       // Free: count total lifetime usage (count rows)
@@ -116,10 +110,10 @@ async function getResumeProStatus(userId) {
         .eq('user_id', userId)
         .in('tool', ['resume_bullets', 'resume_summary', 'cover_letter']);
 
-      console.log('[getResumeProStatus] Free total usage count:', count, 'error:', usageError?.message);
+      debugLog('resumePro', 'Free total usage count:', count);
       aiUsed = count || 0;
     }
-    console.log('[getResumeProStatus] Final aiUsed:', aiUsed);
+    debugLog('resumePro', 'Final aiUsed:', aiUsed);
 
     return {
       isPro,

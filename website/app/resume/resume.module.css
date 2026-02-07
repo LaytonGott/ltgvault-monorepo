@@ -716,23 +716,18 @@
     padding: 12px 0;
   }
   .headerInner {
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
   }
   .logoImg {
-    height: 180px;
+    height: 50px;
+    margin-top: 0;
   }
   .nav {
-    width: 100%;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .nav a {
-    font-size: 0.9rem;
+    display: none;
   }
   .main {
-    padding: 20px 20px 60px;
+    padding: 90px 20px 60px;
   }
   .titleRow {
     flex-direction: column;
@@ -773,13 +768,7 @@
 
 @media (max-width: 480px) {
   .logoImg {
-    height: 150px;
-  }
-  .nav {
-    gap: 16px;
-  }
-  .nav a {
-    font-size: 0.85rem;
+    height: 40px;
   }
   .heroTitle {
     font-size: 1.5rem;
@@ -838,4 +827,79 @@
   .usageIndicator {
     display: none;
   }
+}
+
+/* ============ GUARANTEE ============ */
+.guarantee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--gray-light);
+}
+
+.guarantee svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ============ FAQ SECTION ============ */
+.faqSection {
+  padding: 80px 0;
+  border-top: 1px solid var(--border);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.faqItem[open] {
+  border-color: rgba(201, 162, 39, 0.3);
+}
+
+.faqQuestion {
+  padding: 18px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faqQuestion::-webkit-details-marker {
+  display: none;
+}
+
+.faqQuestion::after {
+  content: '+';
+  font-size: 1.2rem;
+  color: var(--gold);
+  transition: transform 0.2s;
+}
+
+.faqItem[open] .faqQuestion::after {
+  content: '\2212';
+}
+
+.faqAnswer {
+  padding: 0 20px 18px;
+  font-size: 0.9rem;
+  color: var(--gray-light);
+  line-height: 1.6;
 }

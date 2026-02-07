@@ -1,6 +1,7 @@
 // Resume Create API
 const { supabase } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
+const { debugLog } = require('../../lib/debug');
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];
@@ -44,7 +45,7 @@ module.exports = async function handler(req, res) {
     const { title = 'Untitled Resume', template = 'single-harvard' } = body;
 
     const isPro = user.subscribed_resumebuilder === true;
-    console.log('[Resume Create] User:', user.id, 'isPro:', isPro);
+    debugLog('resumeCreate', 'User:', user.id, 'isPro:', isPro);
 
     if (isPro) {
       // Pro users: unlimited resumes, create immediately
@@ -59,7 +60,7 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to create resume' });
       }
 
-      console.log('[Resume Create] Pro user - created resume:', data.id);
+      debugLog('resumeCreate', 'Pro user - created resume:', data.id);
       return res.status(200).json({ resume: data, isPro: true });
     }
 
@@ -69,7 +70,7 @@ module.exports = async function handler(req, res) {
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id);
 
-    console.log('[Resume Create] Free user - resume count:', resumeCount);
+    debugLog('resumeCreate', 'Free user - resume count:', resumeCount);
 
     if ((resumeCount || 0) >= 1) {
       return res.status(403).json({

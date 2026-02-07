@@ -6,6 +6,13 @@ const nextConfig = {
   // Disable strict mode for easier development
   reactStrictMode: true,
 
+  // Strip console.log in production (keep error/warn)
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
+      ? { exclude: ['error', 'warn'] }
+      : false,
+  },
+
   // Redirect root to index.html
   async redirects() {
     return [

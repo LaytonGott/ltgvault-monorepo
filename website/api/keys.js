@@ -1,5 +1,6 @@
 const { supabase } = require('../lib/supabase');
 const { authenticateRequest, createApiKeyForUser } = require('../lib/auth');
+const { debugLog } = require('../lib/debug');
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
@@ -22,13 +23,7 @@ module.exports = async function handler(req, res) {
   // GET - Get API key info
   if (req.method === 'GET') {
     try {
-      console.log('=== /api/keys GET DEBUG ===');
-      console.log('User ID:', user.id);
-      console.log('User email:', user.email);
-      console.log('User subscribed_postup:', user.subscribed_postup);
-      console.log('User subscribed_chaptergen:', user.subscribed_chaptergen);
-      console.log('User subscribed_threadgen:', user.subscribed_threadgen);
-      console.log('Full user object:', JSON.stringify(user, null, 2));
+      debugLog('keys', 'GET request for user:', user.id);
 
       const { data: keyData, error: keyError } = await supabase
         .from('api_keys')
@@ -57,8 +52,7 @@ module.exports = async function handler(req, res) {
         }
       };
 
-      console.log('Returning response:', JSON.stringify(response, null, 2));
-      console.log('=== END /api/keys DEBUG ===');
+      debugLog('keys', 'Returning response for user:', user.id);
 
       return res.status(200).json(response);
 

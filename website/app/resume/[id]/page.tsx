@@ -923,7 +923,7 @@ export default function ResumeEditorPage() {
           {/* AI Usage Indicator */}
           {!isGuest && aiUsage && (
             <div className={styles.aiUsageIndicator}>
-              <span className={styles.sparkleSmall}>âœ¨</span>
+              <svg className={styles.sparkleSmall} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               <span>{aiUsage.remaining}/{aiUsage.limit} AI</span>
             </div>
           )}
@@ -1162,7 +1162,7 @@ export default function ResumeEditorPage() {
                     className={`${styles.aiButton} ${aiIsLocked ? styles.aiButtonLocked : ''}`}
                     title={isGuest ? 'Sign up to use AI features' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate summary with AI'}
                   >
-                    <span className={styles.sparkle}>âœ¨</span>
+                    <svg className={styles.sparkle} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     <span>Generate</span>
                     {aiIsLocked && (
                       <span className={styles.proBadge}>
@@ -1327,7 +1327,7 @@ export default function ResumeEditorPage() {
                         className={`${styles.aiButton} ${aiIsLocked ? styles.aiButtonLocked : ''}`}
                         title={isGuest ? 'Sign up to use AI features' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
                       >
-                        <span className={styles.sparkle}>âœ¨</span>
+                        <svg className={styles.sparkle} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         <span>AI Bullets</span>
                         {(isGuest || !isPro) && (
                           <span className={styles.proBadge}>
@@ -1449,7 +1449,7 @@ export default function ResumeEditorPage() {
                         className={`${styles.aiButton} ${aiIsLocked ? styles.aiButtonLocked : ''}`}
                         title={isGuest ? 'Sign up to use AI features' : aiLimitReached ? 'Upgrade for more AI generations' : 'Generate bullet points with AI'}
                       >
-                        <span className={styles.sparkle}>âœ¨</span>
+                        <svg className={styles.sparkle} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         <span>AI Bullets</span>
                         {(isGuest || !isPro) && (
                           <span className={styles.proBadge}>
@@ -2800,7 +2800,7 @@ export default function ResumeEditorPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>
-                <span className={styles.sparkle}>âœ¨</span>
+                <svg className={styles.sparkle} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 {aiModalMode === 'summary' ? 'AI Summary Generator' : 'AI Bullet Generator'}
               </h3>
               <button onClick={closeAiModal} className={styles.modalClose}>
@@ -2857,7 +2857,7 @@ export default function ResumeEditorPage() {
                         </>
                       ) : (
                         <>
-                          <span className={styles.sparkle}>âœ¨</span>
+                          <svg className={styles.sparkle} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                           Generate Summary
                         </>
                       )}
@@ -2919,7 +2919,7 @@ export default function ResumeEditorPage() {
                         </>
                       ) : (
                         <>
-                          <span className={styles.sparkle}>âœ¨</span>
+                          <svg className={styles.sparkle} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                           Generate Bullets
                         </>
                       )}

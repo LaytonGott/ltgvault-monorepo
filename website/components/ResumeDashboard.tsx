@@ -82,7 +82,12 @@ export default function ResumeDashboard() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: storedEmail })
         });
-        const data = await response.json();
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          debugLog('Auth', 'Sync returned non-JSON response:', response.status);
+          // fall through to guest mode
+        }
+        const data = contentType.includes('application/json') ? await response.json() : {};
 
         if (data.success && data.apiKey) {
           debugLog('Auth', 'Sync successful');

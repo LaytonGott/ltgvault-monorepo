@@ -24,6 +24,14 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
   });
 
   if (!response.ok) {
+    // Guard against HTML error pages (e.g. 404/500 from Vercel)
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const err = new Error(`API error: ${response.status}`);
+      (err as any).status = response.status;
+      console.warn('Resume API error (non-JSON):', response.status);
+      throw err;
+    }
     const error = await response.json();
     // Include the error code for special handling (RESUME_LIMIT, JOB_LIMIT, etc.)
     // API returns { error: 'RESUME_LIMIT', message: '...' } for limit errors

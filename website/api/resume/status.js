@@ -38,12 +38,11 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).json({ success: true });
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const user = await getUser(req);
-  if (!user) {
-    return res.status(401).json({ error: 'API key required' });
-  }
-
   try {
+    const user = await getUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'API key required' });
+    }
     // Get pro status and usage
     const status = await getResumeProStatus(user.id);
     const directIsPro = user.subscribed_resumebuilder === true;

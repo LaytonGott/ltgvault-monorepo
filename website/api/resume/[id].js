@@ -17,17 +17,16 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).json({ success: true });
 
-  const user = await getUser(req);
-  if (!user) {
-    return res.status(401).json({ error: 'API key required' });
-  }
-
-  const { id } = req.query;
-  if (!id) {
-    return res.status(400).json({ error: 'Resume ID required' });
-  }
-
   try {
+    const user = await getUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'API key required' });
+    }
+
+    const { id } = req.query;
+    if (!id) {
+      return res.status(400).json({ error: 'Resume ID required' });
+    }
     // GET - Fetch resume with all sections
     if (req.method === 'GET') {
       const { data: resume, error } = await supabase

@@ -47,26 +47,25 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).json({ success: true });
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const user = await getUser(req);
-  if (!user) {
-    return res.status(401).json({ error: 'API key required' });
-  }
-
-  const body = req.body || {};
-  const { type } = body;
-
-  // Check AI usage limits
-  let usage = await checkResumeAIUsage(user.id);
-  if (!usage.allowed) {
-    return res.status(429).json({ error: 'LIMIT_EXCEEDED', message: usage.message });
-  }
-
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (!anthropicKey) {
-    return res.status(500).json({ error: 'AI not configured' });
-  }
-
   try {
+    const user = await getUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'API key required' });
+    }
+
+    const body = req.body || {};
+    const { type } = body;
+
+    // Check AI usage limits
+    let usage = await checkResumeAIUsage(user.id);
+    if (!usage.allowed) {
+      return res.status(429).json({ error: 'LIMIT_EXCEEDED', message: usage.message });
+    }
+
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    if (!anthropicKey) {
+      return res.status(500).json({ error: 'AI not configured' });
+    }
     // Generate bullets
     if (type === 'bullets') {
       const { description, context: ctx } = body;

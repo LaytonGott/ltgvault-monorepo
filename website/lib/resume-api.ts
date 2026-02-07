@@ -35,11 +35,11 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     const error = await response.json();
     // Include the error code for special handling (RESUME_LIMIT, JOB_LIMIT, etc.)
     // API returns { error: 'RESUME_LIMIT', message: '...' } for limit errors
-    const errorMessage = error.message || error.error || 'API error';
+    const errorMessage = error.detail || error.message || error.error || 'API error';
     const err = new Error(errorMessage);
     (err as any).code = error.error;  // This will be 'RESUME_LIMIT', 'JOB_LIMIT', etc.
     (err as any).status = response.status;
-    console.warn('Resume API error:', response.status, errorMessage);
+    console.warn('Resume API error:', response.status, errorMessage, error.detail ? `(detail: ${error.detail})` : '');
     throw err;
   }
 

@@ -94,8 +94,11 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ resume: data, isPro: false });
   } catch (error) {
-    console.error('Resume create error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('[resume/create] Error:', error?.message || error, error?.stack);
+    return res.status(500).json({
+      error: 'Server error',
+      detail: error?.message || String(error)
+    });
   }
 };
 // Trigger deploy Mon, Feb  2, 2026 12:04:44 PM

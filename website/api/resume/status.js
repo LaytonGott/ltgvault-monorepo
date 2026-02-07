@@ -1,5 +1,5 @@
 // Resume Status API - Combined pro-status + list + ai-usage
-const { supabase } = require('../../lib/supabase');
+const { supabase, supabaseConfigured } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
 const { getResumeProStatus } = require('../../lib/resume-pro');
 
@@ -38,6 +38,15 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).json({ success: true });
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
+  // Fail fast if Supabase isn't configured
+  if (!supabaseConfigured) {
+    console.error('[status] Supabase not configured. SUPABASE_URL:', process.env.SUPABASE_URL ? 'set' : 'MISSING', 'SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'MISSING');
+    return res.status(500).json({
+      error: 'Database not configured',
+      detail: 'Missing env: ' + (!process.env.SUPABASE_URL ? 'SUPABASE_URL ' : '') + (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.SUPABASE_SERVICE_KEY ? 'SUPABASE_SERVICE_ROLE_KEY' : '')
+    });
+  }
+
   try {
     const user = await getUser(req);
     if (!user) {
@@ -73,7 +82,10 @@ module.exports = async function handler(req, res) {
       }
     });
   } catch (error) {
-    console.error('Resume status error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('[status] Error:', error?.message || error, error?.stack);
+    return res.status(500).json({
+      error: 'Server error',
+      detail: error?.message || String(error)
+    });
   }
 };

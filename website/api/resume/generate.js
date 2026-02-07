@@ -171,7 +171,10 @@ module.exports = async function handler(req, res) {
 
     return res.status(400).json({ error: 'Invalid type. Use: bullets, summary, or cover-letter' });
   } catch (error) {
-    console.error('AI generation error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('[resume/generate] Error:', error?.message || error, error?.stack);
+    return res.status(500).json({
+      error: 'Server error',
+      detail: error?.message || String(error)
+    });
   }
 };

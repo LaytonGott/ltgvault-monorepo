@@ -161,7 +161,10 @@ module.exports = async function handler(req, res) {
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
-    console.error('Resume API error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('[resume/id] Error:', error?.message || error, error?.stack);
+    return res.status(500).json({
+      error: 'Server error',
+      detail: error?.message || String(error)
+    });
   }
 };

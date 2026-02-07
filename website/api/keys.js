@@ -1,6 +1,6 @@
 const { supabase } = require('../lib/supabase');
 const { authenticateRequest, createApiKeyForUser } = require('../lib/auth');
-const { debugLog } = require('../lib/debug');
+const { debugLog } = require('../lib/debug.cjs');
 
 module.exports = async function handler(req, res) {
   // Set CORS headers

@@ -2,7 +2,7 @@
 const { supabase } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
 const { checkResumeAIUsage } = require('../../lib/resume-ai-usage');
-const { debugLog } = require('../../lib/debug');
+const { debugLog } = require('../../lib/debug.cjs');
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];

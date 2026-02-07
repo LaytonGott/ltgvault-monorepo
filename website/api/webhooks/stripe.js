@@ -1,7 +1,7 @@
 const { stripe, getToolFromPriceId, isOneTimePayment } = require('../../lib/stripe');
 const { supabase } = require('../../lib/supabase');
 const { createApiKeyForUser } = require('../../lib/auth');
-const { debugLog } = require('../../lib/debug');
+const { debugLog } = require('../../lib/debug.cjs');
 
 // Disable body parsing - we need raw body for webhook verification
 module.exports.config = {

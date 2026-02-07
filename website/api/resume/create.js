@@ -1,7 +1,7 @@
 // Resume Create API
 const { supabase } = require('../../lib/supabase');
 const { validateApiKey } = require('../../lib/auth');
-const { debugLog } = require('../../lib/debug');
+const { debugLog } = require('../../lib/debug.cjs');
 
 async function getUser(req) {
   const apiKey = req.headers['x-api-key'];

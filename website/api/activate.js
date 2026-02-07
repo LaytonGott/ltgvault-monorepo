@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { stripe } = require('../lib/stripe');
 const { supabase } = require('../lib/supabase');
 const { createApiKeyForUser } = require('../lib/auth');
-const { debugLog } = require('../lib/debug');
+const { debugLog } = require('../lib/debug.cjs');
 
 const TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || process.env.STRIPE_WEBHOOK_SECRET || 'ltgv-access-token-secret';
 

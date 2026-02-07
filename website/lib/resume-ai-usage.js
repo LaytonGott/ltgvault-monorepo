@@ -6,7 +6,7 @@
 // Each row = 1 generation. Count rows to get usage.
 
 const { supabase } = require('./supabase');
-const { debugLog } = require('./debug');
+const { debugLog } = require('./debug.cjs');
 
 const FREE_LIMIT = 5;
 const PRO_MONTHLY_LIMIT = 100;

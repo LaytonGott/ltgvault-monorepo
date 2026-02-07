@@ -3,7 +3,7 @@
 // Pro users ($19 one-time): Unlimited everything, 100 AI/month, 25 templates
 
 const { supabase } = require('./supabase');
-const { debugLog } = require('./debug');
+const { debugLog } = require('./debug.cjs');
 
 // All 25 templates (5 layouts × 5 styles)
 const ALL_TEMPLATES = [

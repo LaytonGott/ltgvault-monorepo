@@ -910,7 +910,7 @@ function CompactTemplate({ style, personalInfo, education, experience, skills, p
               <Text style={s.sectionTitle}>Experience</Text>
               {experience.map(exp => (
                 <View key={exp.id} style={s.entry}>
-                  <Text style={s.entryTitle}>{exp.job_title} — {exp.company_name}</Text>
+                  <Text style={s.entryTitle}>{exp.job_title} -{exp.company_name}</Text>
                   <Text style={s.entryMeta}>{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</Text>
                   {exp.description && (
                     <View style={{ marginTop: 2 }}>
@@ -1093,7 +1093,7 @@ function SplitTemplate({ style, personalInfo, education, experience, skills, pro
               <View key={exp.id} style={s.entry}>
                 <View style={s.entryHeader}>
                   <Text style={s.entryTitle}>{exp.job_title}</Text>
-                  <Text style={s.entryDate}>{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</Text>
+                  <Text style={s.entryDate}>{exp.start_date} -{exp.is_current ? 'Present' : exp.end_date}</Text>
                 </View>
                 <Text style={s.entrySubtitle}>{exp.company_name}</Text>
                 {exp.description && (

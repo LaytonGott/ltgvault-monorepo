@@ -407,10 +407,10 @@ async function generateHooks(req, res, user, used, limit, subscribed) {
     : '- NO emojis at all';
 
   const toneInstructions = {
-    'educational': 'TONE: Educational — clear, informative, helpful. Focus on teaching or sharing knowledge.',
-    'spicy': 'TONE: Spicy/Hot Take — bold, controversial, challenges conventional wisdom. Take a strong stance. Be provocative but not offensive.',
-    'story': 'TONE: Story-driven — narrative, personal, pulls reader into a journey. Start mid-action.',
-    'opinionated': 'TONE: Opinionated — strong personal views, not afraid to disagree. Voice your perspective confidently.'
+    'educational': 'TONE: Educational - clear, informative, helpful. Focus on teaching or sharing knowledge.',
+    'spicy': 'TONE: Spicy/Hot Take - bold, controversial, challenges conventional wisdom. Take a strong stance. Be provocative but not offensive.',
+    'story': 'TONE: Story-driven - narrative, personal, pulls reader into a journey. Start mid-action.',
+    'opinionated': 'TONE: Opinionated - strong personal views, not afraid to disagree. Voice your perspective confidently.'
   };
 
   const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
@@ -433,7 +433,7 @@ If the input has a specific number, result, or moment ("54 people signed up. 17 
 2. CONTRARIAN/SCROLL-STOPPING OPENINGS
 If the input starts with something edgy ("You might unfollow me but...", "I don't believe in X"), THAT IS THE HOOK. Use it directly. Don't replace with safe questions like "How do followers turn into leads?"
 
-3. STRONGEST LINES — WORD FOR WORD
+3. STRONGEST LINES - WORD FOR WORD
 Quotable statements like "A good content strategy is a good CONVERSION strategy." stay EXACTLY as written. These are the thread's backbone.
 
 4. VIVID, SPECIFIC EXAMPLES
@@ -562,10 +562,10 @@ async function generateBody(req, res, user, used, limit, subscribed) {
     : '- NO emojis at all';
 
   const toneInstructions = {
-    'educational': 'TONE: Educational — clear, informative, helpful. Teach or share knowledge.',
-    'spicy': 'TONE: Spicy/Hot Take — bold, provocative, challenges norms. Don\'t play it safe.',
-    'story': 'TONE: Story-driven — narrative flow, personal journey, emotional beats.',
-    'opinionated': 'TONE: Opinionated — strong views, confident stance, not afraid to disagree.'
+    'educational': 'TONE: Educational - clear, informative, helpful. Teach or share knowledge.',
+    'spicy': 'TONE: Spicy/Hot Take - bold, provocative, challenges norms. Don\'t play it safe.',
+    'story': 'TONE: Story-driven - narrative flow, personal journey, emotional beats.',
+    'opinionated': 'TONE: Opinionated - strong views, confident stance, not afraid to disagree.'
   };
 
   const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
@@ -876,10 +876,10 @@ async function generateFullThread(req, res, user, used, limit, subscribed) {
     : 'Do NOT use any emojis.';
 
   const toneInstructions = {
-    'educational': 'TONE: Educational — clear, informative, helpful. Focus on teaching or sharing knowledge.',
-    'spicy': 'TONE: Spicy/Hot Take — bold, controversial, challenges conventional wisdom. Be provocative but not offensive.',
-    'story': 'TONE: Story-driven — narrative, personal, pulls reader into a journey. Start mid-action.',
-    'opinionated': 'TONE: Opinionated — strong personal views, not afraid to disagree. Voice your perspective confidently.'
+    'educational': 'TONE: Educational - clear, informative, helpful. Focus on teaching or sharing knowledge.',
+    'spicy': 'TONE: Spicy/Hot Take - bold, controversial, challenges conventional wisdom. Be provocative but not offensive.',
+    'story': 'TONE: Story-driven - narrative, personal, pulls reader into a journey. Start mid-action.',
+    'opinionated': 'TONE: Opinionated - strong personal views, not afraid to disagree. Voice your perspective confidently.'
   };
 
   const toneInstruction = toneInstructions[tone] || toneInstructions['educational'];
@@ -1398,10 +1398,10 @@ HEADLINE: [Clear, simple title based on the content]
 INTRO: [2-3 sentences setting up the topic - based on how the video starts]
 
 SECTIONS:
-1. [Section title] — [one sentence summary of what to cover]
-2. [Section title] — [one sentence summary]
-3. [Section title] — [one sentence summary]
-4. [Section title] — [one sentence summary]
+1. [Section title] - [one sentence summary of what to cover]
+2. [Section title] - [one sentence summary]
+3. [Section title] - [one sentence summary]
+4. [Section title] - [one sentence summary]
 
 KEY POINTS TO INCLUDE:
 - [specific detail or quote from the transcript]
@@ -1427,10 +1427,10 @@ Return a simple list in this exact format:
 
 KEY HIGHLIGHTS
 
-0:00 — [One sentence describing the key point]
-1:23 — [One sentence describing the key point]
-3:45 — [One sentence describing the key point]
-5:12 — [One sentence describing the key point]
+0:00 - [One sentence describing the key point]
+1:23 - [One sentence describing the key point]
+3:45 - [One sentence describing the key point]
+5:12 - [One sentence describing the key point]
 
 List 8-15 of the most important moments. Keep each point to one short sentence.`
   }

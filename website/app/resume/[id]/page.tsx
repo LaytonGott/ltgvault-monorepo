@@ -2736,7 +2736,7 @@ export default function ResumeEditorPage() {
                       {projects.map((proj) => (
                         <div key={proj.id} style={{ marginBottom: '8px' }}>
                           <strong style={{ fontSize: '0.92rem' }}>{proj.project_name || 'Project'}</strong>
-                          {proj.organization && <span style={{ fontSize: '0.82rem', color: '#666' }}> — {proj.organization}</span>}
+                          {proj.organization && <span style={{ fontSize: '0.82rem', color: '#666' }}> -{proj.organization}</span>}
                           {proj.description && <p style={{ fontSize: '0.85rem', margin: '2px 0 0', color: '#333' }}>{proj.description}</p>}
                         </div>
                       ))}
@@ -2852,7 +2852,7 @@ export default function ResumeEditorPage() {
                         {projects.map((proj) => (
                           <div key={proj.id} style={{ marginBottom: '8px' }}>
                             <strong style={{ fontSize: '0.92rem' }}>{proj.project_name || 'Project'}</strong>
-                            {proj.organization && <span style={{ fontSize: '0.82rem', color: '#666' }}> — {proj.organization}</span>}
+                            {proj.organization && <span style={{ fontSize: '0.82rem', color: '#666' }}> -{proj.organization}</span>}
                             {proj.description && <p style={{ fontSize: '0.85rem', margin: '2px 0 0', color: '#333' }}>{proj.description}</p>}
                           </div>
                         ))}

@@ -15,7 +15,7 @@ NEVER START WITH (check first 5 words):
 - "A few years ago..." / "When I started..." / "When I first..."
 
 NEVER USE:
-- Em dashes (—) — BANNED. Use periods or commas only.
+- Em dashes (—) - BANNED. Use periods or commas only.
 
 NEVER END WITH:
 - "figuring it out" / "worth the effort" / "still learning"

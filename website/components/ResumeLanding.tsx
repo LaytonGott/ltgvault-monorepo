@@ -139,7 +139,7 @@ export default function ResumeLanding() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              1 resume free forever — no card required
+              1 resume free forever -no card required
             </li>
             <li>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -155,7 +155,7 @@ export default function ResumeLanding() {
             </li>
           </ul>
           <Link href="/resume/new" className={styles.pricingButton}>
-            Start Free — No Card Required
+            Start Free -No Card Required
           </Link>
           <p className={styles.guarantee}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -172,11 +172,11 @@ export default function ResumeLanding() {
         <div className={styles.faqList}>
           <details className={styles.faqItem}>
             <summary className={styles.faqQuestion}>Do I need work experience to use this?</summary>
-            <p className={styles.faqAnswer}>Not at all! LTG Vault is built specifically for teens and first-time job seekers. Our AI helps you highlight school projects, volunteer work, and skills — even if you&apos;ve never had a formal job.</p>
+            <p className={styles.faqAnswer}>Not at all! LTG Vault is built specifically for teens and first-time job seekers. Our AI helps you highlight school projects, volunteer work, and skills -even if you&apos;ve never had a formal job.</p>
           </details>
           <details className={styles.faqItem}>
             <summary className={styles.faqQuestion}>What does lifetime access mean?</summary>
-            <p className={styles.faqAnswer}>Pay $9.99 once and you have Pro access forever. No monthly fees, no subscriptions, no surprises. You get unlimited resumes, all 25 templates, cover letter generator, and 100 AI generations per month — for life.</p>
+            <p className={styles.faqAnswer}>Pay $9.99 once and you have Pro access forever. No monthly fees, no subscriptions, no surprises. You get unlimited resumes, all 25 templates, cover letter generator, and 100 AI generations per month -for life.</p>
           </details>
           <details className={styles.faqItem}>
             <summary className={styles.faqQuestion}>Can I download my resume as a PDF?</summary>

@@ -1,6 +1,6 @@
 // Resume Builder Pro Status & Limits
 // Free users: 1 resume, 5 AI generations, Single Column Classic template only, 3 jobs
-// Pro users ($19 one-time): Unlimited everything, 100 AI/month, 25 templates
+// Pro users ($9.99 one-time): Unlimited everything, 100 AI/month, 25 templates
 
 const { supabase } = require('./supabase');
 const { debugLog } = require('./debug.cjs');

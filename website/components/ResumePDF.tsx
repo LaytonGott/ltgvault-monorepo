@@ -282,7 +282,16 @@ function SingleColumnTemplate({ style, personalInfo, education, experience, skil
               </View>
               {style.datePosition === 'below' && <Text style={s.entryDate}>{formatDate(exp)}</Text>}
               <Text style={s.entrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</Text>
-              {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
+              {exp.description && (
+                <View style={{ marginTop: 2 }}>
+                  {exp.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                    <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                      <Text style={s.entryDescription}>{'•  '}</Text>
+                      <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
           ))}
         </View>
@@ -327,7 +336,16 @@ function SingleColumnTemplate({ style, personalInfo, education, experience, skil
                 {proj.role && <Text style={s.entryDate}>{proj.role}</Text>}
               </View>
               {proj.organization && <Text style={s.entrySubtitle}>{proj.organization}</Text>}
-              {proj.description && <Text style={s.entryDescription}>{proj.description}</Text>}
+              {proj.description && (
+                <View style={{ marginTop: 2 }}>
+                  {proj.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                    <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                      <Text style={s.entryDescription}>{'•  '}</Text>
+                      <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
           ))}
         </View>
@@ -344,7 +362,7 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
   const firstName = personalInfo.first_name || 'Your';
   const lastName = personalInfo.last_name || 'Name';
-  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url].filter(Boolean);
   const hasPhoto = !!personalInfo.photo_url;
 
   // Sidebar style depends on variant
@@ -520,7 +538,16 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
                   <Text style={s.entryDate}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</Text>
                 </View>
                 <Text style={s.entrySubtitle}>{exp.company_name}{exp.location ? ` | ${exp.location}` : ''}</Text>
-                {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
+                {exp.description && (
+                  <View style={{ marginTop: 2 }}>
+                    {exp.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                      <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                        <Text style={s.entryDescription}>{'•  '}</Text>
+                        <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -554,7 +581,16 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
                   {proj.role && <Text style={s.entryDate}>{proj.role}</Text>}
                 </View>
                 {proj.organization && <Text style={s.entrySubtitle}>{proj.organization}</Text>}
-                {proj.description && <Text style={s.entryDescription}>{proj.description}</Text>}
+                {proj.description && (
+                  <View style={{ marginTop: 2 }}>
+                    {proj.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                      <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                        <Text style={s.entryDescription}>{'•  '}</Text>
+                        <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -571,7 +607,7 @@ function TwoColumnTemplate({ style, personalInfo, education, experience, skills,
 function HeaderTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
   const displayName = style.nameUppercase ? fullName.toUpperCase() : fullName;
-  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean);
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url].filter(Boolean);
   const hasPhoto = !!personalInfo.photo_url;
 
   // Header style varies by variant
@@ -724,7 +760,16 @@ function HeaderTemplate({ style, personalInfo, education, experience, skills, pr
                   <Text style={s.entryDate}>{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</Text>
                 </View>
                 <Text style={s.entrySubtitle}>{exp.company_name}</Text>
-                {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
+                {exp.description && (
+                  <View style={{ marginTop: 2 }}>
+                    {exp.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                      <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                        <Text style={s.entryDescription}>{'•  '}</Text>
+                        <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -766,7 +811,7 @@ function HeaderTemplate({ style, personalInfo, education, experience, skills, pr
 // ==========================================
 function CompactTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
-  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url].filter(Boolean);
 
   const s = StyleSheet.create({
     page: {
@@ -867,7 +912,16 @@ function CompactTemplate({ style, personalInfo, education, experience, skills, p
                 <View key={exp.id} style={s.entry}>
                   <Text style={s.entryTitle}>{exp.job_title} — {exp.company_name}</Text>
                   <Text style={s.entryMeta}>{exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}</Text>
-                  {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
+                  {exp.description && (
+                    <View style={{ marginTop: 2 }}>
+                      {exp.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                        <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                          <Text style={s.entryDescription}>{'•  '}</Text>
+                          <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </View>
               ))}
             </View>
@@ -879,7 +933,16 @@ function CompactTemplate({ style, personalInfo, education, experience, skills, p
               {projects.map(proj => (
                 <View key={proj.id} style={s.entry}>
                   <Text style={s.entryTitle}>{proj.project_name}</Text>
-                  {proj.description && <Text style={s.entryDescription}>{proj.description}</Text>}
+                  {proj.description && (
+                    <View style={{ marginTop: 2 }}>
+                      {proj.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                        <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                          <Text style={s.entryDescription}>{'•  '}</Text>
+                          <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </View>
               ))}
             </View>
@@ -918,7 +981,7 @@ function CompactTemplate({ style, personalInfo, education, experience, skills, p
 // ==========================================
 function SplitTemplate({ style, personalInfo, education, experience, skills, projects }: TemplateProps) {
   const fullName = [personalInfo.first_name, personalInfo.last_name].filter(Boolean).join(' ') || 'Your Name';
-  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean);
+  const contactItems = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url].filter(Boolean);
 
   const s = StyleSheet.create({
     page: {
@@ -1033,7 +1096,16 @@ function SplitTemplate({ style, personalInfo, education, experience, skills, pro
                   <Text style={s.entryDate}>{exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}</Text>
                 </View>
                 <Text style={s.entrySubtitle}>{exp.company_name}</Text>
-                {exp.description && <Text style={s.entryDescription}>{exp.description}</Text>}
+                {exp.description && (
+                  <View style={{ marginTop: 2 }}>
+                    {exp.description.split('\n').filter(Boolean).map((line: string, i: number) => (
+                      <View key={i} style={{ flexDirection: 'row', marginBottom: 1 }}>
+                        <Text style={s.entryDescription}>{'•  '}</Text>
+                        <Text style={[s.entryDescription, { flex: 1 }]}>{line.replace(/^[-•]\s*/, '')}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             ))}
           </View>

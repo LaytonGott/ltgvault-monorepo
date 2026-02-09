@@ -921,6 +921,89 @@
   color: var(--gold);
 }
 
+/* Bullet Point Inputs */
+.bulletList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bulletItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulletDot {
+  color: var(--gold);
+  font-size: 1rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.bulletInput {
+  flex: 1;
+  background: var(--bg-input, #1a1a1a);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: var(--white);
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.bulletInput:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.bulletInput::placeholder {
+  color: var(--gray);
+}
+
+.removeBullet {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.removeBullet:hover {
+  color: var(--error);
+}
+
+.addBulletButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  color: var(--gray-light);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  margin-top: 2px;
+}
+
+.addBulletButton:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
 /* Preview Panel */
 .previewPanel {
   flex: 1;

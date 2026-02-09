@@ -12,7 +12,7 @@ const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
 // Price IDs for each tool - trim to remove any trailing newlines
 // Note: Vercel env vars use inconsistent naming, so we check both patterns
 // Subscriptions ($7/month): postup, chaptergen, threadgen
-// One-time ($19): resumebuilder
+// One-time ($9.99): resumebuilder
 const PRICE_IDS = {
   postup: (process.env.STRIPE_POSTUP_PRICE_ID || process.env.STRIPE_POSTUP_PRICE || '').trim() || undefined,
   chaptergen: (process.env.STRIPE_CHAPTERGEN_PRICE_ID || process.env.STRIPE_CHAPTERGEN_PRICE || '').trim() || undefined,

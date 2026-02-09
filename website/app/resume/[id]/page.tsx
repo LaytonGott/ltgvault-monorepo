@@ -1023,7 +1023,7 @@ export default function ResumeEditorPage() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
               </svg>
-              Upgrade - $19
+              Upgrade - $9.99
             </button>
           )}
         </div>
@@ -1336,7 +1336,67 @@ export default function ResumeEditorPage() {
                         )}
                       </button>
                     </div>
-                    <textarea value={exp.description || ''} onChange={(e) => handleUpdateExperience(exp.id, 'description', e.target.value)} placeholder="What did you do? Use bullet points..." rows={4} />
+                    <div className={styles.bulletList}>
+                      {(exp.description || '').split('\n').filter(Boolean).map((line, i) => (
+                        <div key={i} className={styles.bulletItem}>
+                          <span className={styles.bulletDot}>•</span>
+                          <input
+                            type="text"
+                            value={line.replace(/^[-•]\s*/, '')}
+                            onChange={(e) => {
+                              const bullets = (exp.description || '').split('\n').filter(Boolean);
+                              bullets[i] = e.target.value;
+                              handleUpdateExperience(exp.id, 'description', bullets.join('\n'));
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const bullets = (exp.description || '').split('\n').filter(Boolean);
+                                bullets.splice(i + 1, 0, '');
+                                handleUpdateExperience(exp.id, 'description', bullets.join('\n'));
+                                setTimeout(() => {
+                                  const next = (e.target as HTMLInputElement).parentElement?.nextElementSibling?.querySelector('input');
+                                  next?.focus();
+                                }, 50);
+                              } else if (e.key === 'Backspace' && !(e.target as HTMLInputElement).value) {
+                                e.preventDefault();
+                                const bullets = (exp.description || '').split('\n').filter(Boolean);
+                                if (bullets.length > 1) {
+                                  bullets.splice(i, 1);
+                                  handleUpdateExperience(exp.id, 'description', bullets.join('\n'));
+                                  setTimeout(() => {
+                                    const prev = (e.target as HTMLInputElement).parentElement?.previousElementSibling?.querySelector('input');
+                                    prev?.focus();
+                                  }, 50);
+                                }
+                              }
+                            }}
+                            placeholder="Describe what you did..."
+                            className={styles.bulletInput}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const bullets = (exp.description || '').split('\n').filter(Boolean);
+                              bullets.splice(i, 1);
+                              handleUpdateExperience(exp.id, 'description', bullets.join('\n'));
+                            }}
+                            className={styles.removeBullet}
+                            title="Remove bullet"
+                          >×</button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = exp.description || '';
+                          const bullets = current.split('\n').filter(Boolean);
+                          bullets.push('');
+                          handleUpdateExperience(exp.id, 'description', bullets.join('\n'));
+                        }}
+                        className={styles.addBulletButton}
+                      >+ Add Bullet Point</button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1458,7 +1518,67 @@ export default function ResumeEditorPage() {
                         )}
                       </button>
                     </div>
-                    <textarea value={project.description || ''} onChange={(e) => handleUpdateProject(project.id, 'description', e.target.value)} placeholder="What did you do or accomplish?" rows={3} />
+                    <div className={styles.bulletList}>
+                      {(project.description || '').split('\n').filter(Boolean).map((line, i) => (
+                        <div key={i} className={styles.bulletItem}>
+                          <span className={styles.bulletDot}>•</span>
+                          <input
+                            type="text"
+                            value={line.replace(/^[-•]\s*/, '')}
+                            onChange={(e) => {
+                              const bullets = (project.description || '').split('\n').filter(Boolean);
+                              bullets[i] = e.target.value;
+                              handleUpdateProject(project.id, 'description', bullets.join('\n'));
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const bullets = (project.description || '').split('\n').filter(Boolean);
+                                bullets.splice(i + 1, 0, '');
+                                handleUpdateProject(project.id, 'description', bullets.join('\n'));
+                                setTimeout(() => {
+                                  const next = (e.target as HTMLInputElement).parentElement?.nextElementSibling?.querySelector('input');
+                                  next?.focus();
+                                }, 50);
+                              } else if (e.key === 'Backspace' && !(e.target as HTMLInputElement).value) {
+                                e.preventDefault();
+                                const bullets = (project.description || '').split('\n').filter(Boolean);
+                                if (bullets.length > 1) {
+                                  bullets.splice(i, 1);
+                                  handleUpdateProject(project.id, 'description', bullets.join('\n'));
+                                  setTimeout(() => {
+                                    const prev = (e.target as HTMLInputElement).parentElement?.previousElementSibling?.querySelector('input');
+                                    prev?.focus();
+                                  }, 50);
+                                }
+                              }
+                            }}
+                            placeholder="What did you do or accomplish?"
+                            className={styles.bulletInput}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const bullets = (project.description || '').split('\n').filter(Boolean);
+                              bullets.splice(i, 1);
+                              handleUpdateProject(project.id, 'description', bullets.join('\n'));
+                            }}
+                            className={styles.removeBullet}
+                            title="Remove bullet"
+                          >×</button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = project.description || '';
+                          const bullets = current.split('\n').filter(Boolean);
+                          bullets.push('');
+                          handleUpdateProject(project.id, 'description', bullets.join('\n'));
+                        }}
+                        className={styles.addBulletButton}
+                      >+ Add Bullet Point</button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1488,7 +1608,7 @@ export default function ResumeEditorPage() {
               : 'Your Name';
             const firstName = personalInfo.first_name || 'Your';
             const lastName = personalInfo.last_name || 'Name';
-            const contactParts = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url].filter(Boolean);
+            const contactParts = [personalInfo.email, personalInfo.phone, personalInfo.location, personalInfo.linkedin_url, personalInfo.website_url].filter(Boolean);
 
             const serifFont = 'Georgia, "Times New Roman", serif';
             const sansFont = '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
@@ -1520,6 +1640,12 @@ export default function ResumeEditorPage() {
                   }}>
                     {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
                   </div>
+                  {personalInfo.summary && (
+                    <div style={{ marginBottom: '14px' }}>
+                      <h2 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #000', paddingBottom: '3px', marginBottom: '10px', color: '#000' }}>Summary</h2>
+                      <p style={{ fontSize: '0.9rem', margin: 0, color: '#333' }}>{personalInfo.summary}</p>
+                    </div>
+                  )}
                   {education.length > 0 && (
                     <div style={{ marginBottom: '14px' }}>
                       <h2 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #000', paddingBottom: '3px', marginBottom: '10px', color: '#000' }}>Education</h2>
@@ -1574,7 +1700,13 @@ export default function ResumeEditorPage() {
                             {project.role && <span style={{ fontSize: '0.85rem' }}>{project.role}</span>}
                           </div>
                           {project.organization && <div style={{ fontSize: '0.9rem', fontStyle: 'italic' }}>{project.organization}</div>}
-                          {project.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{project.description}</p>}
+                          {project.description && (
+                            <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                              {project.description.split('\n').filter(Boolean).map((line, i) => (
+                                <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1615,6 +1747,12 @@ export default function ResumeEditorPage() {
                   <div style={{ fontSize: '0.9rem', color: '#333', marginBottom: '14px' }}>
                     {contactParts.length > 0 ? contactParts.join('  |  ') : 'email@example.com  |  (555) 123-4567  |  City, State'}
                   </div>
+                  {personalInfo.summary && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <h2 style={jakeSectionStyle}>Summary</h2>
+                      <p style={{ fontSize: '0.9rem', margin: 0, color: '#222' }}>{personalInfo.summary}</p>
+                    </div>
+                  )}
                   {education.length > 0 && (
                     <div style={{ marginBottom: '12px' }}>
                       <h2 style={jakeSectionStyle}>Education</h2>
@@ -1663,7 +1801,13 @@ export default function ResumeEditorPage() {
                             <strong style={{ fontSize: '0.95rem' }}>{project.project_name}</strong>
                             {project.role && <span style={{ fontSize: '0.85rem' }}>{project.role}</span>}
                           </div>
-                          {project.description && <p style={{ fontSize: '0.9rem', margin: '2px 0 0', color: '#222' }}>{project.description}</p>}
+                          {project.description && (
+                            <ul style={{ margin: '2px 0 0 18px', paddingLeft: 0, listStyleType: 'disc', listStylePosition: 'outside' }}>
+                              {project.description.split('\n').filter(Boolean).map((line, i) => (
+                                <li key={i} style={{ fontSize: '0.9rem', color: '#222', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1899,7 +2043,13 @@ export default function ResumeEditorPage() {
                               <span style={{ fontSize: '0.75rem', color: '#666' }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                             </div>
                             <div style={{ fontSize: '0.8rem', color: '#666' }}>{exp.company_name}</div>
-                            {exp.description && <p style={{ fontSize: '0.8rem', margin: '4px 0 0', color: '#333' }}>{exp.description}</p>}
+                            {exp.description && (
+                              <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                                {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                                  <li key={i} style={{ fontSize: '0.8rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1959,7 +2109,13 @@ export default function ResumeEditorPage() {
                               <span style={{ fontSize: '0.85rem', color: '#666' }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                             </div>
                             <div style={{ fontSize: '0.9rem', color: '#666' }}>{exp.company_name}</div>
-                            {exp.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{exp.description}</p>}
+                            {exp.description && (
+                              <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                                {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                                  <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -2034,7 +2190,13 @@ export default function ResumeEditorPage() {
                             <span style={{ fontSize: '0.85rem', color: '#999' }}>{exp.start_date}{exp.end_date ? ` â€” ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                           </div>
                           <div style={{ fontSize: '0.9rem', color: '#666' }}>{exp.company_name}</div>
-                          {exp.description && <p style={{ fontSize: '0.85rem', margin: '6px 0 0', color: '#333' }}>{exp.description}</p>}
+                          {exp.description && (
+                            <ul style={{ margin: '6px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                              {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                                <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -2117,7 +2279,13 @@ export default function ResumeEditorPage() {
                             <strong style={{ fontSize: '0.85rem' }}>{exp.job_title} â€” {exp.company_name}</strong>
                             <span style={{ fontSize: '0.75rem', color: '#666' }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                           </div>
-                          {exp.description && <p style={{ fontSize: '0.75rem', margin: '2px 0 0', color: '#333' }}>{exp.description}</p>}
+                          {exp.description && (
+                            <ul style={{ margin: '2px 0 0 14px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                              {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                                <li key={i} style={{ fontSize: '0.75rem', color: '#333', marginBottom: '1px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -2192,7 +2360,13 @@ export default function ResumeEditorPage() {
                             <span style={{ fontSize: '0.85rem', color: colors.primaryColor }}>{exp.start_date}{exp.end_date ? ` - ${exp.is_current ? 'Present' : exp.end_date}` : ''}</span>
                           </div>
                           <div style={{ fontSize: '0.9rem', color: '#666' }}>{exp.company_name}</div>
-                          {exp.description && <p style={{ fontSize: '0.85rem', margin: '4px 0 0', color: '#333' }}>{exp.description}</p>}
+                          {exp.description && (
+                            <ul style={{ margin: '4px 0 0 16px', paddingLeft: 0, listStylePosition: 'outside' }}>
+                              {exp.description.split('\n').filter(Boolean).map((line, i) => (
+                                <li key={i} style={{ fontSize: '0.85rem', color: '#333', marginBottom: '2px' }}>{line.replace(/^[-•]\s*/, '')}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))}
                     </div>

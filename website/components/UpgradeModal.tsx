@@ -134,7 +134,7 @@ export default function UpgradeModal({
             <div className={styles.planHeader}>
               <h3 className={styles.planNamePro}>Pro</h3>
               <div className={styles.planPricePro}>
-                <span className={styles.priceAmountPro}>$19</span>
+                <span className={styles.priceAmountPro}>$9.99</span>
                 <span className={styles.priceNote}>one-time</span>
               </div>
             </div>
@@ -193,7 +193,7 @@ export default function UpgradeModal({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
                   </svg>
-                  Upgrade to Pro - $19
+                  Upgrade to Pro - $9.99
                 </>
               )}
             </button>

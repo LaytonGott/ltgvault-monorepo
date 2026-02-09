@@ -131,7 +131,7 @@ export default function ResumeLanding() {
         <div className={styles.pricingCard}>
           <div className={styles.pricingBadge}>Lifetime Access</div>
           <div className={styles.pricingMain}>
-            <span className={styles.pricingAmount}>$19</span>
+            <span className={styles.pricingAmount}>$9.99</span>
             <span className={styles.pricingPeriod}>one-time</span>
           </div>
           <ul className={styles.pricingFeatures}>
@@ -176,7 +176,7 @@ export default function ResumeLanding() {
           </details>
           <details className={styles.faqItem}>
             <summary className={styles.faqQuestion}>What does lifetime access mean?</summary>
-            <p className={styles.faqAnswer}>Pay $19 once and you have Pro access forever. No monthly fees, no subscriptions, no surprises. You get unlimited resumes, all 25 templates, cover letter generator, and 100 AI generations per month — for life.</p>
+            <p className={styles.faqAnswer}>Pay $9.99 once and you have Pro access forever. No monthly fees, no subscriptions, no surprises. You get unlimited resumes, all 25 templates, cover letter generator, and 100 AI generations per month — for life.</p>
           </details>
           <details className={styles.faqItem}>
             <summary className={styles.faqQuestion}>Can I download my resume as a PDF?</summary>

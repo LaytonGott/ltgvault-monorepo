@@ -11,7 +11,7 @@ import styles from './resume.module.css';
 
 export const metadata: Metadata = {
   title: 'AI Resume Builder for Teens & First-Time Job Seekers | LTG Vault',
-  description: 'Build your first resume in minutes with AI-powered suggestions. Made for teens & first-time job seekers. Free to start, $19 lifetime.',
+  description: 'Build your first resume in minutes with AI-powered suggestions. Made for teens & first-time job seekers. Free to start, $9.99 lifetime.',
   openGraph: {
     title: 'AI Resume Builder for Teens | LTG Vault',
     description: 'Build your first resume in minutes with AI-powered bullet points.',
@@ -38,7 +38,7 @@ export default function ResumesPage() {
     '@type': 'SoftwareApplication',
     name: 'LTG Vault Resume Builder',
     applicationCategory: 'BusinessApplication',
-    offers: { '@type': 'Offer', price: '19', priceCurrency: 'USD' },
+    offers: { '@type': 'Offer', price: '9.99', priceCurrency: 'USD' },
     description: 'AI-powered resume builder for teens and first-time job seekers',
   };
 

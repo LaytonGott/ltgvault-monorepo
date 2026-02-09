@@ -346,8 +346,9 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 32px 24px;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: subgrid;
+            grid-row: span 6;
             transition: all 0.3s ease;
             position: relative;
         }
@@ -398,7 +399,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
 
         .tool-icon svg {
@@ -408,18 +409,18 @@
         .plan-name {
             font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 0;
         }
 
         .plan-description {
             font-size: 0.9rem;
             color: var(--gray);
-            margin-bottom: 20px;
+            margin-bottom: 0;
             line-height: 1.5;
         }
 
         .plan-price {
-            margin-bottom: 24px;
+            margin-bottom: 0;
         }
 
         .price-amount {
@@ -435,8 +436,7 @@
 
         .plan-features {
             list-style: none;
-            margin-bottom: 32px;
-            flex-grow: 1;
+            margin-bottom: 0;
         }
 
         .plan-features li {
@@ -466,6 +466,7 @@
             font-family: inherit;
             background: var(--gold);
             color: var(--black);
+            align-self: end;
         }
 
         .subscribe-btn:hover {
@@ -868,9 +869,15 @@
         @media (max-width: 600px) {
             .pricing-grid {
                 grid-template-columns: 1fr;
+                grid-template-rows: auto;
                 max-width: 400px;
                 margin-left: auto;
                 margin-right: auto;
+            }
+
+            .pricing-card {
+                grid-row: auto;
+                grid-template-rows: auto;
             }
 
             .pricing-card.featured {
@@ -1156,7 +1163,7 @@
                 <h2 class="plan-name">Resume Builder Pro</h2>
                 <p class="plan-description">Build professional resumes with AI. Pay once, use forever.</p>
                 <div class="plan-price">
-                    <span class="price-amount">$19</span>
+                    <span class="price-amount">$9.99</span>
                     <span class="price-period">one-time</span>
                 </div>
                 <ul class="plan-features">
@@ -1191,8 +1198,8 @@
                         No watermarks
                     </li>
                 </ul>
-                <button class="subscribe-btn" data-tool="resumebuilder" data-name="Resume Builder Pro" data-amount="$19 one-time">
-                    Buy Once - $19
+                <button class="subscribe-btn" data-tool="resumebuilder" data-name="Resume Builder Pro" data-amount="$9.99 one-time">
+                    Buy Once - $9.99
                 </button>
             </div>
 
@@ -1287,7 +1294,7 @@
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </div>
-                <p class="faq-answer">Create unlimited resumes and download PDFs for free - no account needed. You get 5 lifetime AI generations for bullet points and summaries. Pay once ($19) for lifetime access to 100 AI generations per month, all templates, and cover letter generator.</p>
+                <p class="faq-answer">Create unlimited resumes and download PDFs for free - no account needed. You get 5 lifetime AI generations for bullet points and summaries. Pay once ($9.99) for lifetime access to 100 AI generations per month, all templates, and cover letter generator.</p>
             </div>
 
             <div class="faq-item">
@@ -1297,7 +1304,7 @@
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </div>
-                <p class="faq-answer">Yes! PostUp, ChapterGen, and ThreadGen are $7/month each. Resume Builder Pro is a $19 one-time purchase for lifetime access. Mix and match based on your needs.</p>
+                <p class="faq-answer">Yes! PostUp, ChapterGen, and ThreadGen are $7/month each. Resume Builder Pro is a $9.99 one-time purchase for lifetime access. Mix and match based on your needs.</p>
             </div>
 
             <div class="faq-item">

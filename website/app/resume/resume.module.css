@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background: var(--black);
+  background: var(--bg-page);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -12,16 +12,16 @@
   color: var(--gray-light);
 }
 
-/* ============ HEADER - matches PostUp/ThreadGen/ChapterGen ============ */
+/* ============ HEADER ============ */
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  height: 76px;
-  background: rgba(0, 0, 0, 0.95);
-  border-bottom: 2px solid #4a3d2a;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(12px);
 }
 
@@ -51,29 +51,29 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 36px;
+  gap: 32px;
 }
 
 .nav a {
-  color: #aaaaaa;
+  color: var(--gray);
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .nav a:hover {
-  color: var(--white);
+  color: var(--black);
 }
 
 .active {
-  color: var(--gold) !important;
+  color: var(--coral) !important;
 }
 
 .main {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 100px 40px 60px;
+  padding: 88px 40px 60px;
 }
 
 .guestBanner {
@@ -81,17 +81,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: rgba(201, 162, 39, 0.1);
-  border: 1px solid rgba(201, 162, 39, 0.3);
-  border-radius: 8px;
+  background: rgba(6, 78, 59, 0.06);
+  border: 1px solid rgba(6, 78, 59, 0.2);
+  border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 24px;
   font-size: 0.9rem;
-  color: var(--gold-light);
+  color: var(--gray-dark);
 }
 
 .guestBannerLink {
-  color: var(--gold);
+  color: var(--coral);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -105,17 +105,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(40, 202, 65, 0.1);
-  border: 1px solid rgba(40, 202, 65, 0.3);
-  border-radius: 8px;
+  background: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 24px;
   font-size: 0.9rem;
-  color: #28ca41;
+  color: #16a34a;
 }
 
 .proBanner svg {
-  color: #28ca41;
+  color: #16a34a;
   flex-shrink: 0;
 }
 
@@ -124,7 +124,7 @@
 }
 
 .proBannerDetail {
-  color: rgba(40, 202, 65, 0.7);
+  color: #4ade80;
   margin-left: auto;
 }
 
@@ -138,6 +138,7 @@
 .titleRow h1 {
   font-size: 1.75rem;
   font-weight: 700;
+  color: var(--black);
 }
 
 .newButton {
@@ -145,26 +146,26 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: var(--gold);
-  color: var(--black);
+  background: var(--coral);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.2s, transform 0.2s;
 }
 
 .newButton:hover {
-  background: var(--gold-light);
+  background: #053D32;
   transform: translateY(-1px);
 }
 
 .error {
-  background: rgba(255, 95, 87, 0.1);
-  border: 1px solid rgba(255, 95, 87, 0.3);
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   color: var(--error);
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 24px;
   font-size: 0.9rem;
 }
@@ -175,7 +176,7 @@
 }
 
 .emptyIcon {
-  color: var(--gray);
+  color: var(--gray-light);
   margin-bottom: 24px;
 }
 
@@ -183,10 +184,11 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--black);
 }
 
 .empty p {
-  color: var(--gray-light);
+  color: var(--gray);
   margin-bottom: 24px;
 }
 
@@ -197,28 +199,30 @@
 }
 
 .card {
-  background: var(--bg-card);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .card:hover {
-  border-color: var(--gold);
+  border-color: var(--coral);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
 }
 
 .cardPreview {
   width: 100%;
   height: 120px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-page);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gray);
+  color: var(--gray-light);
   margin-bottom: 16px;
 }
 
@@ -226,11 +230,12 @@
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 4px;
+  color: var(--black);
 }
 
 .cardInfo p {
   font-size: 0.8rem;
-  color: var(--gray-light);
+  color: var(--gray);
 }
 
 .deleteButton {
@@ -239,7 +244,7 @@
   right: 12px;
   width: 32px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.05);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--gray);
@@ -255,7 +260,7 @@
 }
 
 .deleteButton:hover {
-  background: rgba(255, 95, 87, 0.1);
+  background: rgba(239, 68, 68, 0.06);
   border-color: var(--error);
   color: var(--error);
 }
@@ -274,16 +279,17 @@
 }
 
 .heroTitle {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: 16px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  color: var(--black);
 }
 
 .heroSubtitle {
-  font-size: 1.1rem;
-  color: var(--gray-light);
+  font-size: 1.15rem;
+  color: var(--gray);
   line-height: 1.6;
   margin-bottom: 32px;
 }
@@ -292,11 +298,11 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 28px;
-  background: var(--gold);
-  color: var(--black);
+  padding: 16px 32px;
+  background: var(--coral);
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -304,9 +310,9 @@
 }
 
 .heroButton:hover {
-  background: var(--gold-light);
+  background: #053D32;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4);
+  box-shadow: 0 8px 24px rgba(6, 78, 59, 0.3);
 }
 
 .heroPreview {
@@ -320,7 +326,7 @@
   background: #fff;
   border-radius: 8px;
   padding: 28px 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
   font-family: 'Georgia', 'Times New Roman', serif;
   color: #1a1a1a;
   transform: perspective(1000px) rotateY(-5deg);
@@ -441,6 +447,7 @@
   font-weight: 700;
   text-align: center;
   margin-bottom: 48px;
+  color: var(--black);
 }
 
 .featuresGrid {
@@ -450,22 +457,24 @@
 }
 
 .featureCard {
-  background: rgba(255, 255, 255, 0.02);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 28px 24px;
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .featureCard:hover {
-  border-color: rgba(201, 162, 39, 0.3);
+  border-color: rgba(6, 78, 59, 0.3);
   transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .featureIcon {
   width: 48px;
   height: 48px;
-  background: rgba(201, 162, 39, 0.15);
+  background: rgba(6, 78, 59, 0.08);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -474,18 +483,19 @@
 }
 
 .featureIcon svg {
-  color: var(--gold);
+  color: var(--coral);
 }
 
 .featureCard h3 {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--black);
 }
 
 .featureCard p {
   font-size: 0.9rem;
-  color: var(--gray-light);
+  color: var(--gray);
   line-height: 1.5;
 }
 
@@ -509,7 +519,7 @@
   left: 20%;
   right: 20%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
 }
 
 .step {
@@ -521,8 +531,8 @@
 .stepNumber {
   width: 56px;
   height: 56px;
-  background: var(--black);
-  border: 2px solid var(--gold);
+  background: white;
+  border: 2px solid var(--coral);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -530,25 +540,26 @@
   margin: 0 auto 20px;
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--coral);
   transition: all 0.3s ease;
 }
 
 .step:hover .stepNumber {
-  background: var(--gold);
-  color: var(--black);
-  box-shadow: 0 0 20px rgba(201, 162, 39, 0.4);
+  background: var(--coral);
+  color: white;
+  box-shadow: 0 4px 16px rgba(6, 78, 59, 0.3);
 }
 
 .step h3 {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--black);
 }
 
 .step p {
   font-size: 0.85rem;
-  color: var(--gray-light);
+  color: var(--gray);
   line-height: 1.5;
 }
 
@@ -561,14 +572,15 @@
 }
 
 .pricingCard {
-  background: rgba(201, 162, 39, 0.03);
-  border: 2px solid rgba(201, 162, 39, 0.3);
+  background: white;
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 48px;
   text-align: center;
   max-width: 420px;
   width: 100%;
   position: relative;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .pricingBadge {
@@ -576,8 +588,8 @@
   top: -14px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--gold);
-  color: var(--black);
+  background: var(--coral);
+  color: white;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 8px 20px;
@@ -593,12 +605,12 @@
 .pricingAmount {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--white);
+  color: var(--black);
 }
 
 .pricingPeriod {
   font-size: 1.1rem;
-  color: var(--gray-light);
+  color: var(--gray);
   margin-left: 8px;
 }
 
@@ -613,7 +625,7 @@
   align-items: center;
   gap: 12px;
   font-size: 0.95rem;
-  color: var(--gray-light);
+  color: var(--gray-dark);
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
 }
@@ -623,27 +635,29 @@
 }
 
 .pricingFeatures svg {
-  color: var(--gold);
+  color: var(--coral);
   flex-shrink: 0;
 }
 
 .pricingButton {
   width: 100%;
   padding: 16px 24px;
-  background: var(--gold);
-  color: var(--black);
+  background: var(--coral);
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: block;
+  text-align: center;
 }
 
 .pricingButton:hover {
-  background: var(--gold-light);
+  background: #053D32;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.4);
+  box-shadow: 0 8px 24px rgba(6, 78, 59, 0.3);
 }
 
 /* ============ MY RESUMES SECTION ============ */
@@ -655,12 +669,14 @@
 .titleRow h2 {
   font-size: 1.5rem;
   font-weight: 700;
+  color: var(--black);
 }
 
 .empty h3 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--black);
 }
 
 /* Header Responsive */
@@ -672,14 +688,14 @@
     gap: 24px;
   }
   .nav a {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   .logoImg {
     height: 70px;
     margin-top: 0;
   }
   .main {
-    padding: 100px 24px 60px;
+    padding: 88px 24px 60px;
   }
   .featuresGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -727,7 +743,7 @@
     display: none;
   }
   .main {
-    padding: 90px 20px 60px;
+    padding: 80px 20px 60px;
   }
   .titleRow {
     flex-direction: column;
@@ -798,7 +814,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 14px;
@@ -806,13 +822,13 @@
 
 .usageText {
   font-size: 0.8rem;
-  color: var(--gray-light);
+  color: var(--gray);
 }
 
 .upgradeLink {
   background: transparent;
   border: none;
-  color: var(--gold);
+  color: var(--coral);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -837,11 +853,11 @@
   gap: 8px;
   margin-top: 16px;
   font-size: 0.8rem;
-  color: var(--gray-light);
+  color: var(--gray);
 }
 
 .guarantee svg {
-  color: var(--gold);
+  color: var(--coral);
   flex-shrink: 0;
 }
 
@@ -860,15 +876,16 @@
 }
 
 .faqItem {
-  background: rgba(255, 255, 255, 0.02);
+  background: white;
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
   transition: border-color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .faqItem[open] {
-  border-color: rgba(201, 162, 39, 0.3);
+  border-color: rgba(6, 78, 59, 0.3);
 }
 
 .faqQuestion {
@@ -880,6 +897,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: var(--black);
 }
 
 .faqQuestion::-webkit-details-marker {
@@ -889,7 +907,7 @@
 .faqQuestion::after {
   content: '+';
   font-size: 1.2rem;
-  color: var(--gold);
+  color: var(--coral);
   transition: transform 0.2s;
 }
 
@@ -900,6 +918,6 @@
 .faqAnswer {
   padding: 0 20px 18px;
   font-size: 0.9rem;
-  color: var(--gray-light);
+  color: var(--gray);
   line-height: 1.6;
 }

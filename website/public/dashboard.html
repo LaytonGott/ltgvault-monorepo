@@ -13,17 +13,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --black: #000000;
+            --cream: #FAF9F6;
+            --emerald: #064E3B;
+            --emerald-dark: #053D32;
             --gold: #C9A227;
             --gold-light: #D4AF37;
-            --gold-dim: rgba(201, 162, 39, 0.15);
+            --text: #1C1C1C;
+            --text-secondary: #4A4A4A;
+            --border: #E0DDD5;
             --white: #FFFFFF;
-            --gray: #888888;
-            --gray-light: #AAAAAA;
-            --gray-dark: #333333;
-            --border: rgba(255, 255, 255, 0.08);
-            --success: #28ca41;
-            --error: #ff5f57;
+            --success: #064E3B;
+            --error: #DC2626;
         }
 
         * {
@@ -32,10 +32,32 @@
             box-sizing: border-box;
         }
 
+        ::selection {
+            background: var(--emerald);
+            color: var(--white);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--cream);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C8C4BC;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--black);
-            color: var(--white);
+            background-color: var(--cream);
+            color: var(--text);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
@@ -48,14 +70,13 @@
             right: 0;
             z-index: 100;
             height: 76px;
-            background: rgba(0, 0, 0, 0.95);
-            border-bottom: 2px solid #4a3d2a;
-            backdrop-filter: blur(12px);
+            background: var(--cream);
+            border-bottom: 1px solid var(--border);
             transition: all 0.3s ease;
         }
 
         header.scrolled {
-            background: rgba(0, 0, 0, 0.98);
+            background: var(--cream);
         }
 
         .header-inner {
@@ -88,7 +109,7 @@
         }
 
         nav a {
-            color: #aaaaaa;
+            color: var(--text-secondary);
             text-decoration: none;
             font-size: 1.1rem;
             font-weight: 500;
@@ -99,11 +120,12 @@
         }
 
         nav a:hover {
-            color: var(--white);
+            color: var(--text);
         }
 
         nav a.active {
-            color: var(--gold);
+            color: var(--emerald);
+            font-weight: 600;
         }
 
         /* Main Container */
@@ -181,11 +203,12 @@
             font-weight: 800;
             margin-bottom: 8px;
             letter-spacing: -0.02em;
+            color: var(--text);
         }
 
         .page-subtitle {
             font-size: 1rem;
-            color: var(--gray);
+            color: var(--text-secondary);
         }
 
         /* Status Messages */
@@ -202,21 +225,21 @@
         }
 
         .status.error {
-            background: rgba(255, 95, 87, 0.1);
-            border: 1px solid rgba(255, 95, 87, 0.3);
+            background: rgba(220, 38, 38, 0.08);
+            border: 1px solid rgba(220, 38, 38, 0.25);
             color: var(--error);
         }
 
         .status.success {
-            background: rgba(40, 202, 65, 0.1);
-            border: 1px solid rgba(40, 202, 65, 0.3);
+            background: rgba(6, 78, 59, 0.08);
+            border: 1px solid rgba(6, 78, 59, 0.25);
             color: var(--success);
         }
 
         .status.info {
-            background: var(--gold-dim);
-            border: 1px solid rgba(201, 162, 39, 0.3);
-            color: var(--gold);
+            background: rgba(6, 78, 59, 0.06);
+            border: 1px solid rgba(6, 78, 59, 0.2);
+            color: var(--emerald);
         }
 
         /* Login Section */
@@ -227,21 +250,23 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 40px 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .login-title {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 8px;
+            color: var(--text);
         }
 
         .login-subtitle {
             font-size: 0.9rem;
-            color: var(--gray);
+            color: var(--text-secondary);
             margin-bottom: 32px;
         }
 
@@ -254,7 +279,7 @@
             display: block;
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--gray);
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 8px;
@@ -263,10 +288,10 @@
         .input-group input {
             width: 100%;
             padding: 14px 16px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 8px;
-            color: var(--white);
+            color: var(--text);
             font-size: 0.95rem;
             font-family: inherit;
             transition: border-color 0.2s ease;
@@ -274,18 +299,19 @@
 
         .input-group input:focus {
             outline: none;
-            border-color: var(--gold);
+            border-color: var(--emerald);
+            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
         }
 
         .input-group input::placeholder {
-            color: #555;
+            color: #A0A0A0;
         }
 
         .login-btn {
             width: 100%;
             padding: 14px 20px;
-            background: var(--gold);
-            color: var(--black);
+            background: var(--emerald);
+            color: var(--white);
             border: none;
             border-radius: 10px;
             font-size: 0.95rem;
@@ -296,9 +322,9 @@
         }
 
         .login-btn:hover {
-            background: var(--gold-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(201, 162, 39, 0.3);
+            background: var(--emerald-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
         }
 
         .login-btn:disabled {
@@ -310,12 +336,13 @@
         .login-hint {
             margin-top: 20px;
             font-size: 0.85rem;
-            color: var(--gray);
+            color: var(--text-secondary);
         }
 
         .login-hint a {
-            color: var(--gold);
+            color: var(--emerald);
             text-decoration: none;
+            font-weight: 500;
         }
 
         .login-hint a:hover {
@@ -333,11 +360,12 @@
 
         /* Cards */
         .card {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 28px;
             margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .card-header {
@@ -350,6 +378,7 @@
         .card-title {
             font-size: 1.1rem;
             font-weight: 700;
+            color: var(--text);
         }
 
         /* API Key Card */
@@ -357,7 +386,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--cream);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px 16px;
@@ -368,14 +397,14 @@
             flex: 1;
             font-family: 'Monaco', 'Consolas', monospace;
             font-size: 0.9rem;
-            color: var(--gray-light);
+            color: var(--text-secondary);
         }
 
         .copy-btn {
             padding: 8px 14px;
-            background: var(--gold-dim);
-            border: 1px solid rgba(201, 162, 39, 0.3);
-            color: var(--gold);
+            background: rgba(6, 78, 59, 0.08);
+            border: 1px solid rgba(6, 78, 59, 0.2);
+            color: var(--emerald);
             border-radius: 6px;
             font-size: 0.8rem;
             font-weight: 600;
@@ -385,11 +414,11 @@
         }
 
         .copy-btn:hover {
-            background: rgba(201, 162, 39, 0.25);
+            background: rgba(6, 78, 59, 0.15);
         }
 
         .copy-btn.copied {
-            background: rgba(40, 202, 65, 0.15);
+            background: rgba(6, 78, 59, 0.12);
             border-color: var(--success);
             color: var(--success);
         }
@@ -399,11 +428,11 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.8rem;
-            color: var(--gray);
+            color: var(--text-secondary);
         }
 
         .regenerate-link {
-            color: var(--gold);
+            color: var(--emerald);
             text-decoration: none;
             cursor: pointer;
         }
@@ -422,8 +451,8 @@
             align-items: center;
             gap: 12px;
             padding: 16px;
-            background: rgba(40, 202, 65, 0.1);
-            border: 1px solid rgba(40, 202, 65, 0.3);
+            background: rgba(6, 78, 59, 0.06);
+            border: 1px solid rgba(6, 78, 59, 0.2);
             border-radius: 8px;
             margin-bottom: 12px;
         }
@@ -434,18 +463,18 @@
         }
 
         .access-text {
-            color: var(--gray-light);
+            color: var(--text-secondary);
             font-size: 0.95rem;
         }
 
         .access-text span {
-            color: var(--white);
+            color: var(--text);
             font-weight: 600;
         }
 
         .access-note {
             font-size: 0.85rem;
-            color: var(--gray);
+            color: var(--text-secondary);
             margin: 0;
         }
 
@@ -471,15 +500,15 @@
         }
 
         .subscription-item {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
         }
 
         .subscription-item.subscribed {
-            border-color: rgba(40, 202, 65, 0.3);
-            background: rgba(40, 202, 65, 0.05);
+            border-color: rgba(6, 78, 59, 0.3);
+            background: rgba(6, 78, 59, 0.03);
         }
 
         .subscription-header {
@@ -492,6 +521,7 @@
         .subscription-tool {
             font-weight: 600;
             font-size: 0.95rem;
+            color: var(--text);
         }
 
         .subscription-badge {
@@ -503,28 +533,28 @@
         }
 
         .subscription-badge.active {
-            background: rgba(40, 202, 65, 0.15);
+            background: rgba(6, 78, 59, 0.1);
             color: var(--success);
         }
 
         .subscription-badge.free {
-            background: var(--gold-dim);
-            color: var(--gold);
+            background: rgba(74, 74, 74, 0.08);
+            color: var(--text-secondary);
         }
 
         .subscription-usage {
             font-size: 0.85rem;
-            color: var(--gray-light);
+            color: var(--text-secondary);
             margin-bottom: 12px;
         }
 
         .subscription-usage strong {
-            color: var(--white);
+            color: var(--text);
         }
 
         .usage-bar {
             height: 4px;
-            background: var(--gray-dark);
+            background: var(--border);
             border-radius: 2px;
             overflow: hidden;
             margin-bottom: 16px;
@@ -532,13 +562,13 @@
 
         .usage-bar-fill {
             height: 100%;
-            background: var(--gold);
+            background: var(--emerald);
             border-radius: 2px;
             transition: width 0.3s ease;
         }
 
         .usage-bar-fill.high {
-            background: #ffbd2e;
+            background: #D97706;
         }
 
         .usage-bar-fill.full {
@@ -565,39 +595,40 @@
         }
 
         .subscription-action.subscribe {
-            background: var(--gold);
-            color: var(--black);
+            background: var(--emerald);
+            color: var(--white);
             border: none;
         }
 
         .subscription-action.subscribe:hover {
-            background: var(--gold-light);
+            background: var(--emerald-dark);
         }
 
         .subscription-action.manage {
             background: transparent;
             border: 1px solid var(--border);
-            color: var(--gray-light);
+            color: var(--text-secondary);
         }
 
         .subscription-action.manage:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--cream);
+            color: var(--text);
         }
 
         /* Resume Builder Pro Card */
         .subscription-item.pro {
-            border-color: rgba(201, 162, 39, 0.4);
-            background: rgba(201, 162, 39, 0.05);
+            border-color: rgba(6, 78, 59, 0.3);
+            background: rgba(6, 78, 59, 0.03);
         }
 
         .subscription-badge.pro {
-            background: linear-gradient(135deg, rgba(201, 162, 39, 0.3), rgba(201, 162, 39, 0.15));
-            color: var(--gold);
+            background: rgba(6, 78, 59, 0.1);
+            color: var(--emerald);
         }
 
         .subscription-badge.lifetime {
-            background: linear-gradient(135deg, #c9a227, #e5c040);
-            color: #000;
+            background: var(--emerald);
+            color: var(--white);
         }
 
         .subscription-tool-icon {
@@ -607,19 +638,19 @@
         }
 
         .subscription-tool-icon svg {
-            color: var(--gold);
+            color: var(--emerald);
             flex-shrink: 0;
         }
 
         .subscription-subtext {
             font-size: 0.75rem;
-            color: var(--gray);
+            color: var(--text-secondary);
             margin-top: 2px;
         }
 
         .subscription-subtext .pro-label {
-            background: linear-gradient(135deg, #c9a227, #e5c040);
-            color: #000;
+            background: var(--emerald);
+            color: var(--white);
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: 600;
@@ -628,23 +659,24 @@
 
         .subscription-stats {
             font-size: 0.8rem;
-            color: var(--gray-light);
+            color: var(--text-secondary);
             margin-bottom: 6px;
         }
 
         .subscription-stats strong {
-            color: var(--white);
+            color: var(--text);
         }
 
         .subscription-action.upgrade {
-            background: linear-gradient(135deg, #c9a227, #e5c040);
-            color: #000;
+            background: var(--emerald);
+            color: var(--white);
             border: none;
         }
 
         .subscription-action.upgrade:hover {
+            background: var(--emerald-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
         }
 
         .subscription-links {
@@ -656,10 +688,10 @@
         .subscription-links a {
             flex: 1;
             padding: 6px 8px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--cream);
             border: 1px solid var(--border);
             border-radius: 6px;
-            color: var(--gray-light);
+            color: var(--text-secondary);
             font-size: 0.75rem;
             font-weight: 500;
             text-decoration: none;
@@ -668,8 +700,8 @@
         }
 
         .subscription-links a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--white);
+            background: var(--border);
+            color: var(--text);
         }
 
         /* Quick Links */
@@ -684,21 +716,21 @@
             align-items: center;
             gap: 12px;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 12px;
             text-decoration: none;
-            color: var(--white);
+            color: var(--text);
             transition: all 0.2s ease;
         }
 
         .quick-link:hover {
-            border-color: rgba(201, 162, 39, 0.3);
-            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--emerald);
+            background: rgba(6, 78, 59, 0.03);
         }
 
         .quick-link svg {
-            color: var(--gold);
+            color: var(--emerald);
         }
 
         .quick-link-text {
@@ -720,19 +752,20 @@
         }
 
         .btn.secondary {
-            background: var(--gold-dim);
-            border: 1px solid rgba(201, 162, 39, 0.3);
-            color: var(--gold);
+            background: rgba(6, 78, 59, 0.08);
+            border: 1px solid rgba(6, 78, 59, 0.2);
+            color: var(--emerald);
         }
 
         .btn.secondary:hover {
-            background: rgba(201, 162, 39, 0.25);
+            background: rgba(6, 78, 59, 0.15);
         }
 
         /* Footer */
         footer {
             padding: 40px 0;
             border-top: 1px solid var(--border);
+            background: var(--cream);
         }
 
         .footer-inner {
@@ -744,7 +777,7 @@
 
         .footer-text {
             font-size: 0.85rem;
-            color: #555;
+            color: var(--text-secondary);
         }
 
         /* Loading */
@@ -760,8 +793,8 @@
         .spinner {
             width: 32px;
             height: 32px;
-            border: 3px solid var(--gray-dark);
-            border-top-color: var(--gold);
+            border: 3px solid var(--border);
+            border-top-color: var(--emerald);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -772,7 +805,7 @@
 
         .loading-text {
             font-size: 0.9rem;
-            color: var(--gray);
+            color: var(--text-secondary);
         }
 
         /* Responsive */

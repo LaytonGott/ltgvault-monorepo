@@ -14,25 +14,25 @@
     <style>
         :root {
             --cream: #FAF9F6;
-            --emerald: #064E3B;
-            --emerald-dark: #053D32;
+            --emerald: #059669;
+            --emerald-dark: #047857;
             --gold: #C9A227;
             --gold-light: #D4AF37;
-            --text: #1C1C1C;
-            --text-secondary: #4A4A4A;
-            --border: #E0DDD5;
+            --text: #111827;
+            --text-secondary: #6B7280;
+            --border: #D4CFC7;
             --white: #FFFFFF;
-            --success: #064E3B;
+            --success: #059669;
             --error: #DC2626;
             /* Legacy mappings */
-            --black: #1C1C1C;
+            --black: #111827;
             --bg-dark: #FAF9F6;
             --bg-card: #FFFFFF;
             --bg-input: #FFFFFF;
-            --gold-dim: rgba(6, 78, 59, 0.08);
-            --gray: #4A4A4A;
-            --gray-light: #4A4A4A;
-            --gray-dark: #E0DDD5;
+            --gold-dim: rgba(5, 150, 105, 0.08);
+            --gray: #6B7280;
+            --gray-light: #9CA3AF;
+            --gray-dark: #374151;
         }
 
         * {
@@ -276,14 +276,14 @@
         }
 
         .status.success {
-            background: rgba(6, 78, 59, 0.06);
-            border: 1px solid rgba(6, 78, 59, 0.2);
+            background: rgba(5, 150, 105, 0.06);
+            border: 1px solid rgba(5, 150, 105, 0.2);
             color: var(--success);
         }
 
         .status.info {
-            background: rgba(6, 78, 59, 0.06);
-            border: 1px solid rgba(6, 78, 59, 0.2);
+            background: rgba(5, 150, 105, 0.06);
+            border: 1px solid rgba(5, 150, 105, 0.2);
             color: var(--emerald);
         }
 
@@ -359,7 +359,7 @@
 
         textarea:focus {
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.08);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.08);
         }
 
         textarea {
@@ -411,7 +411,7 @@
         .btn.primary:hover:not(:disabled) {
             background: var(--emerald-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
         }
 
         .btn.primary:active:not(:disabled) {
@@ -447,7 +447,7 @@
         }
 
         .btn.secondary.copied {
-            background: rgba(6, 78, 59, 0.06);
+            background: rgba(5, 150, 105, 0.06);
             border-color: var(--success);
             color: var(--success);
         }
@@ -538,8 +538,8 @@
         }
 
         .usage-counter.unlimited {
-            border-color: rgba(6, 78, 59, 0.2);
-            background: rgba(6, 78, 59, 0.04);
+            border-color: rgba(5, 150, 105, 0.2);
+            background: rgba(5, 150, 105, 0.04);
         }
 
         .usage-counter.unlimited .count {
@@ -718,7 +718,7 @@
         }
 
         .copy-tweet-btn.copied {
-            background: rgba(6, 78, 59, 0.06);
+            background: rgba(5, 150, 105, 0.06);
             border-color: var(--success);
             color: var(--success);
         }
@@ -780,8 +780,8 @@
             border-left: none;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-            border-color: rgba(6, 78, 59, 0.2);
-            background: rgba(6, 78, 59, 0.03);
+            border-color: rgba(5, 150, 105, 0.2);
+            background: rgba(5, 150, 105, 0.03);
         }
 
         .box-label {
@@ -848,7 +848,7 @@
             }
             .after-box {
                 border-radius: 0 0 12px 12px;
-                border-left: 1px solid rgba(6, 78, 59, 0.2);
+                border-left: 1px solid rgba(5, 150, 105, 0.2);
                 border-top: none;
             }
             .before-after-arrow {
@@ -955,7 +955,7 @@
 
         .demo-generate-btn.active {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
         }
 
         .demo-generate-btn.clicked {
@@ -1079,7 +1079,7 @@
         .generate-btn:hover:not(:disabled) {
             background: var(--emerald-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
         }
 
         .generate-btn:active:not(:disabled) {
@@ -1134,7 +1134,7 @@
         }
 
         .copy-btn.copied {
-            background: rgba(6, 78, 59, 0.06);
+            background: rgba(5, 150, 105, 0.06);
             border-color: var(--success);
             color: var(--success);
         }
@@ -1162,7 +1162,7 @@
 
         .text-area:focus {
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.08);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.08);
         }
 
         .error-message {
@@ -1208,7 +1208,7 @@
         .tooltip-highlight {
             position: relative;
             z-index: 9999;
-            box-shadow: 0 0 0 4px var(--emerald), 0 0 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 0 0 4px var(--emerald), 0 0 12px rgba(5, 150, 105, 0.2);
             border-radius: 12px;
         }
 
@@ -1337,7 +1337,7 @@
         .quick-action-btn:hover {
             border-color: var(--emerald);
             color: var(--emerald);
-            background: rgba(6, 78, 59, 0.04);
+            background: rgba(5, 150, 105, 0.04);
         }
 
         .quick-action-btn:disabled {
@@ -1346,13 +1346,13 @@
         }
 
         .quick-action-btn.highlight {
-            background: rgba(6, 78, 59, 0.06);
-            border-color: rgba(6, 78, 59, 0.3);
+            background: rgba(5, 150, 105, 0.06);
+            border-color: rgba(5, 150, 105, 0.3);
             color: var(--emerald);
         }
 
         .quick-action-btn.highlight:hover {
-            background: rgba(6, 78, 59, 0.1);
+            background: rgba(5, 150, 105, 0.1);
             border-color: var(--emerald);
         }
 
@@ -1401,7 +1401,7 @@
         }
 
         .variation-tab.active {
-            background: rgba(6, 78, 59, 0.06);
+            background: rgba(5, 150, 105, 0.06);
             border-color: var(--emerald);
             color: var(--emerald);
         }
@@ -1476,8 +1476,8 @@
         .improvement-tips {
             display: none;
             padding: 20px;
-            background: rgba(6, 78, 59, 0.04);
-            border: 1px solid rgba(6, 78, 59, 0.15);
+            background: rgba(5, 150, 105, 0.04);
+            border: 1px solid rgba(5, 150, 105, 0.15);
             border-radius: 12px;
             margin-bottom: 16px;
         }
@@ -1772,8 +1772,8 @@
         .feedback-success {
             display: none;
             padding: 16px 20px;
-            background: rgba(6, 78, 59, 0.06);
-            border: 1px solid rgba(6, 78, 59, 0.2);
+            background: rgba(5, 150, 105, 0.06);
+            border: 1px solid rgba(5, 150, 105, 0.2);
             border-radius: 10px;
             color: var(--success);
             font-size: 0.95rem;
@@ -1946,7 +1946,7 @@
         .bottom-cta .btn-subscribe:hover {
             background: var(--emerald-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
         }
 
         /* Subscribed button state */
@@ -2200,7 +2200,7 @@
             font-size: 0.9rem;
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23064E3B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -2209,7 +2209,7 @@
         .type-select:focus {
             outline: none;
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.08);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.08);
         }
 
         .type-select option {
@@ -2266,7 +2266,7 @@
         }
 
         .tone-option input:checked + .tone-btn {
-            background: rgba(6, 78, 59, 0.08);
+            background: rgba(5, 150, 105, 0.08);
             border-color: var(--emerald);
             color: var(--emerald);
         }
@@ -2464,7 +2464,7 @@
         .hook-option.selected,
         .cta-option.selected {
             border-color: var(--emerald);
-            background: rgba(6, 78, 59, 0.04);
+            background: rgba(5, 150, 105, 0.04);
         }
 
         .option-type {

@@ -34,8 +34,8 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: rgba(6, 78, 59, 0.06);
-  border-bottom: 1px solid rgba(6, 78, 59, 0.15);
+  background: rgba(5, 150, 105, 0.06);
+  border-bottom: 1px solid rgba(5, 150, 105, 0.15);
   padding: 8px 16px;
   font-size: 0.85rem;
   color: var(--gray-dark);
@@ -206,8 +206,8 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  background: rgba(6, 78, 59, 0.08);
-  border: 1px solid rgba(6, 78, 59, 0.2);
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.2);
   border-radius: 4px;
   font-size: 0.6rem;
   font-weight: 700;
@@ -249,7 +249,7 @@
 .templateDropdown:focus {
   outline: none;
   border-color: var(--coral);
-  box-shadow: 0 0 0 2px rgba(6, 78, 59, 0.15);
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
 }
 
 .templateDropdown option {
@@ -363,11 +363,11 @@
 }
 
 .colorDropdownItemActive {
-  background: rgba(6, 78, 59, 0.06);
+  background: rgba(5, 150, 105, 0.06);
 }
 
 .colorDropdownItemActive:hover {
-  background: rgba(6, 78, 59, 0.1);
+  background: rgba(5, 150, 105, 0.1);
 }
 
 .colorLockIcon {
@@ -426,7 +426,7 @@
 }
 
 .activeTemplate {
-  background: rgba(6, 78, 59, 0.06) !important;
+  background: rgba(5, 150, 105, 0.06) !important;
   color: var(--coral) !important;
 }
 
@@ -436,7 +436,7 @@
 }
 
 .lockedTemplate:hover {
-  background: rgba(6, 78, 59, 0.06);
+  background: rgba(5, 150, 105, 0.06);
   color: var(--coral);
 }
 
@@ -451,7 +451,7 @@
   align-items: center;
   gap: 2px;
   padding: 1px 5px;
-  background: rgba(6, 78, 59, 0.08);
+  background: rgba(5, 150, 105, 0.08);
   border-radius: 3px;
   font-size: 0.55rem;
   font-weight: 700;
@@ -467,8 +467,8 @@
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: rgba(6, 78, 59, 0.06);
-  border: 1px solid rgba(6, 78, 59, 0.15);
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.15);
   border-radius: 6px;
   font-size: 0.75rem;
   color: var(--coral);
@@ -497,7 +497,7 @@
 
 .upgradeButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 .upgradeButton svg {
@@ -510,8 +510,8 @@
   align-items: center;
   gap: 3px;
   padding: 2px 8px;
-  background: rgba(6, 78, 59, 0.08);
-  border: 1px solid rgba(6, 78, 59, 0.2);
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.2);
   border-radius: 4px;
   font-size: 0.65rem;
   font-weight: 700;
@@ -529,8 +529,8 @@
 
 .aiButtonLocked:hover {
   opacity: 1;
-  background: rgba(6, 78, 59, 0.06);
-  border-color: rgba(6, 78, 59, 0.3);
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.3);
 }
 
 .aiButtonLocked .proBadge {
@@ -621,7 +621,7 @@
 .sectionIcon {
   width: 28px;
   height: 28px;
-  background: rgba(6, 78, 59, 0.08);
+  background: rgba(5, 150, 105, 0.08);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -696,7 +696,7 @@
 .formGroup select:focus {
   outline: none;
   border-color: var(--coral);
-  box-shadow: 0 0 0 2px rgba(6, 78, 59, 0.1);
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.1);
 }
 
 .formGroup input::placeholder,
@@ -753,7 +753,7 @@
 
 .uploadPhotoButton {
   padding: 8px 16px;
-  background: rgba(6, 78, 59, 0.08);
+  background: rgba(5, 150, 105, 0.08);
   border: 1px solid var(--coral);
   color: var(--coral);
   font-size: 0.8rem;
@@ -765,7 +765,7 @@
 }
 
 .uploadPhotoButton:hover {
-  background: rgba(6, 78, 59, 0.15);
+  background: rgba(5, 150, 105, 0.15);
 }
 
 .removePhotoButton {
@@ -1657,8 +1657,8 @@
   align-items: center;
   gap: 5px;
   padding: 5px 10px;
-  background: rgba(6, 78, 59, 0.08);
-  border: 1px solid rgba(6, 78, 59, 0.2);
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.2);
   border-radius: 5px;
   color: var(--coral);
   font-size: 0.75rem;
@@ -1669,8 +1669,8 @@
 }
 
 .aiButton:hover {
-  background: rgba(6, 78, 59, 0.12);
-  border-color: rgba(6, 78, 59, 0.3);
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(5, 150, 105, 0.3);
 }
 
 .sparkle {
@@ -1751,7 +1751,7 @@
 
 .aiUsageBar {
   padding: 10px 20px;
-  background: rgba(6, 78, 59, 0.04);
+  background: rgba(5, 150, 105, 0.04);
   border-bottom: 1px solid var(--border);
 }
 
@@ -1832,7 +1832,7 @@
 }
 
 .modalGenerateButton:hover:not(:disabled) {
-  background: #053D32;
+  background: #047857;
 }
 
 .modalGenerateButton:disabled {

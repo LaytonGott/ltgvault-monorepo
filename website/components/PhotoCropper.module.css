@@ -73,7 +73,7 @@
 
 .uploadArea:hover {
   border-color: var(--coral);
-  background: rgba(6, 78, 59, 0.04);
+  background: rgba(5, 150, 105, 0.04);
 }
 
 .uploadArea svg {
@@ -256,7 +256,7 @@
 }
 
 .saveButton:hover:not(:disabled) {
-  background: #053D32;
+  background: #047857;
 }
 
 .saveButton:disabled {

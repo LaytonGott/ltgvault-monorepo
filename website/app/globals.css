@@ -1,22 +1,22 @@
 :root {
-  --black: #1C1C1C;
+  --black: #111827;
   --white: #ffffff;
   --cream: #FAF9F6;
-  --emerald: #064E3B;
-  --emerald-dark: #053D32;
+  --emerald: #059669;
+  --emerald-dark: #047857;
   --gold: #C9A227;
   --gold-light: #D4AF37;
-  --coral: #064E3B;
-  --coral-light: rgba(6, 78, 59, 0.15);
-  --coral-dim: rgba(6, 78, 59, 0.08);
-  --gray: #4A4A4A;
-  --gray-light: #9ca3af;
+  --coral: #059669;
+  --coral-light: rgba(5, 150, 105, 0.15);
+  --coral-dim: rgba(5, 150, 105, 0.08);
+  --gray: #6B7280;
+  --gray-light: #9CA3AF;
   --gray-dark: #374151;
-  --border: #E0DDD5;
+  --border: #D4CFC7;
   --bg-card: #ffffff;
   --bg-input: #ffffff;
   --bg-page: #FAF9F6;
-  --success: #064E3B;
+  --success: #059669;
   --error: #DC2626;
 }
 

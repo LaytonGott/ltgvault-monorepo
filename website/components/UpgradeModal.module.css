@@ -160,12 +160,12 @@
 .proPlan {
   background: white;
   border: 2px solid var(--coral);
-  box-shadow: 0 4px 24px rgba(6, 78, 59, 0.12);
+  box-shadow: 0 4px 24px rgba(5, 150, 105, 0.12);
   transform: scale(1.02);
 }
 
 .proPlan .planHeader {
-  border-bottom-color: rgba(6, 78, 59, 0.15);
+  border-bottom-color: rgba(5, 150, 105, 0.15);
 }
 
 .badge {
@@ -259,8 +259,8 @@
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  background: rgba(6, 78, 59, 0.06);
-  border: 1px solid rgba(6, 78, 59, 0.15);
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.15);
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 0.85rem;
@@ -307,9 +307,9 @@
 }
 
 .proButton:hover {
-  background: #053D32;
+  background: #047857;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(6, 78, 59, 0.3);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
 }
 
 .proButton:active {
@@ -329,8 +329,8 @@
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: rgba(6, 78, 59, 0.08);
-  border: 1px solid rgba(6, 78, 59, 0.2);
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.2);
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 600;

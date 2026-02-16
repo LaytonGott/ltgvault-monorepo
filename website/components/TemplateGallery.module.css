@@ -98,7 +98,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: rgba(6, 78, 59, 0.04);
+  background: rgba(5, 150, 105, 0.04);
   color: var(--coral);
   font-size: 13px;
 }
@@ -132,7 +132,7 @@
 
 .templateCard.selected {
   border-color: var(--coral);
-  background: rgba(6, 78, 59, 0.04);
+  background: rgba(5, 150, 105, 0.04);
 }
 
 .templateCard.locked {

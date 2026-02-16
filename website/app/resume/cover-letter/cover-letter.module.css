@@ -241,7 +241,7 @@
 
 .previousItem.active {
   border-color: var(--coral);
-  background: rgba(6, 78, 59, 0.04);
+  background: rgba(5, 150, 105, 0.04);
 }
 
 .previousInfo {
@@ -361,7 +361,7 @@
 }
 
 .generateButton:hover:not(:disabled) {
-  background: #053D32;
+  background: #047857;
 }
 
 .generateButton:disabled {
@@ -372,7 +372,7 @@
 .aiUsageInfo {
   margin-top: 12px;
   padding: 10px 12px;
-  background: rgba(6, 78, 59, 0.04);
+  background: rgba(5, 150, 105, 0.04);
   border-radius: 8px;
   font-size: 0.75rem;
   color: var(--coral);
@@ -434,8 +434,8 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(6, 78, 59, 0.06);
-  border: 1px solid rgba(6, 78, 59, 0.15);
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.15);
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;

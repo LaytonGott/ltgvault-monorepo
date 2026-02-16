@@ -12,19 +12,19 @@
     <style>
         :root {
             --cream: #FAF9F6;
-            --emerald: #064E3B;
-            --emerald-dark: #053D32;
+            --emerald: #059669;
+            --emerald-dark: #047857;
             --gold: #C9A227;
             --gold-light: #D4AF37;
-            --text: #1C1C1C;
-            --text-secondary: #4A4A4A;
-            --border: #E0DDD5;
+            --text: #111827;
+            --text-secondary: #6B7280;
+            --border: #D4CFC7;
             --white: #FFFFFF;
-            --success: #064E3B;
+            --success: #059669;
             --error: #DC2626;
-            --black: #1C1C1C;
-            --gray: #4A4A4A;
-            --gray-light: #4A4A4A;
+            --black: #111827;
+            --gray: #6B7280;
+            --gray-light: #9CA3AF;
         }
 
         * {
@@ -216,7 +216,7 @@
         }
 
         .api-status.saved {
-            background: rgba(6, 78, 59, 0.1);
+            background: rgba(5, 150, 105, 0.1);
             color: var(--success);
         }
 
@@ -226,7 +226,7 @@
         }
 
         .api-status.free-trial {
-            background: rgba(6, 78, 59, 0.1);
+            background: rgba(5, 150, 105, 0.1);
             color: var(--emerald);
         }
 
@@ -269,7 +269,7 @@
         .api-input:focus {
             outline: none;
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         .api-input::placeholder {
@@ -367,7 +367,7 @@
         .setting-select:focus {
             outline: none;
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         .setting-select option {
@@ -445,7 +445,7 @@
         .text-area:focus {
             outline: none;
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -503,12 +503,12 @@
         .generate-btn:hover:not(:disabled) {
             background: var(--emerald-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
         }
 
         .generate-btn:active:not(:disabled) {
             transform: translateY(0);
-            box-shadow: 0 2px 6px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
         }
 
         .generate-btn:disabled {
@@ -598,8 +598,8 @@
         }
 
         .usage-counter.unlimited {
-            border-color: rgba(6, 78, 59, 0.3);
-            background: rgba(6, 78, 59, 0.05);
+            border-color: rgba(5, 150, 105, 0.3);
+            background: rgba(5, 150, 105, 0.05);
         }
 
         .usage-counter.unlimited .count {
@@ -642,7 +642,7 @@
         }
 
         .copy-btn.copied {
-            background: rgba(6, 78, 59, 0.1);
+            background: rgba(5, 150, 105, 0.1);
             border-color: var(--success);
             color: var(--success);
         }
@@ -701,8 +701,8 @@
             border-left: none;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-            border-color: rgba(6, 78, 59, 0.3);
-            background: rgba(6, 78, 59, 0.03);
+            border-color: rgba(5, 150, 105, 0.3);
+            background: rgba(5, 150, 105, 0.03);
         }
 
         .box-label {
@@ -749,7 +749,7 @@
             }
             .after-box {
                 border-radius: 0 0 12px 12px;
-                border-left: 1px solid rgba(6, 78, 59, 0.3);
+                border-left: 1px solid rgba(5, 150, 105, 0.3);
                 border-top: none;
             }
             .before-after-arrow {
@@ -856,7 +856,7 @@
 
         .demo-generate-btn.active {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
         }
 
         .demo-generate-btn.clicked {
@@ -930,7 +930,7 @@
         .tooltip-highlight {
             position: relative;
             z-index: 9999;
-            box-shadow: 0 0 0 4px var(--emerald), 0 0 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 0 0 4px var(--emerald), 0 0 12px rgba(5, 150, 105, 0.2);
             border-radius: 12px;
         }
 
@@ -1182,7 +1182,7 @@
         .feedback-textarea:focus {
             outline: none;
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         .feedback-textarea::placeholder {
@@ -1217,8 +1217,8 @@
         .feedback-success {
             display: none;
             padding: 16px 20px;
-            background: rgba(6, 78, 59, 0.06);
-            border: 1px solid rgba(6, 78, 59, 0.2);
+            background: rgba(5, 150, 105, 0.06);
+            border: 1px solid rgba(5, 150, 105, 0.2);
             border-radius: 10px;
             color: var(--success);
             font-size: 0.95rem;
@@ -1353,7 +1353,7 @@
         .bottom-cta .btn-subscribe:hover {
             background: var(--emerald-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
         }
 
         /* Subscribed button state */
@@ -1430,8 +1430,8 @@
         }
 
         .modal-price-tag {
-            background: rgba(6, 78, 59, 0.05);
-            border: 1px solid rgba(6, 78, 59, 0.2);
+            background: rgba(5, 150, 105, 0.05);
+            border: 1px solid rgba(5, 150, 105, 0.2);
             border-radius: 8px;
             padding: 16px;
             text-align: center;
@@ -1466,7 +1466,7 @@
         .modal-input:focus {
             outline: none;
             border-color: var(--emerald);
-            box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         .modal-input::placeholder {
@@ -1542,7 +1542,7 @@
         .quick-action-btn:hover {
             border-color: var(--emerald);
             color: var(--emerald);
-            background: rgba(6, 78, 59, 0.05);
+            background: rgba(5, 150, 105, 0.05);
         }
 
         .quick-action-btn:disabled {
@@ -1556,13 +1556,13 @@
         }
 
         .quick-action-btn.highlight {
-            background: rgba(6, 78, 59, 0.08);
-            border-color: rgba(6, 78, 59, 0.3);
+            background: rgba(5, 150, 105, 0.08);
+            border-color: rgba(5, 150, 105, 0.3);
             color: var(--emerald);
         }
 
         .quick-action-btn.highlight:hover {
-            background: rgba(6, 78, 59, 0.15);
+            background: rgba(5, 150, 105, 0.15);
             border-color: var(--emerald);
         }
 
@@ -1635,8 +1635,8 @@
         }
 
         .history-item:hover {
-            background: rgba(6, 78, 59, 0.03);
-            border-color: rgba(6, 78, 59, 0.3);
+            background: rgba(5, 150, 105, 0.03);
+            border-color: rgba(5, 150, 105, 0.3);
         }
 
         .history-item-number {
@@ -1830,12 +1830,12 @@
         }
 
         .variation-tab:hover {
-            border-color: rgba(6, 78, 59, 0.3);
+            border-color: rgba(5, 150, 105, 0.3);
             color: var(--text);
         }
 
         .variation-tab.active {
-            background: rgba(6, 78, 59, 0.08);
+            background: rgba(5, 150, 105, 0.08);
             border-color: var(--emerald);
             color: var(--emerald);
         }
@@ -1883,8 +1883,8 @@
         }
 
         .hook-item:hover {
-            border-color: rgba(6, 78, 59, 0.3);
-            background: rgba(6, 78, 59, 0.03);
+            border-color: rgba(5, 150, 105, 0.3);
+            background: rgba(5, 150, 105, 0.03);
         }
 
         .hook-text {
@@ -1930,8 +1930,8 @@
             display: none;
             margin-top: 16px;
             padding: 16px;
-            background: rgba(6, 78, 59, 0.03);
-            border: 1px solid rgba(6, 78, 59, 0.15);
+            background: rgba(5, 150, 105, 0.03);
+            border: 1px solid rgba(5, 150, 105, 0.15);
             border-radius: 12px;
         }
 
@@ -2065,7 +2065,7 @@
                 <input type="password" class="api-input" id="apiKeyInput" placeholder="ltgv_... or sk-...">
                 <button class="save-key-btn" id="saveKeyBtn">Save Key</button>
             </div>
-            <div class="usage-info" id="usageInfo" style="display: none; margin-top: 12px; font-size: 0.85rem; color: #4A4A4A;"></div>
+            <div class="usage-info" id="usageInfo" style="display: none; margin-top: 12px; font-size: 0.85rem; color: #6B7280;"></div>
         </div>
 
         <!-- Settings Panel -->

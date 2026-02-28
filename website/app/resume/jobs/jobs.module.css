@@ -3,11 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-page);
+  background: #0a0a0a;
 }
 
 .loading {
-  color: var(--gray);
+  color: #888;
   font-size: 1rem;
 }
 
@@ -15,20 +15,20 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-page);
+  background: #0a0a0a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ============ HEADER ============ */
+/* ============ HEADER - matches other LTG Vault pages ============ */
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid var(--border);
+  height: 76px;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 2px solid #4a3d2a;
   backdrop-filter: blur(12px);
 }
 
@@ -58,34 +58,34 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 36px;
 }
 
 .nav a {
-  color: var(--gray);
+  color: #aaaaaa;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .nav a:hover {
-  color: var(--black);
+  color: #fff;
 }
 
 .active {
-  color: var(--coral) !important;
+  color: #c9a227 !important;
 }
 
 /* Page Toolbar */
 .toolbar {
   position: fixed;
-  top: 64px;
+  top: 76px;
   left: 0;
   right: 0;
   height: 56px;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid var(--border);
+  background: rgba(10, 10, 10, 0.95);
+  border-bottom: 1px solid #222;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -102,7 +102,7 @@
 .toolbarLeft h1 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--black);
+  color: #fff;
   margin: 0;
 }
 
@@ -112,21 +112,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gray);
+  color: #888;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .backButton:hover {
-  background: var(--bg-page);
-  color: var(--black);
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .jobCount {
   font-size: 0.8rem;
-  color: var(--gray);
+  color: #666;
   padding: 4px 10px;
-  background: var(--bg-page);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
 }
 
@@ -141,8 +141,8 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: var(--coral);
-  color: white;
+  background: #c9a227;
+  color: #000;
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -159,7 +159,7 @@
 .content {
   flex: 1;
   padding: 24px;
-  margin-top: 120px;
+  margin-top: 132px; /* header (76px) + toolbar (56px) */
 }
 
 /* Empty State */
@@ -182,20 +182,20 @@
 .emptyState h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--black);
+  color: #fff;
   margin-bottom: 8px;
 }
 
 .emptyState p {
   font-size: 0.9rem;
-  color: var(--gray);
+  color: #666;
   margin-bottom: 20px;
 }
 
 .emptyButton {
   padding: 10px 20px;
-  background: var(--coral);
-  color: white;
+  background: #c9a227;
+  color: #000;
   border: none;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -205,11 +205,10 @@
 
 /* Table */
 .tableContainer {
-  background: white;
-  border: 1px solid var(--border);
+  background: #111;
+  border: 1px solid #222;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .table {
@@ -222,18 +221,18 @@
   padding: 14px 16px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--gray);
+  color: #888;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: var(--bg-page);
-  border-bottom: 1px solid var(--border);
+  background: #0a0a0a;
+  border-bottom: 1px solid #222;
 }
 
 .table td {
   padding: 14px 16px;
   font-size: 0.9rem;
-  color: var(--gray-dark);
-  border-bottom: 1px solid var(--border);
+  color: #ccc;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .table tr:last-child td {
@@ -241,7 +240,7 @@
 }
 
 .table tr:hover td {
-  background: var(--bg-page);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .companyCell {
@@ -251,38 +250,37 @@
 }
 
 .companyCell strong {
-  color: var(--black);
+  color: #fff;
   font-weight: 500;
 }
 
 .urlLink {
-  color: var(--gray-light);
+  color: #666;
   transition: color 0.2s;
 }
 
 .urlLink:hover {
-  color: var(--coral);
+  color: #c9a227;
 }
 
 .statusSelect {
   padding: 5px 10px;
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--black);
+  color: #fff;
   cursor: pointer;
   appearance: none;
-  background-color: white;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 28px;
 }
 
 .statusSelect option {
-  background: white;
-  color: var(--black);
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .actions {
@@ -299,33 +297,33 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid #333;
   border-radius: 6px;
-  color: var(--gray-light);
+  color: #888;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .editButton:hover {
-  border-color: var(--coral);
-  color: var(--coral);
+  border-color: #c9a227;
+  color: #c9a227;
 }
 
 .coverLetterButton:hover {
-  border-color: var(--coral);
-  color: var(--coral);
+  border-color: #8b5cf6;
+  color: #8b5cf6;
 }
 
 .deleteButton:hover {
-  border-color: var(--error);
-  color: var(--error);
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
 /* Modal */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -334,14 +332,13 @@
 }
 
 .modal {
-  background: white;
-  border: 1px solid var(--border);
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 12px;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
 
 .modalHeader {
@@ -349,13 +346,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #333;
 }
 
 .modalHeader h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--black);
+  color: #fff;
   margin: 0;
 }
 
@@ -367,15 +364,15 @@
   justify-content: center;
   background: transparent;
   border: none;
-  color: var(--gray-light);
+  color: #888;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .modalClose:hover {
-  background: var(--bg-page);
-  color: var(--black);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .modalBody {
@@ -383,9 +380,9 @@
 }
 
 .modalError {
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -400,7 +397,7 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--gray);
+  color: #888;
   margin-bottom: 6px;
 }
 
@@ -408,12 +405,12 @@
 .formGroup select,
 .formGroup textarea {
   width: 100%;
-  background: white;
-  border: 1px solid var(--border);
+  background: #0a0a0a;
+  border: 1px solid #333;
   border-radius: 6px;
   padding: 10px 12px;
   font-size: 0.9rem;
-  color: var(--black);
+  color: #fff;
   transition: border-color 0.2s;
 }
 
@@ -421,17 +418,17 @@
 .formGroup select:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: var(--coral);
+  border-color: #c9a227;
 }
 
 .formGroup input::placeholder,
 .formGroup textarea::placeholder {
-  color: var(--gray-light);
+  color: #444;
 }
 
 .formGroup select option {
-  background: white;
-  color: var(--black);
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .formGroup textarea {
@@ -453,31 +450,31 @@
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 20px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #333;
 }
 
 .cancelButton {
   padding: 10px 16px;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid #333;
   border-radius: 6px;
-  color: var(--gray-dark);
+  color: #ccc;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .cancelButton:hover {
-  border-color: var(--gray-light);
-  color: var(--black);
+  border-color: #555;
+  color: #fff;
 }
 
 .saveButton {
   padding: 10px 20px;
-  background: var(--coral);
+  background: #c9a227;
   border: none;
   border-radius: 6px;
-  color: white;
+  color: #000;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -498,7 +495,7 @@
     gap: 24px;
   }
   .nav a {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
   .logoImg {
     height: 70px;

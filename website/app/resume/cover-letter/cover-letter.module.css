@@ -3,11 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-page);
+  background: #0a0a0a;
 }
 
 .loading {
-  color: var(--gray);
+  color: #888;
   font-size: 1rem;
 }
 
@@ -15,20 +15,20 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-page);
+  background: #0a0a0a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ============ HEADER ============ */
+/* ============ HEADER - matches other LTG Vault pages ============ */
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid var(--border);
+  height: 76px;
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 2px solid #4a3d2a;
   backdrop-filter: blur(12px);
 }
 
@@ -58,34 +58,34 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 36px;
 }
 
 .nav a {
-  color: var(--gray);
+  color: #aaaaaa;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .nav a:hover {
-  color: var(--black);
+  color: #fff;
 }
 
 .active {
-  color: var(--coral) !important;
+  color: #c9a227 !important;
 }
 
 /* Page Toolbar */
 .toolbar {
   position: fixed;
-  top: 64px;
+  top: 76px;
   left: 0;
   right: 0;
   height: 56px;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid var(--border);
+  background: rgba(10, 10, 10, 0.95);
+  border-bottom: 1px solid #222;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -102,7 +102,7 @@
 .toolbarLeft h1 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--black);
+  color: #fff;
   margin: 0;
 }
 
@@ -112,21 +112,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gray);
+  color: #888;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s;
 }
 
 .backButton:hover {
-  background: var(--bg-page);
-  color: var(--black);
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .savingBadge {
   font-size: 0.75rem;
-  color: var(--gray);
+  color: #888;
   padding: 4px 8px;
-  background: var(--bg-page);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
@@ -142,17 +142,17 @@
   gap: 6px;
   padding: 8px 12px;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid #333;
   border-radius: 6px;
-  color: var(--gray-dark);
+  color: #ccc;
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .newButton:hover {
-  border-color: var(--gray-light);
-  color: var(--black);
+  border-color: #555;
+  color: #fff;
 }
 
 .downloadButton {
@@ -160,8 +160,8 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: var(--coral);
-  color: white;
+  background: #c9a227;
+  color: #000;
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -180,23 +180,23 @@
   display: flex;
   flex: 1;
   overflow: hidden;
-  margin-top: 120px;
+  margin-top: 132px; /* header (76px) + toolbar (56px) */
 }
 
 /* Form Panel */
 .formPanel {
   width: 400px;
   min-width: 400px;
-  background: white;
-  border-right: 1px solid var(--border);
+  background: #0a0a0a;
+  border-right: 1px solid #222;
   overflow-y: auto;
   padding: 16px;
 }
 
 .errorBanner {
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -211,7 +211,7 @@
 .previousSection h3 {
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--gray);
+  color: #888;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 10px;
@@ -228,20 +228,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background: var(--bg-page);
-  border: 1px solid var(--border);
+  background: #111;
+  border: 1px solid #222;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .previousItem:hover {
-  border-color: var(--gray-light);
+  border-color: #333;
 }
 
 .previousItem.active {
-  border-color: var(--coral);
-  background: rgba(5, 150, 105, 0.04);
+  border-color: #c9a227;
+  background: rgba(201, 162, 39, 0.05);
 }
 
 .previousInfo {
@@ -252,13 +252,13 @@
 
 .previousInfo strong {
   font-size: 0.85rem;
-  color: var(--black);
+  color: #fff;
   font-weight: 500;
 }
 
 .previousInfo span {
   font-size: 0.75rem;
-  color: var(--gray);
+  color: #666;
 }
 
 .deleteButton {
@@ -269,21 +269,21 @@
   justify-content: center;
   background: transparent;
   border: none;
-  color: var(--gray-light);
+  color: #555;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .deleteButton:hover {
-  background: rgba(239, 68, 68, 0.06);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
 }
 
 /* Form Section */
 .formSection {
-  background: var(--bg-page);
-  border: 1px solid var(--border);
+  background: #111;
+  border: 1px solid #222;
   border-radius: 10px;
   padding: 16px;
 }
@@ -291,7 +291,7 @@
 .formSection h3 {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--black);
+  color: #fff;
   margin-bottom: 16px;
 }
 
@@ -303,7 +303,7 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--gray);
+  color: #888;
   margin-bottom: 6px;
 }
 
@@ -311,12 +311,12 @@
 .formGroup select,
 .formGroup textarea {
   width: 100%;
-  background: white;
-  border: 1px solid var(--border);
+  background: #0a0a0a;
+  border: 1px solid #333;
   border-radius: 6px;
   padding: 10px 12px;
   font-size: 0.9rem;
-  color: var(--black);
+  color: #fff;
   transition: border-color 0.2s;
 }
 
@@ -324,17 +324,17 @@
 .formGroup select:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: var(--coral);
+  border-color: #c9a227;
 }
 
 .formGroup input::placeholder,
 .formGroup textarea::placeholder {
-  color: var(--gray-light);
+  color: #444;
 }
 
 .formGroup select option {
-  background: white;
-  color: var(--black);
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .formGroup textarea {
@@ -349,19 +349,19 @@
   gap: 8px;
   width: 100%;
   padding: 12px;
-  background: var(--coral);
+  background: linear-gradient(135deg, #a855f7, #ec4899);
   border: none;
   border-radius: 8px;
-  color: white;
+  color: #fff;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: opacity 0.2s;
   margin-top: 8px;
 }
 
 .generateButton:hover:not(:disabled) {
-  background: #047857;
+  opacity: 0.9;
 }
 
 .generateButton:disabled {
@@ -372,23 +372,23 @@
 .aiUsageInfo {
   margin-top: 12px;
   padding: 10px 12px;
-  background: rgba(5, 150, 105, 0.04);
+  background: rgba(168, 85, 247, 0.08);
   border-radius: 8px;
   font-size: 0.75rem;
-  color: var(--coral);
+  color: #c4b5fd;
 }
 
 .aiUsageBar {
   margin-top: 6px;
   height: 4px;
-  background: var(--border);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .aiUsageFill {
   height: 100%;
-  background: var(--coral);
+  background: linear-gradient(90deg, #a855f7, #ec4899);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -405,7 +405,7 @@
 /* Preview Panel */
 .previewPanel {
   flex: 1;
-  background: #FAF9F6;
+  background: #1a1a1a;
   overflow-y: auto;
   display: flex;
   justify-content: center;
@@ -426,7 +426,7 @@
 
 .letterHeader span {
   font-size: 0.8rem;
-  color: var(--gray);
+  color: #666;
 }
 
 .previewBadge {
@@ -434,12 +434,12 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(5, 150, 105, 0.06);
-  border: 1px solid rgba(5, 150, 105, 0.15);
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid rgba(201, 162, 39, 0.3);
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--coral);
+  color: #c9a227;
 }
 
 .letterEditor {
@@ -454,7 +454,7 @@
   line-height: 1.8;
   font-family: 'Georgia', serif;
   resize: vertical;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .letterEditor:focus {
@@ -468,8 +468,8 @@
   justify-content: center;
   text-align: center;
   padding: 60px 40px;
-  background: white;
-  border: 1px dashed var(--border);
+  background: #111;
+  border: 1px dashed #333;
   border-radius: 12px;
   max-width: 400px;
 }
@@ -482,13 +482,13 @@
 .emptyState h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--black);
+  color: #fff;
   margin-bottom: 8px;
 }
 
 .emptyState p {
   font-size: 0.9rem;
-  color: var(--gray);
+  color: #666;
   line-height: 1.5;
 }
 
@@ -501,7 +501,7 @@
     gap: 24px;
   }
   .nav a {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
   .logoImg {
     height: 70px;
@@ -519,7 +519,7 @@
     min-width: 100%;
     max-height: 50vh;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #222;
   }
 
   .previewPanel {

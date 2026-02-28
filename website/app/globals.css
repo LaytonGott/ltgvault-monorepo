@@ -1,23 +1,17 @@
 :root {
-  --black: #111827;
-  --white: #ffffff;
-  --cream: #FAF9F6;
-  --emerald: #059669;
-  --emerald-dark: #047857;
+  --black: #000000;
   --gold: #C9A227;
   --gold-light: #D4AF37;
-  --coral: #059669;
-  --coral-light: rgba(5, 150, 105, 0.15);
-  --coral-dim: rgba(5, 150, 105, 0.08);
-  --gray: #6B7280;
-  --gray-light: #9CA3AF;
-  --gray-dark: #374151;
-  --border: #D4CFC7;
-  --bg-card: #ffffff;
-  --bg-input: #ffffff;
-  --bg-page: #FAF9F6;
-  --success: #059669;
-  --error: #DC2626;
+  --gold-dim: rgba(201, 162, 39, 0.15);
+  --white: #FFFFFF;
+  --gray: #666666;
+  --gray-light: #999999;
+  --gray-dark: #333333;
+  --border: rgba(255, 255, 255, 0.08);
+  --bg-card: rgba(255, 255, 255, 0.02);
+  --bg-input: rgba(255, 255, 255, 0.05);
+  --success: #28ca41;
+  --error: #ff5f57;
 }
 
 * {
@@ -29,8 +23,8 @@
 html,
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg-page);
-  color: var(--black);
+  background: var(--black);
+  color: var(--white);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -57,21 +51,16 @@ input, textarea, select {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--cream);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-::selection {
-  background: var(--emerald);
-  color: var(--white);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Skip navigation link */
@@ -83,8 +72,8 @@ input, textarea, select {
   height: 1px;
   overflow: hidden;
   z-index: 9999;
-  background: var(--emerald);
-  color: var(--white);
+  background: var(--gold);
+  color: var(--black);
   padding: 12px 24px;
   font-weight: 700;
   text-decoration: none;

@@ -2,7 +2,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,14 +19,13 @@
 /* Modal Container */
 .modal {
   position: relative;
-  background: white;
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #151515 0%, #0a0a0a 100%);
+  border: 1px solid #252525;
   border-radius: 20px;
   padding: 32px;
   max-width: 720px;
   width: 100%;
   animation: slideUp 0.3s ease-out;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
 
 @keyframes slideUp {
@@ -52,7 +51,7 @@
   justify-content: center;
   background: transparent;
   border: none;
-  color: var(--gray-light);
+  color: #555;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -60,8 +59,8 @@
 }
 
 .closeButton:hover {
-  background: var(--bg-page);
-  color: var(--gray);
+  background: rgba(255, 255, 255, 0.08);
+  color: #999;
 }
 
 /* Header */
@@ -73,20 +72,20 @@
 .title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--black);
+  color: #fff;
   margin: 0 0 8px 0;
 }
 
 .message {
   font-size: 0.95rem;
-  color: var(--gray);
+  color: #666;
   margin: 0;
 }
 
 .error {
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: var(--error);
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  color: #ff6b6b;
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -118,8 +117,8 @@
 /* Plan Cards */
 .planCard {
   position: relative;
-  background: var(--bg-page);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #222;
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -131,13 +130,13 @@
   text-align: center;
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .planName {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--gray);
+  color: #888;
   margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -153,19 +152,22 @@
 .priceAmount {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--gray);
+  color: #777;
 }
 
 /* Pro Plan Styling - Highlighted */
 .proPlan {
-  background: white;
-  border: 2px solid var(--coral);
-  box-shadow: 0 4px 24px rgba(5, 150, 105, 0.12);
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.08) 0%, rgba(201, 162, 39, 0.02) 100%);
+  border: 2px solid rgba(201, 162, 39, 0.4);
+  box-shadow:
+    0 0 40px rgba(201, 162, 39, 0.15),
+    0 0 80px rgba(201, 162, 39, 0.08),
+    inset 0 1px 0 rgba(201, 162, 39, 0.2);
   transform: scale(1.02);
 }
 
 .proPlan .planHeader {
-  border-bottom-color: rgba(5, 150, 105, 0.15);
+  border-bottom-color: rgba(201, 162, 39, 0.2);
 }
 
 .badge {
@@ -173,19 +175,20 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--coral);
-  color: white;
+  background: linear-gradient(135deg, #c9a227, #e5c040);
+  color: #000;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 6px 16px;
   border-radius: 20px;
   letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.4);
 }
 
 .planNamePro {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--coral);
+  color: #c9a227;
   margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -201,12 +204,13 @@
 .priceAmountPro {
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--black);
+  color: #fff;
+  text-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
 }
 
 .priceNote {
   font-size: 0.85rem;
-  color: var(--gray);
+  color: #888;
 }
 
 /* Feature Lists */
@@ -224,7 +228,7 @@
   gap: 10px;
   padding: 10px 0;
   font-size: 0.9rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .featureItemNegative:last-child,
@@ -234,21 +238,21 @@
 
 /* Negative features (Free plan) */
 .featureItemNegative {
-  color: var(--gray-light);
+  color: #888;
 }
 
 .xIcon {
-  color: #d1d5db;
+  color: #6b5555;
   flex-shrink: 0;
 }
 
 /* Positive features (Pro plan) */
 .featureItemPositive {
-  color: var(--gray-dark);
+  color: #ddd;
 }
 
 .checkIcon {
-  color: var(--coral);
+  color: #c9a227;
   flex-shrink: 0;
 }
 
@@ -259,12 +263,12 @@
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  background: rgba(5, 150, 105, 0.06);
-  border: 1px solid rgba(5, 150, 105, 0.15);
+  background: rgba(201, 162, 39, 0.1);
+  border: 1px solid rgba(201, 162, 39, 0.25);
   border-radius: 8px;
   margin-bottom: 16px;
   font-size: 0.85rem;
-  color: var(--coral);
+  color: #c9a227;
   font-weight: 500;
 }
 
@@ -273,8 +277,8 @@
   width: 100%;
   padding: 12px 20px;
   background: transparent;
-  color: var(--gray);
-  border: 1px solid var(--border);
+  color: #777;
+  border: 1px solid #444;
   border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -284,57 +288,113 @@
 }
 
 .freeButton:hover {
-  background: var(--bg-page);
-  border-color: var(--gray-light);
-  color: var(--gray-dark);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #555;
+  color: #999;
 }
 
 .proButton {
   width: 100%;
   padding: 14px 24px;
-  background: var(--coral);
-  color: white;
+  background: linear-gradient(135deg, #c9a227 0%, #e5c040 50%, #c9a227 100%);
+  background-size: 200% 100%;
+  color: #000;
   border: none;
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow:
+    0 4px 20px rgba(201, 162, 39, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .proButton:hover {
-  background: #047857;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+  box-shadow:
+    0 6px 30px rgba(201, 162, 39, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .proButton:active {
   transform: translateY(0);
 }
 
-/* Sparkle Effects - removed for clean design */
+.proButton svg {
+  animation: starPulse 2s ease-in-out infinite;
+}
+
+@keyframes starPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Sparkle Effects */
 .sparkle1,
 .sparkle2,
 .sparkle3 {
-  display: none;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #c9a227;
+  border-radius: 50%;
+  opacity: 0;
+  animation: sparkle 2s ease-in-out infinite;
+  pointer-events: none;
 }
 
-/* Lock Icon Badge for Templates */
+.sparkle1 {
+  top: 15%;
+  right: 10%;
+  animation-delay: 0s;
+}
+
+.sparkle2 {
+  top: 40%;
+  right: 5%;
+  animation-delay: 0.7s;
+}
+
+.sparkle3 {
+  bottom: 20%;
+  right: 12%;
+  animation-delay: 1.4s;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+/* Lock Icon Badge for Templates (keep from original) */
 .lockBadge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: rgba(5, 150, 105, 0.08);
-  border: 1px solid rgba(5, 150, 105, 0.2);
+  background: rgba(201, 162, 39, 0.15);
+  border: 1px solid rgba(201, 162, 39, 0.3);
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--coral);
+  color: #c9a227;
   margin-left: 8px;
 }
 

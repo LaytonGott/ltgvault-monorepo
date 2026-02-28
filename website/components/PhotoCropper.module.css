@@ -1,7 +1,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,13 +23,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .header h2 {
   font-size: 18px;
   font-weight: 600;
-  color: var(--black);
+  color: #111827;
   margin: 0;
 }
 
@@ -38,7 +38,7 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: var(--gray);
+  color: #6b7280;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -46,8 +46,8 @@
 }
 
 .closeButton:hover {
-  background: var(--bg-page);
-  color: var(--black);
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .content {
@@ -60,7 +60,7 @@
 .uploadArea {
   width: 100%;
   height: 280px;
-  border: 2px dashed var(--border);
+  border: 2px dashed #d1d5db;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -68,33 +68,33 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  background: var(--bg-page);
+  background: #fafafa;
 }
 
 .uploadArea:hover {
-  border-color: var(--coral);
-  background: rgba(5, 150, 105, 0.04);
+  border-color: #2563eb;
+  background: #eff6ff;
 }
 
 .uploadArea svg {
-  color: var(--gray-light);
+  color: #9ca3af;
   margin-bottom: 12px;
 }
 
 .uploadArea:hover svg {
-  color: var(--coral);
+  color: #2563eb;
 }
 
 .uploadArea p {
   font-size: 15px;
   font-weight: 500;
-  color: var(--gray-dark);
+  color: #374151;
   margin: 0 0 4px;
 }
 
 .uploadArea span {
   font-size: 13px;
-  color: var(--gray-light);
+  color: #9ca3af;
 }
 
 .cropContainer {
@@ -157,7 +157,7 @@
 }
 
 .controls label {
-  color: var(--gray);
+  color: #6b7280;
   display: flex;
   align-items: center;
 }
@@ -167,7 +167,7 @@
   height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: var(--border);
+  background: #e5e7eb;
   border-radius: 3px;
   outline: none;
 }
@@ -178,7 +178,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--coral);
+  background: #2563eb;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -188,7 +188,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--coral);
+  background: #2563eb;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -196,7 +196,7 @@
 
 .hint {
   font-size: 12px;
-  color: var(--gray-light);
+  color: #9ca3af;
   margin-top: 12px;
 }
 
@@ -205,16 +205,16 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
-  border-top: 1px solid var(--border);
-  background: var(--bg-page);
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
 }
 
 .cancelButton {
   padding: 10px 20px;
-  border: 1px solid var(--border);
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   background: white;
-  color: var(--gray-dark);
+  color: #374151;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -222,16 +222,16 @@
 }
 
 .cancelButton:hover {
-  background: var(--bg-page);
-  border-color: var(--gray-light);
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .changeButton {
   padding: 10px 20px;
-  border: 1px solid var(--border);
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   background: white;
-  color: var(--gray-dark);
+  color: #374151;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -239,15 +239,15 @@
 }
 
 .changeButton:hover {
-  background: var(--bg-page);
-  border-color: var(--gray-light);
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .saveButton {
   padding: 10px 24px;
   border: none;
   border-radius: 8px;
-  background: var(--coral);
+  background: #2563eb;
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -256,11 +256,11 @@
 }
 
 .saveButton:hover:not(:disabled) {
-  background: #047857;
+  background: #1d4ed8;
 }
 
 .saveButton:disabled {
-  opacity: 0.5;
+  background: #93c5fd;
   cursor: not-allowed;
 }
 
